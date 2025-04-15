@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2c5282">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Grange Naomh Colmcille CLG - Fixtures & Results 2025</title>
     <style>
         :root {
@@ -72,17 +75,15 @@
         
         .sidebar {
             width: 300px;
-            background: white;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
             overflow-y: auto;
-            z-index: 100;
-            transition: transform 0.3s ease;
+            max-height: calc(100vh - 100px);
+            position: sticky;
+            top: 0;
+            transition: all 0.3s ease;
+            z-index: 10;
         }
         
         .sidebar.collapsed {
@@ -1367,40 +1368,45 @@
             }
         }
 
+        /* Mobile Optimizations */
         @media (max-width: 768px) {
-            .header {
+            .main-content {
                 padding: 0.5rem;
+            }
+
+            .match-card {
+                padding: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .match-header {
                 flex-direction: column;
-                text-align: center;
+                gap: 0.5rem;
             }
 
-            .header-logo {
-                max-width: 60px;
-                margin: 0.5rem 0;
+            .match-header-main {
+                width: 100%;
             }
 
-            .header-text h1 {
-                font-size: 1.5rem;
-                margin: 0.5rem 0;
+            .match-teams {
+                font-size: 1.1rem;
             }
 
-            .header-text p {
-                font-size: 1rem;
-                margin: 0;
+            .match-time {
+                font-size: 0.9rem;
+            }
+
+            .match-venue {
+                font-size: 0.9rem;
             }
 
             .controls {
                 padding: 0.75rem;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                background: white;
             }
 
             .filter-row {
                 flex-direction: column;
                 gap: 0.5rem;
-                width: 100%;
             }
 
             .filter-row > * {
@@ -1409,91 +1415,96 @@
             }
 
             .search-container {
-                max-width: 100%;
-                margin-bottom: 0.5rem;
-            }
-
-            .search-container input {
                 width: 100%;
-                padding: 0.75rem;
-                font-size: 1rem;
             }
 
             .date-range {
                 flex-direction: column;
                 gap: 0.5rem;
-                width: 100%;
             }
 
             .date-range input {
                 width: 100%;
-                padding: 0.75rem;
-                font-size: 1rem;
             }
 
-            select {
+            .sidebar {
                 width: 100%;
-                padding: 0.75rem;
-                font-size: 1rem;
-                -webkit-appearance: none;
-                -moz-appearance: none;
-                appearance: none;
-                background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-                background-repeat: no-repeat;
-                background-position: right 0.75rem center;
-                background-size: 1rem;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
             }
 
-            .controls.collapsed {
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-toggle {
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 1001;
+            }
+
+            .match-details {
                 padding: 0.5rem;
             }
 
-            .controls.collapsed .filter-row {
-                display: none;
+            .match-details-row {
+                flex-direction: column;
+                gap: 0.25rem;
             }
 
-            .controls.collapsed .search-container {
-                max-width: 100%;
-                margin-bottom: 0;
+            .match-details-label {
+                width: 100%;
             }
 
-            .controls-toggle {
-                position: static;
-                transform: none;
-                margin: 0.5rem auto;
-                display: block;
-                width: 40px;
-                height: 40px;
+            .match-details-value {
+                width: 100%;
             }
 
-            .controls-toggle i {
-                font-size: 1.2rem;
+            /* Improve touch targets */
+            button, 
+            select, 
+            input[type="text"],
+            .match-card {
+                min-height: 44px;
+            }
+
+            /* Add pull-to-refresh styling */
+            body {
+                overscroll-behavior-y: contain;
+            }
+
+            /* Improve scrolling performance */
+            .main-content {
+                -webkit-overflow-scrolling: touch;
             }
         }
 
+        /* Small mobile devices */
         @media (max-width: 480px) {
-            .header-logo {
-                max-width: 50px;
+            .match-teams {
+                font-size: 1rem;
             }
 
-            .header-text h1 {
-                font-size: 1.25rem;
+            .match-time {
+                font-size: 0.8rem;
             }
 
-            .team-stats {
-                grid-template-columns: 1fr;
+            .match-venue {
+                font-size: 0.8rem;
             }
 
-            .match-card {
+            .controls {
                 padding: 0.5rem;
             }
 
-            .match-teams {
-                font-size: 0.9rem;
-            }
-
-            .match-score {
-                font-size: 1.1rem;
+            .filter-row > * {
+                margin-bottom: 0.25rem;
             }
         }
     </style>
@@ -2824,106 +2835,92 @@ END:VCALENDAR`;
             lastScrollTop = scrollTop;
         });
 
-        // Add touch handling for mobile
-        document.addEventListener('DOMContentLoaded', function() {
-            let touchStartY = 0;
-            let touchEndY = 0;
-            
-            document.addEventListener('touchstart', function(e) {
-                touchStartY = e.touches[0].clientY;
+        // Mobile optimizations
+        function initMobileOptimizations() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            // Handle swipe gestures for sidebar
+            document.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
             }, false);
-            
-            document.addEventListener('touchend', function(e) {
-                touchEndY = e.changedTouches[0].clientY;
+
+            document.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
                 handleSwipe();
             }, false);
-            
-            function handleSwipe() {
-                const swipeDistance = touchEndY - touchStartY;
-                const controls = document.querySelector('.controls');
-                
-                if (Math.abs(swipeDistance) > 50) { // Minimum swipe distance
-                    if (swipeDistance > 0) { // Swipe down
-                        controls.classList.remove('collapsed');
-                    } else { // Swipe up
-                        controls.classList.add('collapsed');
-                    }
-                }
-            }
-            
-            // Prevent double-tap zoom on buttons
-            document.querySelectorAll('button, select, input').forEach(element => {
-                element.addEventListener('touchend', function(e) {
-                    e.preventDefault();
-                });
-            });
-        });
 
-        // Update the displayMatches function to default to today's date
-        function displayMatches(matches) {
-            const container = document.getElementById('matches-container');
-            container.innerHTML = '';
-            
-            // Sort matches chronologically
-            const sortedMatches = [...matches].sort((a, b) => {
-                return new Date(a.date) - new Date(b.date);
-            });
-            
-            // Group matches by date
-            const matchesByDate = {};
-            sortedMatches.forEach(match => {
-                const date = match.date;
-                if (!matchesByDate[date]) {
-                    matchesByDate[date] = [];
-                }
-                matchesByDate[date].push(match);
-            });
-            
-            // Get today's date
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            // Find the closest date to today
-            let closestDate = null;
-            let minDiff = Infinity;
-            
-            Object.keys(matchesByDate).forEach(date => {
-                const matchDate = new Date(date);
-                matchDate.setHours(0, 0, 0, 0);
-                const diff = Math.abs(matchDate - today);
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    closestDate = date;
-                }
-            });
-            
-            // Create date sections
-            Object.keys(matchesByDate).sort((a, b) => new Date(a) - new Date(b)).forEach(date => {
-                const dateSection = document.createElement('div');
-                dateSection.className = 'date-section';
-                
-                const dateHeader = document.createElement('div');
-                dateHeader.className = 'date-header';
-                dateHeader.textContent = formatDate(date);
-                dateSection.appendChild(dateHeader);
-                
-                matchesByDate[date].forEach(match => {
-                    dateSection.appendChild(createMatchCard(match));
-                });
-                
-                container.appendChild(dateSection);
-            });
-            
-            // Scroll to the closest date section
-            if (closestDate) {
-                const dateSections = document.querySelectorAll('.date-section');
-                dateSections.forEach(section => {
-                    if (section.querySelector('.date-header').textContent === formatDate(closestDate)) {
-                        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            function handleSwipe() {
+                const swipeThreshold = 100;
+                const swipeDistance = touchEndX - touchStartX;
+
+                if (Math.abs(swipeDistance) > swipeThreshold) {
+                    if (swipeDistance > 0) {
+                        // Swipe right - open sidebar
+                        sidebar.classList.add('active');
+                    } else {
+                        // Swipe left - close sidebar
+                        sidebar.classList.remove('active');
                     }
-                });
+                }
             }
+
+            // Close sidebar when clicking outside
+            document.addEventListener('click', e => {
+                if (sidebar.classList.contains('active') && 
+                    !sidebar.contains(e.target) && 
+                    !sidebarToggle.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+
+            // Prevent body scroll when sidebar is open
+            sidebar.addEventListener('transitionend', () => {
+                if (sidebar.classList.contains('active')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // Add pull-to-refresh functionality
+            let touchStartY = 0;
+            let pullDistance = 0;
+            const pullThreshold = 100;
+
+            document.addEventListener('touchstart', e => {
+                if (window.scrollY === 0) {
+                    touchStartY = e.touches[0].clientY;
+                }
+            });
+
+            document.addEventListener('touchmove', e => {
+                if (window.scrollY === 0 && touchStartY > 0) {
+                    pullDistance = e.touches[0].clientY - touchStartY;
+                    if (pullDistance > 0) {
+                        e.preventDefault();
+                        document.body.style.transform = `translateY(${pullDistance}px)`;
+                    }
+                }
+            });
+
+            document.addEventListener('touchend', () => {
+                if (pullDistance > pullThreshold) {
+                    // Trigger refresh
+                    location.reload();
+                }
+                document.body.style.transform = '';
+                touchStartY = 0;
+                pullDistance = 0;
+            });
         }
+
+        // Initialize mobile optimizations
+        document.addEventListener('DOMContentLoaded', () => {
+            initMobileOptimizations();
+        });
     </script>
 </body>
 </html>
