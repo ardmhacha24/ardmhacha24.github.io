@@ -72,15 +72,17 @@
         
         .sidebar {
             width: 300px;
-            background-color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: white;
             padding: 1rem;
-            overflow-y: auto;
-            max-height: calc(100vh - 100px);
-            position: sticky;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            left: 0;
             top: 0;
-            transition: all 0.3s ease;
-            z-index: 10;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s ease;
         }
         
         .sidebar.collapsed {
