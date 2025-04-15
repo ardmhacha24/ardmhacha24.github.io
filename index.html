@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Grange Naomh Colmcille CLG - Fixtures & Results 2025</title>
     <style>
         :root {
@@ -1364,6 +1364,157 @@
                 width: 100%;
             }
         }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.5rem;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-logo {
+                max-width: 60px;
+                margin: 0.5rem 0;
+            }
+
+            .header-text h1 {
+                font-size: 1.5rem;
+                margin: 0.5rem 0;
+            }
+
+            .header-text p {
+                font-size: 1rem;
+                margin: 0;
+            }
+
+            .controls {
+                padding: 0.75rem;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .filter-row > * {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+
+            .date-range {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .date-range input {
+                width: 100%;
+            }
+
+            .controls.collapsed {
+                padding: 0.5rem;
+            }
+
+            .controls.collapsed .search-container {
+                max-width: 100%;
+            }
+
+            .controls-toggle {
+                position: static;
+                transform: none;
+                margin: 0.5rem auto;
+                display: block;
+            }
+
+            .match-card {
+                padding: 0.75rem;
+            }
+
+            .match-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .match-header-main {
+                text-align: center;
+            }
+
+            .match-time {
+                font-size: 0.9rem;
+            }
+
+            .match-details {
+                padding: 0.75rem;
+            }
+
+            .match-teams {
+                font-size: 1rem;
+            }
+
+            .match-score {
+                font-size: 1.2rem;
+            }
+
+            .match-venue {
+                font-size: 0.9rem;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: static;
+                margin-top: 1rem;
+            }
+
+            .sidebar-toggle {
+                display: none;
+            }
+
+            .team-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .team-stat-item {
+                padding: 0.5rem;
+            }
+
+            .team-stat-label {
+                font-size: 0.8rem;
+            }
+
+            .team-stat-value {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-logo {
+                max-width: 50px;
+            }
+
+            .header-text h1 {
+                font-size: 1.25rem;
+            }
+
+            .team-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .match-card {
+                padding: 0.5rem;
+            }
+
+            .match-teams {
+                font-size: 0.9rem;
+            }
+
+            .match-score {
+                font-size: 1.1rem;
+            }
+        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1373,12 +1524,12 @@
 </head>
 <body>
     <header>
-        <img src="./assets/IMG_9120.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
+        <img src="IMG_9120.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
         <div class="header-text">
         <h1>Grange Naomh Colmcille CLG</h1>
         <p>Fixtures & Results 2025</p>
         </div>
-        <img src="./assets/IMG_9120.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
+        <img src="IMG_9120.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
     </header>
     
     <div class="main-content">
@@ -2690,6 +2841,41 @@ END:VCALENDAR`;
             }
             
             lastScrollTop = scrollTop;
+        });
+
+        // Add touch handling for mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            let touchStartY = 0;
+            let touchEndY = 0;
+            
+            document.addEventListener('touchstart', function(e) {
+                touchStartY = e.touches[0].clientY;
+            }, false);
+            
+            document.addEventListener('touchend', function(e) {
+                touchEndY = e.changedTouches[0].clientY;
+                handleSwipe();
+            }, false);
+            
+            function handleSwipe() {
+                const swipeDistance = touchEndY - touchStartY;
+                const controls = document.querySelector('.controls');
+                
+                if (Math.abs(swipeDistance) > 50) { // Minimum swipe distance
+                    if (swipeDistance > 0) { // Swipe down
+                        controls.classList.remove('collapsed');
+                    } else { // Swipe up
+                        controls.classList.add('collapsed');
+                    }
+                }
+            }
+            
+            // Prevent double-tap zoom on buttons
+            document.querySelectorAll('button, select, input').forEach(element => {
+                element.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                });
+            });
         });
     </script>
 </body>
