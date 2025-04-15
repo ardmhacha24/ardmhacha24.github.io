@@ -1391,11 +1391,16 @@
 
             .controls {
                 padding: 0.75rem;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: white;
             }
 
             .filter-row {
                 flex-direction: column;
                 gap: 0.5rem;
+                width: 100%;
             }
 
             .filter-row > * {
@@ -1405,23 +1410,51 @@
 
             .search-container {
                 max-width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .search-container input {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 1rem;
             }
 
             .date-range {
                 flex-direction: column;
                 gap: 0.5rem;
+                width: 100%;
             }
 
             .date-range input {
                 width: 100%;
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+
+            select {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 1rem;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right 0.75rem center;
+                background-size: 1rem;
             }
 
             .controls.collapsed {
                 padding: 0.5rem;
             }
 
+            .controls.collapsed .filter-row {
+                display: none;
+            }
+
             .controls.collapsed .search-container {
                 max-width: 100%;
+                margin-bottom: 0;
             }
 
             .controls-toggle {
@@ -1429,66 +1462,12 @@
                 transform: none;
                 margin: 0.5rem auto;
                 display: block;
+                width: 40px;
+                height: 40px;
             }
 
-            .match-card {
-                padding: 0.75rem;
-            }
-
-            .match-header {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .match-header-main {
-                text-align: center;
-            }
-
-            .match-time {
-                font-size: 0.9rem;
-            }
-
-            .match-details {
-                padding: 0.75rem;
-            }
-
-            .match-teams {
-                font-size: 1rem;
-            }
-
-            .match-score {
+            .controls-toggle i {
                 font-size: 1.2rem;
-            }
-
-            .match-venue {
-                font-size: 0.9rem;
-            }
-
-            .sidebar {
-                width: 100%;
-                position: static;
-                margin-top: 1rem;
-            }
-
-            .sidebar-toggle {
-                display: none;
-            }
-
-            .team-stats {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.5rem;
-            }
-
-            .team-stat-item {
-                padding: 0.5rem;
-            }
-
-            .team-stat-label {
-                font-size: 0.8rem;
-            }
-
-            .team-stat-value {
-                font-size: 1rem;
             }
         }
 
@@ -2879,6 +2858,72 @@ END:VCALENDAR`;
                 });
             });
         });
+
+        // Update the displayMatches function to default to today's date
+        function displayMatches(matches) {
+            const container = document.getElementById('matches-container');
+            container.innerHTML = '';
+            
+            // Sort matches chronologically
+            const sortedMatches = [...matches].sort((a, b) => {
+                return new Date(a.date) - new Date(b.date);
+            });
+            
+            // Group matches by date
+            const matchesByDate = {};
+            sortedMatches.forEach(match => {
+                const date = match.date;
+                if (!matchesByDate[date]) {
+                    matchesByDate[date] = [];
+                }
+                matchesByDate[date].push(match);
+            });
+            
+            // Get today's date
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Find the closest date to today
+            let closestDate = null;
+            let minDiff = Infinity;
+            
+            Object.keys(matchesByDate).forEach(date => {
+                const matchDate = new Date(date);
+                matchDate.setHours(0, 0, 0, 0);
+                const diff = Math.abs(matchDate - today);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestDate = date;
+                }
+            });
+            
+            // Create date sections
+            Object.keys(matchesByDate).sort((a, b) => new Date(a) - new Date(b)).forEach(date => {
+                const dateSection = document.createElement('div');
+                dateSection.className = 'date-section';
+                
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'date-header';
+                dateHeader.textContent = formatDate(date);
+                dateSection.appendChild(dateHeader);
+                
+                matchesByDate[date].forEach(match => {
+                    dateSection.appendChild(createMatchCard(match));
+                });
+                
+                container.appendChild(dateSection);
+            });
+            
+            // Scroll to the closest date section
+            if (closestDate) {
+                const dateSections = document.querySelectorAll('.date-section');
+                dateSections.forEach(section => {
+                    if (section.querySelector('.date-header').textContent === formatDate(closestDate)) {
+                        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>
