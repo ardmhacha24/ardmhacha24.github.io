@@ -148,6 +148,20 @@
             border-radius: var(--border-radius);
             padding: var(--spacing-md);
             box-shadow: var(--shadow);
+            border-left: 4px solid var(--border);
+            transition: transform 0.2s ease;
+        }
+
+        .match-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .match-card.completed {
+            border-left-color: var(--success);
+        }
+
+        .match-card.upcoming {
+            border-left-color: var(--warning);
         }
 
         .match-card__header {
@@ -156,6 +170,8 @@
             margin-bottom: var(--spacing-sm);
             font-size: 0.9rem;
             color: var(--text-light);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: var(--spacing-sm);
         }
 
         .match-card__teams {
@@ -164,11 +180,17 @@
             justify-content: space-between;
             margin: var(--spacing-md) 0;
             gap: var(--spacing-md);
+            padding: var(--spacing-sm) 0;
         }
 
         .match-card__team {
             text-align: center;
             flex: 1;
+        }
+
+        .match-card__team div:first-child {
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
         }
 
         .match-card__score {
@@ -179,12 +201,34 @@
 
         .match-card__vs {
             color: var(--text-light);
+            font-size: 0.9rem;
         }
 
         .match-card__footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: 0.9rem;
             color: var(--text-light);
+            border-top: 1px solid var(--border);
+            padding-top: var(--spacing-sm);
+        }
+
+        .match-card__status {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background-color: var(--warning);
+            color: #856404;
+        }
+
+        .no-matches {
             text-align: center;
+            padding: var(--spacing-xl);
+            background: var(--white);
+            border-radius: var(--border-radius);
+            color: var(--text-light);
         }
 
         /* Responsive Design */
@@ -216,6 +260,27 @@
         @media (min-width: 1024px) {
             .header__title h1 {
                 font-size: 1.8rem;
+            }
+        }
+
+        /* Additional responsive improvements */
+        @media (max-width: 480px) {
+            .match-card__header {
+                flex-direction: column;
+                gap: var(--spacing-xs);
+            }
+
+            .match-card__teams {
+                flex-direction: column;
+                gap: var(--spacing-sm);
+            }
+
+            .match-card__vs {
+                font-size: 0.8rem;
+            }
+
+            .match-card__score {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -288,7 +353,177 @@
     </main>
 
     <script>
-        // JavaScript will be added here
+        // Fixtures Data
+        const fixtures = [
+            {
+                id: 1,
+                competition: "Senior Championship",
+                date: "2025-04-20",
+                homeTeam: "Grange",
+                awayTeam: "St. Mary's",
+                homeScore: "2-15",
+                awayScore: "1-12",
+                venue: "Grange Park",
+                status: "completed",
+                category: "Senior"
+            },
+            {
+                id: 2,
+                competition: "Senior League Division 1",
+                date: "2025-05-01",
+                homeTeam: "Grange",
+                awayTeam: "Bundoran",
+                venue: "Gaelic Park",
+                status: "upcoming",
+                category: "Senior"
+            },
+            {
+                id: 3,
+                competition: "U21 Championship",
+                date: "2025-05-15",
+                homeTeam: "Grange",
+                awayTeam: "Aodh Ruadh",
+                venue: "Fr. Tierney Park",
+                status: "upcoming",
+                category: "U21"
+            },
+            {
+                id: 4,
+                competition: "Minor Championship",
+                date: "2025-05-08",
+                homeTeam: "Four Masters",
+                awayTeam: "Grange",
+                homeScore: "0-12",
+                awayScore: "2-08",
+                venue: "Tir Conaill Park",
+                status: "completed",
+                category: "Minor"
+            },
+            {
+                id: 5,
+                competition: "Senior League Division 1",
+                date: "2025-05-22",
+                homeTeam: "Grange",
+                awayTeam: "Kilcar",
+                venue: "Grange Park",
+                status: "upcoming",
+                category: "Senior"
+            }
+        ];
+
+        // Helper function to format dates
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-IE', options);
+        }
+
+        // Function to render match cards
+        function renderMatchCards(matches = fixtures) {
+            const matchList = document.querySelector('.match-list');
+            matchList.innerHTML = matches.length ? '' : '<div class="no-matches">No matches found</div>';
+            
+            matches.forEach(match => {
+                const matchCard = document.createElement('div');
+                matchCard.className = `match-card ${match.status}`;
+                
+                matchCard.innerHTML = `
+                    <div class="match-card__header">
+                        <span>${match.competition}</span>
+                        <span>${formatDate(match.date)}</span>
+                    </div>
+                    <div class="match-card__teams">
+                        <div class="match-card__team">
+                            <div>${match.homeTeam}</div>
+                            ${match.status === 'completed' ? 
+                                `<div class="match-card__score">${match.homeScore}</div>` : 
+                                ''}
+                        </div>
+                        <div class="match-card__vs">vs</div>
+                        <div class="match-card__team">
+                            <div>${match.awayTeam}</div>
+                            ${match.status === 'completed' ? 
+                                `<div class="match-card__score">${match.awayScore}</div>` : 
+                                ''}
+                        </div>
+                    </div>
+                    <div class="match-card__footer">
+                        <div>Venue: ${match.venue}</div>
+                        ${match.status === 'upcoming' ? 
+                            `<div class="match-card__status">Upcoming</div>` : 
+                            ''}
+                    </div>
+                `;
+                
+                matchList.appendChild(matchCard);
+            });
+        }
+
+        // Function to populate filter options
+        function populateFilters() {
+            // Get unique values for each filter
+            const teams = [...new Set(fixtures.flatMap(match => [match.homeTeam, match.awayTeam]))];
+            const competitions = [...new Set(fixtures.map(match => match.competition))];
+            
+            // Populate team filter
+            const teamFilter = document.getElementById('team-filter');
+            teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                teamFilter.appendChild(option);
+            });
+            
+            // Populate competition filter
+            const competitionFilter = document.getElementById('competition-filter');
+            competitions.forEach(competition => {
+                const option = document.createElement('option');
+                option.value = competition;
+                option.textContent = competition;
+                competitionFilter.appendChild(option);
+            });
+        }
+
+        // Function to handle filtering
+        function handleFilters() {
+            const teamFilter = document.getElementById('team-filter').value;
+            const competitionFilter = document.getElementById('competition-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            const searchInput = document.querySelector('.search-bar input').value.toLowerCase();
+            
+            let filteredMatches = fixtures.filter(match => {
+                const matchesTeam = teamFilter === 'all' || 
+                    match.homeTeam === teamFilter || 
+                    match.awayTeam === teamFilter;
+                    
+                const matchesCompetition = competitionFilter === 'all' || 
+                    match.competition === competitionFilter;
+                    
+                const matchesStatus = statusFilter === 'all' || 
+                    match.status === statusFilter;
+                    
+                const matchesSearch = searchInput === '' || 
+                    match.homeTeam.toLowerCase().includes(searchInput) ||
+                    match.awayTeam.toLowerCase().includes(searchInput) ||
+                    match.competition.toLowerCase().includes(searchInput) ||
+                    match.venue.toLowerCase().includes(searchInput);
+                    
+                return matchesTeam && matchesCompetition && matchesStatus && matchesSearch;
+            });
+            
+            renderMatchCards(filteredMatches);
+        }
+
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMatchCards();
+            populateFilters();
+            
+            // Add filter event listeners
+            document.getElementById('team-filter').addEventListener('change', handleFilters);
+            document.getElementById('competition-filter').addEventListener('change', handleFilters);
+            document.getElementById('status-filter').addEventListener('change', handleFilters);
+            document.querySelector('.search-bar input').addEventListener('input', handleFilters);
+        });
     </script>
 </body>
 </html>
