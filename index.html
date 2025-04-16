@@ -156,22 +156,58 @@
             transform: translateY(-2px);
         }
 
-        .match-card.completed {
+        .match-card.win {
             border-left-color: var(--success);
         }
 
-        .match-card.upcoming {
+        .match-card.loss {
+            border-left-color: var(--danger);
+        }
+
+        .match-card.draw {
             border-left-color: var(--warning);
+        }
+
+        .match-card.upcoming {
+            border-left-color: var(--primary);
         }
 
         .match-card__header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: var(--spacing-sm);
-            font-size: 0.9rem;
-            color: var(--text-light);
-            border-bottom: 1px solid var(--border);
+            margin-bottom: var(--spacing-md);
             padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .match-card__competition {
+            font-size: 0.9rem;
+        }
+
+        .match-card__competition div:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .match-card__category {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin-top: 2px;
+        }
+
+        .match-card__date-time {
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        .match-card__date-time div:first-child {
+            color: var(--text);
+        }
+
+        .match-card__date-time div:last-child {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin-top: 2px;
         }
 
         .match-card__teams {
@@ -179,8 +215,7 @@
             align-items: center;
             justify-content: space-between;
             margin: var(--spacing-md) 0;
-            gap: var(--spacing-md);
-            padding: var(--spacing-sm) 0;
+            gap: var(--spacing-lg);
         }
 
         .match-card__team {
@@ -188,9 +223,10 @@
             flex: 1;
         }
 
-        .match-card__team div:first-child {
+        .team-name {
             font-weight: 600;
             margin-bottom: var(--spacing-xs);
+            color: var(--text);
         }
 
         .match-card__score {
@@ -202,23 +238,45 @@
         .match-card__vs {
             color: var(--text-light);
             font-size: 0.9rem;
+            flex-shrink: 0;
         }
 
         .match-card__footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.9rem;
-            color: var(--text-light);
-            border-top: 1px solid var(--border);
+            margin-top: var(--spacing-md);
             padding-top: var(--spacing-sm);
+            border-top: 1px solid var(--border);
+            font-size: 0.9rem;
         }
 
-        .match-card__status {
+        .match-card__venue {
+            color: var(--text-light);
+        }
+
+        .match-card__venue i {
+            margin-right: 4px;
+        }
+
+        .match-card__result {
             padding: var(--spacing-xs) var(--spacing-sm);
             border-radius: 12px;
             font-size: 0.8rem;
             font-weight: 600;
+        }
+
+        .match-card__result.win {
+            background-color: var(--success);
+            color: #155724;
+        }
+
+        .match-card__result.loss {
+            background-color: var(--danger);
+            color: #721c24;
+        }
+
+        .match-card__result.draw {
             background-color: var(--warning);
             color: #856404;
         }
@@ -270,9 +328,14 @@
                 gap: var(--spacing-xs);
             }
 
+            .match-card__date-time {
+                text-align: left;
+                margin-top: var(--spacing-xs);
+            }
+
             .match-card__teams {
                 flex-direction: column;
-                gap: var(--spacing-sm);
+                gap: var(--spacing-md);
             }
 
             .match-card__vs {
@@ -281,6 +344,16 @@
 
             .match-card__score {
                 font-size: 1.2rem;
+            }
+
+            .match-card__footer {
+                flex-direction: column;
+                gap: var(--spacing-sm);
+                align-items: flex-start;
+            }
+
+            .match-card__result {
+                align-self: flex-end;
             }
         }
     </style>
@@ -353,68 +426,55 @@
     </main>
 
     <script>
+        // Parse CSV string to array of fixture objects
+        function parseCSV(csv) {
+            const lines = csv.split('\n');
+            const headers = lines[0].split(',');
+            
+            return lines.slice(1).map(line => {
+                const values = line.split(',');
+                const fixture = {};
+                headers.forEach((header, index) => {
+                    fixture[header.trim()] = values[index] ? values[index].trim() : '';
+                });
+                return fixture;
+            });
+        }
+
         // Fixtures Data
-        const fixtures = [
-            {
-                id: 1,
-                competition: "Senior Championship",
-                date: "2025-04-20",
-                homeTeam: "Grange",
-                awayTeam: "St. Mary's",
-                homeScore: "2-15",
-                awayScore: "1-12",
-                venue: "Grange Park",
-                status: "completed",
-                category: "Senior"
-            },
-            {
-                id: 2,
-                competition: "Senior League Division 1",
-                date: "2025-05-01",
-                homeTeam: "Grange",
-                awayTeam: "Bundoran",
-                venue: "Gaelic Park",
-                status: "upcoming",
-                category: "Senior"
-            },
-            {
-                id: 3,
-                competition: "U21 Championship",
-                date: "2025-05-15",
-                homeTeam: "Grange",
-                awayTeam: "Aodh Ruadh",
-                venue: "Fr. Tierney Park",
-                status: "upcoming",
-                category: "U21"
-            },
-            {
-                id: 4,
-                competition: "Minor Championship",
-                date: "2025-05-08",
-                homeTeam: "Four Masters",
-                awayTeam: "Grange",
-                homeScore: "0-12",
-                awayScore: "2-08",
-                venue: "Tir Conaill Park",
-                status: "completed",
-                category: "Minor"
-            },
-            {
-                id: 5,
-                competition: "Senior League Division 1",
-                date: "2025-05-22",
-                homeTeam: "Grange",
-                awayTeam: "Kilcar",
-                venue: "Grange Park",
-                status: "upcoming",
-                category: "Senior"
-            }
-        ];
+        const fixturesCSV = `Date,Competition,Sex,Round,Team,Where,Result,Home Team,Home Score,Away Team,Away Score,Venue,Time,Referee,Fixture Src,Fixture ID,Calendar Sync,Calendar Event ID
+Mon 31 Mar 25,Minor Div 3 League,Girls,Round 1,Minor Girls,HOME,LOSS,Grange Naomh Colmcille CLG,2-10,Shamrock Gaels,6-9,Grange St Colmcille's,6:45 PM,Leo Dougan,url,GFAS-25-024B,RESULT,jkrhk4igrk3qcfbfteoqclvq5c
+Thu 03 Apr 25,U16 Div 5 League,Girls,Round 1,U16 Girls,HOME,WIN,Grange Naomh Colmcille CLG,11-7,Naomh Peadar,4-6,Grange St Colmcille's,6:45 PM,Ronan Gildernew,url,GFAS-25-9339,RESULT,auqq9chl1shoeuvbkon4m598j0
+[... rest of the CSV data ...]`;
+
+        const fixtures = parseCSV(fixturesCSV);
 
         // Helper function to format dates
-        function formatDate(dateString) {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return new Date(dateString).toLocaleDateString('en-IE', options);
+        function formatDate(dateStr) {
+            const months = {
+                'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+                'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+            };
+            
+            const [day, month, year] = dateStr.split(' ');
+            const monthNum = months[month];
+            const date = new Date(year, monthNum, parseInt(day.replace(/\D/g, '')));
+            
+            return date.toLocaleDateString('en-IE', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Function to determine match status
+        function getMatchStatus(fixture) {
+            if (fixture.Result === '---') return 'upcoming';
+            if (fixture.Result === 'WIN') return 'win';
+            if (fixture.Result === 'LOSS') return 'loss';
+            if (fixture.Result === 'DRAW') return 'draw';
+            return 'upcoming';
         }
 
         // Function to render match cards
@@ -424,32 +484,41 @@
             
             matches.forEach(match => {
                 const matchCard = document.createElement('div');
-                matchCard.className = `match-card ${match.status}`;
+                const status = getMatchStatus(match);
+                matchCard.className = `match-card ${status}`;
                 
                 matchCard.innerHTML = `
                     <div class="match-card__header">
-                        <span>${match.competition}</span>
-                        <span>${formatDate(match.date)}</span>
+                        <div class="match-card__competition">
+                            <div>${match.Competition}</div>
+                            <div class="match-card__category">${match.Team}</div>
+                        </div>
+                        <div class="match-card__date-time">
+                            <div>${formatDate(match.Date)}</div>
+                            <div>${match.Time}</div>
+                        </div>
                     </div>
                     <div class="match-card__teams">
                         <div class="match-card__team">
-                            <div>${match.homeTeam}</div>
-                            ${match.status === 'completed' ? 
-                                `<div class="match-card__score">${match.homeScore}</div>` : 
+                            <div class="team-name">${match['Home Team']}</div>
+                            ${match['Home Score'] ? 
+                                `<div class="match-card__score">${match['Home Score']}</div>` : 
                                 ''}
                         </div>
                         <div class="match-card__vs">vs</div>
                         <div class="match-card__team">
-                            <div>${match.awayTeam}</div>
-                            ${match.status === 'completed' ? 
-                                `<div class="match-card__score">${match.awayScore}</div>` : 
+                            <div class="team-name">${match['Away Team']}</div>
+                            ${match['Away Score'] ? 
+                                `<div class="match-card__score">${match['Away Score']}</div>` : 
                                 ''}
                         </div>
                     </div>
                     <div class="match-card__footer">
-                        <div>Venue: ${match.venue}</div>
-                        ${match.status === 'upcoming' ? 
-                            `<div class="match-card__status">Upcoming</div>` : 
+                        <div class="match-card__venue">
+                            <i class="fas fa-map-marker-alt"></i> ${match.Venue}
+                        </div>
+                        ${status !== 'upcoming' ? 
+                            `<div class="match-card__result ${status}">${match.Result}</div>` : 
                             ''}
                     </div>
                 `;
@@ -461,8 +530,8 @@
         // Function to populate filter options
         function populateFilters() {
             // Get unique values for each filter
-            const teams = [...new Set(fixtures.flatMap(match => [match.homeTeam, match.awayTeam]))];
-            const competitions = [...new Set(fixtures.map(match => match.competition))];
+            const teams = [...new Set(fixtures.map(match => match.Team))];
+            const competitions = [...new Set(fixtures.map(match => match.Competition))];
             
             // Populate team filter
             const teamFilter = document.getElementById('team-filter');
@@ -491,21 +560,18 @@
             const searchInput = document.querySelector('.search-bar input').value.toLowerCase();
             
             let filteredMatches = fixtures.filter(match => {
-                const matchesTeam = teamFilter === 'all' || 
-                    match.homeTeam === teamFilter || 
-                    match.awayTeam === teamFilter;
-                    
-                const matchesCompetition = competitionFilter === 'all' || 
-                    match.competition === competitionFilter;
-                    
+                const matchesTeam = teamFilter === 'all' || match.Team === teamFilter;
+                const matchesCompetition = competitionFilter === 'all' || match.Competition === competitionFilter;
                 const matchesStatus = statusFilter === 'all' || 
-                    match.status === statusFilter;
-                    
+                    (statusFilter === 'upcoming' && match.Result === '---') ||
+                    (statusFilter === 'completed' && match.Result !== '---');
+                
                 const matchesSearch = searchInput === '' || 
-                    match.homeTeam.toLowerCase().includes(searchInput) ||
-                    match.awayTeam.toLowerCase().includes(searchInput) ||
-                    match.competition.toLowerCase().includes(searchInput) ||
-                    match.venue.toLowerCase().includes(searchInput);
+                    match['Home Team'].toLowerCase().includes(searchInput) ||
+                    match['Away Team'].toLowerCase().includes(searchInput) ||
+                    match.Competition.toLowerCase().includes(searchInput) ||
+                    match.Venue.toLowerCase().includes(searchInput) ||
+                    match.Team.toLowerCase().includes(searchInput);
                     
                 return matchesTeam && matchesCompetition && matchesStatus && matchesSearch;
             });
