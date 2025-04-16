@@ -1366,8 +1366,13 @@
 
         /* Mobile sidebar styles */
         @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
             .sidebar {
-                display: none; /* Hide by default on mobile */
+                display: none;
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -1384,35 +1389,27 @@
                 display: block;
             }
 
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.5);
-                z-index: 999;
-            }
-
-            .sidebar-overlay.active {
-                display: block;
-            }
-
             .sidebar-toggle {
-                display: block;
+                display: block !important; /* Force display on mobile */
                 position: fixed;
                 top: 1rem;
                 right: 1rem;
-                z-index: 100;
+                z-index: 990;
                 background-color: var(--primary);
                 color: white;
                 border: none;
                 border-radius: 50%;
-                width: 40px;
-                height: 40px;
+                width: 44px;
+                height: 44px;
                 cursor: pointer;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .sidebar-toggle i {
+                font-size: 1.5rem;
             }
 
             .sidebar-close {
@@ -1423,16 +1420,31 @@
                 color: white;
                 border: none;
                 border-radius: 50%;
-                width: 40px;
-                height: 40px;
+                width: 44px;
+                height: 44px;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
 
-            .main-content {
-                margin-left: 0;
+            .sidebar-close i {
+                font-size: 1.5rem;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 989;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
             }
         }
     </style>
@@ -1452,18 +1464,16 @@
         <img src="assets/IMG_9120-WHITE.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
     </header>
 
-    <!-- Add sidebar toggle button for mobile -->
-    <button class="sidebar-toggle" id="sidebarToggle" style="display: none;">
+    <!-- Move toggle button here, right after header -->
+    <button class="sidebar-toggle" id="sidebarToggle">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Add overlay for mobile sidebar -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <div class="main-content">
         <div class="sidebar" id="sidebar">
-            <!-- Add close button for mobile -->
-            <button class="sidebar-close" id="sidebarClose" style="display: none;">
+            <button class="sidebar-close" id="sidebarClose">
                 <i class="fas fa-times"></i>
             </button>
             <div class="sidebar-header">
@@ -2785,9 +2795,6 @@ END:VCALENDAR`;
             // Show/hide mobile controls based on screen size
             function updateMobileControls() {
                 const isMobile = window.innerWidth <= 768;
-                toggleBtn.style.display = isMobile ? 'block' : 'none';
-                closeBtn.style.display = isMobile ? 'block' : 'none';
-                
                 if (!isMobile) {
                     sidebar.classList.remove('active');
                     overlay.classList.remove('active');
@@ -2797,6 +2804,7 @@ END:VCALENDAR`;
 
             // Toggle sidebar
             toggleBtn.addEventListener('click', () => {
+                console.log('Toggle button clicked'); // Debug log
                 sidebar.classList.add('active');
                 overlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
@@ -2819,11 +2827,12 @@ END:VCALENDAR`;
             updateMobileControls();
         }
 
-        // Call this function when the DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
+        // Make sure this runs after DOM is loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initMobileSidebar);
+        } else {
             initMobileSidebar();
-            // ... your other init code ...
-        });
+        }
     </script>
 </body>
 </html>
