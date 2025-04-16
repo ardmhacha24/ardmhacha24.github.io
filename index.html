@@ -35,7 +35,7 @@
         }
         
         header {
-            background-color: red;
+            background-color: var(--primary);
             color: white;
             padding: 1rem;
             text-align: center;
@@ -72,95 +72,15 @@
         
         .sidebar {
             width: 300px;
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            height: fit-content;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 100px);
             position: sticky;
-            top: 1rem;
-        }
-
-        .mobile-sidebar-toggle {
-            display: none;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
+            top: 0;
             transition: all 0.3s ease;
-            margin-left: 1rem;
-        }
-
-        .mobile-sidebar-toggle:hover {
-            background: var(--primary-dark);
-            transform: scale(1.1);
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                width: 100%;
-                height: 100%;
-                z-index: 1000;
-                border-radius: 0;
-                overflow-y: auto;
-            }
-
-            .sidebar.active {
-                display: block;
-            }
-
-            .mobile-sidebar-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .controls {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-
-            .controls-left {
-                display: flex;
-                align-items: center;
-                flex: 1;
-            }
-
-            .sidebar-close {
-                position: absolute;
-                top: 1rem;
-                right: 1rem;
-                background: var(--primary-color);
-                color: white;
-                border: none;
-                border-radius: 50%;
-                width: 32px;
-                height: 32px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-
-            .sidebar-close:hover {
-                background: var(--primary-dark);
-                transform: scale(1.1);
-            }
+            z-index: 10;
         }
         
         .sidebar.collapsed {
@@ -599,80 +519,6 @@
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-        }
-
-        .mobile-filter-toggle {
-            display: none;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-left: 1rem;
-        }
-
-        .mobile-filter-toggle:hover {
-            background: var(--primary-dark);
-            transform: scale(1.1);
-        }
-
-        .filter-content {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-
-        @media (max-width: 768px) {
-            .controls {
-                padding: 0.5rem;
-                border-radius: 0;
-                margin-bottom: 0;
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-            }
-
-            .mobile-filter-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .filter-content {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: white;
-                padding: 1rem;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                z-index: 1000;
-            }
-
-            .filter-content.active {
-                display: flex;
-            }
-
-            .controls.collapsed .filter-content {
-                display: none;
-            }
-
-            .controls.expanded .filter-content {
-                display: flex;
-            }
-
-            .mobile-filter-toggle i {
-                transition: transform 0.3s ease;
-            }
-
-            .controls.expanded .mobile-filter-toggle i {
-                transform: rotate(180deg);
-            }
         }
 
         .controls-toggle {
@@ -1527,7 +1373,7 @@
 </head>
 <body>
     <header>
-        <img src="../assets/IMG_9120.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
+        <img src="IMG_9120.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
         <div class="header-text">
         <h1>Grange Naomh Colmcille CLG</h1>
         <p>Fixtures & Results 2025</p>
@@ -1587,32 +1433,67 @@
         
         <div class="content-area">
         <div class="controls">
-            <div class="filter-content">
-                <div class="search-container">
-                    <input type="text" id="searchInput" placeholder="Search matches...">
+                <div class="search-row">
+                    <div class="search-group">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search matches...">
+                        </div>
+                        <button class="reset-btn" id="resetSearch" title="Reset search">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="date-range-group">
+                        <input type="text" id="dateRange" class="date-range-input" placeholder="Select date range">
+                        <button class="reset-btn" id="resetDate" title="Reset date range">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <button class="calendar-btn" id="addToCalendar">
+                            <i class="fas fa-calendar-plus"></i>
+                            Add to Calendar
+                        </button>
+                    </div>
                 </div>
-                <div class="filter-row">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="teamFilter">Team</label>
+                        <div class="select-wrapper">
                     <select id="teamFilter">
                         <option value="all">All Teams</option>
                     </select>
+                            <button class="reset-btn" id="resetTeam" title="Reset team filter">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                </div>
+                <div class="filter-group">
+                    <label for="competitionFilter">Competition</label>
+                        <div class="select-wrapper">
                     <select id="competitionFilter">
                         <option value="all">All Competitions</option>
                     </select>
-                    <select id="venueFilter">
-                        <option value="all">All Venues</option>
-                    </select>
-                    <select id="roundFilter">
-                        <option value="all">All Rounds</option>
-                    </select>
+                            <button class="reset-btn" id="resetCompetition" title="Reset competition filter">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                </div>
+                <div class="filter-group">
+                    <label for="statusFilter">Status</label>
+                        <div class="select-wrapper">
                     <select id="statusFilter">
                         <option value="all">All Matches</option>
-                        <option value="upcoming">Upcoming Only</option>
-                        <option value="results">Results Only</option>
+                        <option value="fixture">Upcoming Fixtures</option>
+                        <option value="result">Past Results</option>
                     </select>
-                    <div class="date-range">
-                        <input type="text" id="dateRange" placeholder="Date Range">
-                    </div>
+                            <button class="reset-btn" id="resetStatus" title="Reset status filter">
+                                <i class="fas fa-times"></i>
+                            </button>
                 </div>
+                    </div>
+                    <button class="share-btn" id="shareBtn">
+                        <i class="fas fa-share-alt"></i>
+                        Share
+                    </button>
             </div>
         </div>
         
@@ -2809,104 +2690,6 @@ END:VCALENDAR`;
             }
             
             lastScrollTop = scrollTop;
-        });
-
-        // Add mobile sidebar functionality
-        function initMobileSidebar() {
-            const controls = document.querySelector('.controls');
-            const sidebar = document.querySelector('.sidebar');
-            
-            // Create toggle button
-            const toggleButton = document.createElement('button');
-            toggleButton.className = 'mobile-sidebar-toggle';
-            toggleButton.innerHTML = '<i class="fas fa-chart-bar"></i>';
-            
-            // Create close button
-            const closeButton = document.createElement('button');
-            closeButton.className = 'sidebar-close';
-            closeButton.innerHTML = '<i class="fas fa-times"></i>';
-            
-            // Add buttons to DOM
-            controls.appendChild(toggleButton);
-            sidebar.appendChild(closeButton);
-            
-            // Add event listeners
-            toggleButton.addEventListener('click', () => {
-                sidebar.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            });
-            
-            closeButton.addEventListener('click', () => {
-                sidebar.classList.remove('active');
-                document.body.style.overflow = '';
-            });
-            
-            // Close sidebar when clicking outside
-            document.addEventListener('click', (e) => {
-                if (sidebar.classList.contains('active') && 
-                    !sidebar.contains(e.target) && 
-                    !toggleButton.contains(e.target)) {
-                    sidebar.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            });
-        }
-
-        // Initialize mobile sidebar when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            init();
-            if (window.innerWidth > 768) {
-                initMobileSidebar();
-            }
-            initMobileFilter();
-        });
-
-        // Add mobile filter functionality
-        function initMobileFilter() {
-            const controls = document.querySelector('.controls');
-            const filterContent = document.querySelector('.filter-content');
-            
-            // Create toggle button
-            const toggleButton = document.createElement('button');
-            toggleButton.className = 'mobile-filter-toggle';
-            toggleButton.innerHTML = '<i class="fas fa-bars"></i>';
-            
-            // Add button to DOM
-            controls.appendChild(toggleButton);
-            
-            // Add event listeners
-            toggleButton.addEventListener('click', () => {
-                controls.classList.toggle('expanded');
-                document.body.style.overflow = controls.classList.contains('expanded') ? 'hidden' : '';
-            });
-            
-            // Close filter when clicking outside
-            document.addEventListener('click', (e) => {
-                if (controls.classList.contains('expanded') && 
-                    !controls.contains(e.target)) {
-                    controls.classList.remove('expanded');
-                    document.body.style.overflow = '';
-                }
-            });
-        }
-
-        // Initialize mobile filter when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            init();
-            if (window.innerWidth > 768) {
-                initMobileSidebar();
-            }
-            initMobileFilter();
-        });
-
-        // Update sidebar visibility on window resize
-        window.addEventListener('resize', () => {
-            const sidebar = document.querySelector('.sidebar');
-            if (window.innerWidth <= 768) {
-                sidebar.style.display = 'none';
-            } else {
-                sidebar.style.display = 'block';
-            }
         });
     </script>
 </body>
