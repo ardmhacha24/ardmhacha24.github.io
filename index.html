@@ -601,6 +601,80 @@
             flex-direction: column;
         }
 
+        .mobile-filter-toggle {
+            display: none;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+
+        .mobile-filter-toggle:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .filter-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                padding: 0.5rem;
+                border-radius: 0;
+                margin-bottom: 0;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .mobile-filter-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .filter-content {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                padding: 1rem;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 1000;
+            }
+
+            .filter-content.active {
+                display: flex;
+            }
+
+            .controls.collapsed .filter-content {
+                display: none;
+            }
+
+            .controls.expanded .filter-content {
+                display: flex;
+            }
+
+            .mobile-filter-toggle i {
+                transition: transform 0.3s ease;
+            }
+
+            .controls.expanded .mobile-filter-toggle i {
+                transform: rotate(180deg);
+            }
+        }
+
         .controls-toggle {
             position: absolute;
             right: 1rem;
@@ -1513,67 +1587,32 @@
         
         <div class="content-area">
         <div class="controls">
-                <div class="search-row">
-                    <div class="search-group">
-                        <div class="search-input-wrapper">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="searchInput" placeholder="Search matches...">
-                        </div>
-                        <button class="reset-btn" id="resetSearch" title="Reset search">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="date-range-group">
-                        <input type="text" id="dateRange" class="date-range-input" placeholder="Select date range">
-                        <button class="reset-btn" id="resetDate" title="Reset date range">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <button class="calendar-btn" id="addToCalendar">
-                            <i class="fas fa-calendar-plus"></i>
-                            Add to Calendar
-                        </button>
-                    </div>
+            <div class="filter-content">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search matches...">
                 </div>
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label for="teamFilter">Team</label>
-                        <div class="select-wrapper">
+                <div class="filter-row">
                     <select id="teamFilter">
                         <option value="all">All Teams</option>
                     </select>
-                            <button class="reset-btn" id="resetTeam" title="Reset team filter">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                </div>
-                <div class="filter-group">
-                    <label for="competitionFilter">Competition</label>
-                        <div class="select-wrapper">
                     <select id="competitionFilter">
                         <option value="all">All Competitions</option>
                     </select>
-                            <button class="reset-btn" id="resetCompetition" title="Reset competition filter">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                </div>
-                <div class="filter-group">
-                    <label for="statusFilter">Status</label>
-                        <div class="select-wrapper">
+                    <select id="venueFilter">
+                        <option value="all">All Venues</option>
+                    </select>
+                    <select id="roundFilter">
+                        <option value="all">All Rounds</option>
+                    </select>
                     <select id="statusFilter">
                         <option value="all">All Matches</option>
-                        <option value="fixture">Upcoming Fixtures</option>
-                        <option value="result">Past Results</option>
+                        <option value="upcoming">Upcoming Only</option>
+                        <option value="results">Results Only</option>
                     </select>
-                            <button class="reset-btn" id="resetStatus" title="Reset status filter">
-                                <i class="fas fa-times"></i>
-                            </button>
-                </div>
+                    <div class="date-range">
+                        <input type="text" id="dateRange" placeholder="Date Range">
                     </div>
-                    <button class="share-btn" id="shareBtn">
-                        <i class="fas fa-share-alt"></i>
-                        Share
-                    </button>
+                </div>
             </div>
         </div>
         
@@ -2816,7 +2855,58 @@ END:VCALENDAR`;
         // Initialize mobile sidebar when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
             init();
-            initMobileSidebar();
+            if (window.innerWidth > 768) {
+                initMobileSidebar();
+            }
+            initMobileFilter();
+        });
+
+        // Add mobile filter functionality
+        function initMobileFilter() {
+            const controls = document.querySelector('.controls');
+            const filterContent = document.querySelector('.filter-content');
+            
+            // Create toggle button
+            const toggleButton = document.createElement('button');
+            toggleButton.className = 'mobile-filter-toggle';
+            toggleButton.innerHTML = '<i class="fas fa-bars"></i>';
+            
+            // Add button to DOM
+            controls.appendChild(toggleButton);
+            
+            // Add event listeners
+            toggleButton.addEventListener('click', () => {
+                controls.classList.toggle('expanded');
+                document.body.style.overflow = controls.classList.contains('expanded') ? 'hidden' : '';
+            });
+            
+            // Close filter when clicking outside
+            document.addEventListener('click', (e) => {
+                if (controls.classList.contains('expanded') && 
+                    !controls.contains(e.target)) {
+                    controls.classList.remove('expanded');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // Initialize mobile filter when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            if (window.innerWidth > 768) {
+                initMobileSidebar();
+            }
+            initMobileFilter();
+        });
+
+        // Update sidebar visibility on window resize
+        window.addEventListener('resize', () => {
+            const sidebar = document.querySelector('.sidebar');
+            if (window.innerWidth <= 768) {
+                sidebar.style.display = 'none';
+            } else {
+                sidebar.style.display = 'block';
+            }
         });
     </script>
 </body>
