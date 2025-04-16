@@ -640,6 +640,107 @@
             margin-left: 8px;
             font-size: 14px;
         }
+
+        /* Stats Section */
+        .stats-section {
+            padding: var(--spacing-md);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* Teams Section */
+        .teams-section {
+            padding: var(--spacing-md);
+        }
+
+        .teams-list {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .teams-list h2 {
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            font-size: 1.5rem;
+        }
+
+        .team-item {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow);
+        }
+
+        .team-item h3 {
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+            font-size: 1.2rem;
+        }
+
+        .team-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-sm);
+        }
+
+        .team-stats .stat {
+            text-align: center;
+        }
+
+        .team-stats .stat-value {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            display: block;
+        }
+
+        .team-stats .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* More Section */
+        .more-section {
+            padding: var(--spacing-md);
+        }
+
+        .more-options {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .more-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--surface);
+            border: none;
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: background-color 0.2s;
+        }
+
+        .more-btn:hover {
+            background: var(--background);
+        }
+
+        .more-btn i {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
     </style>
 </head>
 <body>
@@ -989,122 +1090,6 @@
             document.getElementById('lossCount').textContent = losses;
         }
 
-        // Enhanced mobile-friendly display matches function
-        function displayMatches() {
-            const filteredMatches = filterMatches();
-            const matchContainer = document.getElementById('matchContainer');
-            matchContainer.innerHTML = '';
-
-            if (filteredMatches.length === 0) {
-                matchContainer.innerHTML = `
-                    <div style="text-align: center; padding: 32px;">
-                        <i class="fas fa-search" style="font-size: 24px; color: #5f6368; margin-bottom: 16px;"></i>
-                        <p style="color: #202124;">No matches found</p>
-                        <p style="color: #5f6368;">Try adjusting your filters</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const groupedMatches = groupMatchesByDate(filteredMatches);
-            const sortedDates = Object.keys(groupedMatches).sort((a, b) => parseDate(a) - parseDate(b));
-
-            // Create a container for all date sections
-            const allDatesContainer = document.createElement('div');
-            let todaySection = null;
-
-            // Get today's date string for comparison
-            const today = new Date();
-            const todayStr = today.toDateString();
-
-            sortedDates.forEach(date => {
-                const dateSection = document.createElement('div');
-                dateSection.className = 'date-section';
-
-                const dateHeader = document.createElement('div');
-                dateHeader.className = 'date-header';
-                
-                const headerContent = document.createElement('div');
-                headerContent.textContent = formatDate(date);
-                dateHeader.appendChild(headerContent);
-
-                // Check if this is today's section
-                const matchDate = parseDate(date);
-                if (matchDate.toDateString() === todayStr) {
-                    const todayMarker = document.createElement('div');
-                    todayMarker.className = 'today-marker';
-                    todayMarker.textContent = 'TODAY';
-                    dateHeader.appendChild(todayMarker);
-                    todaySection = dateSection;
-                }
-
-                dateSection.appendChild(dateHeader);
-
-                groupedMatches[date].forEach(match => {
-                    const matchCard = document.createElement('div');
-                    matchCard.className = 'match-card';
-                    
-                    const isResult = match.Result && match.Result !== '---' && match.Result !== 'BYE';
-                    const isWin = match.Result === 'WIN';
-                    const isDraw = match.Result === 'DRAW';
-                    
-                    if (isResult) {
-                        matchCard.classList.add(isWin ? 'win' : (isDraw ? 'draw' : 'loss'));
-                    }
-
-                    // Determine if Grange is home or away
-                    const isGrangeHome = match['Home Team'].includes('Grange');
-                    const firstTeam = isGrangeHome ? match['Home Team'] : match['Away Team'];
-                    const secondTeam = isGrangeHome ? match['Away Team'] : match['Home Team'];
-                    const firstScore = isGrangeHome ? match['Home Score'] : match['Away Score'];
-                    const secondScore = isGrangeHome ? match['Away Score'] : match['Home Score'];
-
-                    // Format the score
-                    let scoreDisplay = '---';
-                    if (firstScore && secondScore) {
-                        scoreDisplay = `${firstScore} - ${secondScore}`;
-                    }
-
-                    const matchContent = `
-                        <div class="match-header">
-                            <div class="competition">${match.Competition}</div>
-                            <div class="venue">${match.Venue}</div>
-                        </div>
-                        <div class="match-teams">
-                            <div class="team grange">${firstTeam}</div>
-                            <div class="score-container">${scoreDisplay}</div>
-                            <div class="team">${secondTeam}</div>
-                        </div>
-                        <div class="match-footer">
-                            <div class="time">${match.Time || 'TBC'}</div>
-                            ${match.Round ? `<div class="round">${match.Round}</div>` : ''}
-                        </div>
-                    `;
-
-                    matchCard.innerHTML = matchContent;
-                    dateSection.appendChild(matchCard);
-                });
-
-                allDatesContainer.appendChild(dateSection);
-            });
-
-            matchContainer.appendChild(allDatesContainer);
-
-            // Always scroll to today's section on initial load if in "all" mode
-            const statusFilter = document.getElementById('statusFilter').value;
-            if (statusFilter === 'all' && todaySection) {
-                setTimeout(() => {
-                    todaySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 100);
-            } else if (statusFilter === 'fixture') {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else if (statusFilter === 'result') {
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }
-
-            updateStats(filteredMatches);
-        }
-
         // Separate UI initialization
         function initializeUI() {
             console.log('Initializing UI...');
@@ -1129,26 +1114,105 @@
 
                 // Initialize bottom navigation
                 const navItems = document.querySelectorAll('.nav-item');
+                const mainContent = document.querySelector('.main-content');
+                const quickStats = document.querySelector('.quick-stats');
+                const filters = document.querySelector('.filters');
+                const matchContainer = document.getElementById('matchContainer');
+
+                // Create content sections
+                const statsSection = document.createElement('div');
+                statsSection.className = 'stats-section';
+                statsSection.style.display = 'none';
+                statsSection.innerHTML = `
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalWins">0</div>
+                            <div class="stat-label">Total Wins</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="winRate">0%</div>
+                            <div class="stat-label">Win Rate</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalDraws">0</div>
+                            <div class="stat-label">Draws</div>
+                        </div>
+                    </div>
+                `;
+
+                const teamsSection = document.createElement('div');
+                teamsSection.className = 'teams-section';
+                teamsSection.style.display = 'none';
+                teamsSection.innerHTML = `
+                    <div class="teams-list">
+                        <h2>Teams</h2>
+                        <div id="teamsList"></div>
+                    </div>
+                `;
+
+                const moreSection = document.createElement('div');
+                moreSection.className = 'more-section';
+                moreSection.style.display = 'none';
+                moreSection.innerHTML = `
+                    <div class="more-options">
+                        <button class="more-btn" id="shareBtn">
+                            <i class="fas fa-share-alt"></i>
+                            Share App
+                        </button>
+                        <button class="more-btn" id="addToCalendar">
+                            <i class="fas fa-calendar-plus"></i>
+                            Add to Calendar
+                        </button>
+                        <button class="more-btn" id="settingsBtn">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </button>
+                    </div>
+                `;
+
+                // Add sections to main content
+                mainContent.appendChild(statsSection);
+                mainContent.appendChild(teamsSection);
+                mainContent.appendChild(moreSection);
+
+                // Function to show/hide sections
+                function showSection(section) {
+                    // Hide all sections
+                    quickStats.style.display = 'none';
+                    filters.style.display = 'none';
+                    matchContainer.style.display = 'none';
+                    statsSection.style.display = 'none';
+                    teamsSection.style.display = 'none';
+                    moreSection.style.display = 'none';
+
+                    // Show selected section
+                    section.style.display = 'block';
+                }
+
+                // Add click handlers
                 navItems.forEach(item => {
                     item.addEventListener('click', (e) => {
                         e.preventDefault();
                         navItems.forEach(i => i.classList.remove('active'));
                         item.classList.add('active');
                         
-                        // Handle navigation
                         const section = item.getAttribute('href').substring(1);
                         switch(section) {
                             case 'fixtures':
-                                document.querySelector('.main-content').style.display = 'block';
+                                quickStats.style.display = 'grid';
+                                filters.style.display = 'block';
+                                matchContainer.style.display = 'block';
                                 break;
                             case 'stats':
-                                // TODO: Implement stats view
+                                showSection(statsSection);
+                                updateStats(matches);
                                 break;
                             case 'teams':
-                                // TODO: Implement teams view
+                                showSection(teamsSection);
+                                updateTeamsList();
                                 break;
                             case 'more':
-                                // TODO: Implement more options
+                                showSection(moreSection);
                                 break;
                         }
                     });
@@ -1166,6 +1230,48 @@
                         location.reload();
                     }
                 });
+
+                // Function to update teams list
+                function updateTeamsList() {
+                    const teamsList = document.getElementById('teamsList');
+                    const teams = new Set();
+                    matches.forEach(match => {
+                        if (match['Home Team'].includes('Grange')) teams.add(match['Home Team']);
+                        if (match['Away Team'].includes('Grange')) teams.add(match['Away Team']);
+                    });
+
+                    teamsList.innerHTML = Array.from(teams).sort().map(team => `
+                        <div class="team-item">
+                            <h3>${team}</h3>
+                            <div class="team-stats">
+                                <div class="stat">
+                                    <span class="stat-value">${getTeamStats(team).wins}</span>
+                                    <span class="stat-label">Wins</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-value">${getTeamStats(team).losses}</span>
+                                    <span class="stat-label">Losses</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-value">${getTeamStats(team).draws}</span>
+                                    <span class="stat-label">Draws</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // Function to get team stats
+                function getTeamStats(team) {
+                    const teamMatches = matches.filter(match => 
+                        match['Home Team'] === team || match['Away Team'] === team
+                    );
+                    return {
+                        wins: teamMatches.filter(match => match.Result === 'WIN').length,
+                        losses: teamMatches.filter(match => match.Result === 'LOSS').length,
+                        draws: teamMatches.filter(match => match.Result === 'DRAW').length
+                    };
+                }
 
                 console.log('Application initialized successfully');
             } catch (error) {
