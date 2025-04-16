@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grange Naomh Colmcille CLG - Fixtures & Results 2025</title>
+    <meta name="theme-color" content="#006400">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="GNC CLG">
+    <link rel="apple-touch-icon" href="/assets/IMG_9120-WHITE.png">
     <style>
         :root {
             --primary: #006400; /* Dark Green */
@@ -1364,6 +1370,101 @@
                 width: 100%;
             }
         }
+
+        /* Add to Home Screen prompt styles */
+        .add-to-home {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .add-to-home.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100%);
+            }
+            to {
+                transform: translate(-50%, 0);
+            }
+        }
+
+        .add-to-home button {
+            margin: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .add-to-home .install-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .add-to-home .close-btn {
+            background: var(--light-bg);
+            color: var(--text);
+        }
+
+        /* Notification permission prompt styles */
+        .notification-prompt {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .notification-prompt.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .notification-prompt button {
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .notification-prompt .allow-btn {
+            background: var(--primary);
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-prompt .deny-btn {
+            background: var(--light-bg);
+            color: var(--text);
+        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1501,6 +1602,18 @@
             <!-- Matches will be populated here -->
             </div>
         </div>
+    </div>
+    
+    <div class="add-to-home">
+        <p>Add this app to your home screen for quick access!</p>
+        <button class="install-btn">Install</button>
+        <button class="close-btn">Maybe Later</button>
+    </div>
+
+    <div class="notification-prompt">
+        <p>Get notified about upcoming matches!</p>
+        <button class="allow-btn">Allow Notifications</button>
+        <button class="deny-btn">No Thanks</button>
     </div>
     
     <script>
@@ -2691,6 +2804,93 @@ END:VCALENDAR`;
             
             lastScrollTop = scrollTop;
         });
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // User Preferences
+        const userPreferences = {
+            get: key => localStorage.getItem(key),
+            set: (key, value) => localStorage.setItem(key, value),
+            remove: key => localStorage.removeItem(key)
+        };
+
+        // Add to Home Screen
+        let deferredPrompt;
+        const addToHome = document.querySelector('.add-to-home');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Show the prompt if user hasn't dismissed it before
+            if (!userPreferences.get('installPromptDismissed')) {
+                addToHome.classList.add('show');
+            }
+        });
+
+        document.querySelector('.install-btn').addEventListener('click', async () => {
+            addToHome.classList.remove('show');
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                userPreferences.set('installPromptDismissed', 'true');
+            }
+        });
+
+        document.querySelector('.close-btn').addEventListener('click', () => {
+            addToHome.classList.remove('show');
+            userPreferences.set('installPromptDismissed', 'true');
+        });
+
+        // Push Notifications
+        const notificationPrompt = document.querySelector('.notification-prompt');
+
+        async function initializeNotifications() {
+            if (!('Notification' in window)) return;
+            
+            if (Notification.permission === 'default' && !userPreferences.get('notificationPromptDismissed')) {
+                notificationPrompt.classList.add('show');
+            }
+        }
+
+        document.querySelector('.allow-btn').addEventListener('click', async () => {
+            notificationPrompt.classList.remove('show');
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: 'YOUR_VAPID_PUBLIC_KEY' // You'll need to replace this with your actual VAPID key
+                    });
+                    // Here you would typically send the subscription to your server
+                    console.log('Push notification subscription:', subscription);
+                }
+            } catch (error) {
+                console.error('Error setting up push notifications:', error);
+            }
+            userPreferences.set('notificationPromptDismissed', 'true');
+        });
+
+        document.querySelector('.deny-btn').addEventListener('click', () => {
+            notificationPrompt.classList.remove('show');
+            userPreferences.set('notificationPromptDismissed', 'true');
+        });
+
+        // Initialize notifications after page load
+        window.addEventListener('load', initializeNotifications);
     </script>
 </body>
 </html>

@@ -1,0 +1,21 @@
+{
+  "name": "Grange Naomh Colmcille CLG",
+  "short_name": "GNC CLG",
+  "description": "Fixtures & Results for Grange Naomh Colmcille CLG",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#006400",
+  "theme_color": "#006400",
+  "icons": [
+    {
+      "src": "/assets/IMG_9120-WHITE.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/IMG_9120-WHITE.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+} 
