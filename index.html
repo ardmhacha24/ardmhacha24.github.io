@@ -2,10 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#2c5282">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grange Naomh Colmcille CLG - Fixtures & Results 2025</title>
     <style>
         :root {
@@ -75,15 +72,95 @@
         
         .sidebar {
             width: 300px;
-            background-color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            padding: 1rem;
-            overflow-y: auto;
-            max-height: calc(100vh - 100px);
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: fit-content;
             position: sticky;
-            top: 0;
+            top: 1rem;
+        }
+
+        .mobile-sidebar-toggle {
+            display: none;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
             transition: all 0.3s ease;
-            z-index: 10;
+            margin-left: 1rem;
+        }
+
+        .mobile-sidebar-toggle:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1000;
+                border-radius: 0;
+                overflow-y: auto;
+            }
+
+            .sidebar.active {
+                display: block;
+            }
+
+            .mobile-sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .controls {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .controls-left {
+                display: flex;
+                align-items: center;
+                flex: 1;
+            }
+
+            .sidebar-close {
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .sidebar-close:hover {
+                background: var(--primary-dark);
+                transform: scale(1.1);
+            }
         }
         
         .sidebar.collapsed {
@@ -1365,146 +1442,6 @@
             
             .filters select {
                 width: 100%;
-            }
-        }
-
-        /* Mobile Optimizations */
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 0.5rem;
-            }
-
-            .match-card {
-                padding: 0.75rem;
-                margin-bottom: 0.75rem;
-            }
-
-            .match-header {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .match-header-main {
-                width: 100%;
-            }
-
-            .match-teams {
-                font-size: 1.1rem;
-            }
-
-            .match-time {
-                font-size: 0.9rem;
-            }
-
-            .match-venue {
-                font-size: 0.9rem;
-            }
-
-            .controls {
-                padding: 0.75rem;
-            }
-
-            .filter-row {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .filter-row > * {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-
-            .search-container {
-                width: 100%;
-            }
-
-            .date-range {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .date-range input {
-                width: 100%;
-            }
-
-            .sidebar {
-                width: 100%;
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100vh;
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-                z-index: 1000;
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .sidebar-toggle {
-                position: fixed;
-                top: 1rem;
-                left: 1rem;
-                z-index: 1001;
-            }
-
-            .match-details {
-                padding: 0.5rem;
-            }
-
-            .match-details-row {
-                flex-direction: column;
-                gap: 0.25rem;
-            }
-
-            .match-details-label {
-                width: 100%;
-            }
-
-            .match-details-value {
-                width: 100%;
-            }
-
-            /* Improve touch targets */
-            button, 
-            select, 
-            input[type="text"],
-            .match-card {
-                min-height: 44px;
-            }
-
-            /* Add pull-to-refresh styling */
-            body {
-                overscroll-behavior-y: contain;
-            }
-
-            /* Improve scrolling performance */
-            .main-content {
-                -webkit-overflow-scrolling: touch;
-            }
-        }
-
-        /* Small mobile devices */
-        @media (max-width: 480px) {
-            .match-teams {
-                font-size: 1rem;
-            }
-
-            .match-time {
-                font-size: 0.8rem;
-            }
-
-            .match-venue {
-                font-size: 0.8rem;
-            }
-
-            .controls {
-                padding: 0.5rem;
-            }
-
-            .filter-row > * {
-                margin-bottom: 0.25rem;
             }
         }
     </style>
@@ -2835,91 +2772,51 @@ END:VCALENDAR`;
             lastScrollTop = scrollTop;
         });
 
-        // Mobile optimizations
-        function initMobileOptimizations() {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.querySelector('.sidebar-toggle');
-            let touchStartX = 0;
-            let touchEndX = 0;
-
-            // Handle swipe gestures for sidebar
-            document.addEventListener('touchstart', e => {
-                touchStartX = e.changedTouches[0].screenX;
-            }, false);
-
-            document.addEventListener('touchend', e => {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipe();
-            }, false);
-
-            function handleSwipe() {
-                const swipeThreshold = 100;
-                const swipeDistance = touchEndX - touchStartX;
-
-                if (Math.abs(swipeDistance) > swipeThreshold) {
-                    if (swipeDistance > 0) {
-                        // Swipe right - open sidebar
-                        sidebar.classList.add('active');
-                    } else {
-                        // Swipe left - close sidebar
-                        sidebar.classList.remove('active');
-                    }
-                }
-            }
-
+        // Add mobile sidebar functionality
+        function initMobileSidebar() {
+            const controls = document.querySelector('.controls');
+            const sidebar = document.querySelector('.sidebar');
+            
+            // Create toggle button
+            const toggleButton = document.createElement('button');
+            toggleButton.className = 'mobile-sidebar-toggle';
+            toggleButton.innerHTML = '<i class="fas fa-chart-bar"></i>';
+            
+            // Create close button
+            const closeButton = document.createElement('button');
+            closeButton.className = 'sidebar-close';
+            closeButton.innerHTML = '<i class="fas fa-times"></i>';
+            
+            // Add buttons to DOM
+            controls.appendChild(toggleButton);
+            sidebar.appendChild(closeButton);
+            
+            // Add event listeners
+            toggleButton.addEventListener('click', () => {
+                sidebar.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            closeButton.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+            
             // Close sidebar when clicking outside
-            document.addEventListener('click', e => {
+            document.addEventListener('click', (e) => {
                 if (sidebar.classList.contains('active') && 
                     !sidebar.contains(e.target) && 
-                    !sidebarToggle.contains(e.target)) {
+                    !toggleButton.contains(e.target)) {
                     sidebar.classList.remove('active');
-                }
-            });
-
-            // Prevent body scroll when sidebar is open
-            sidebar.addEventListener('transitionend', () => {
-                if (sidebar.classList.contains('active')) {
-                    document.body.style.overflow = 'hidden';
-                } else {
                     document.body.style.overflow = '';
                 }
             });
-
-            // Add pull-to-refresh functionality
-            let touchStartY = 0;
-            let pullDistance = 0;
-            const pullThreshold = 100;
-
-            document.addEventListener('touchstart', e => {
-                if (window.scrollY === 0) {
-                    touchStartY = e.touches[0].clientY;
-                }
-            });
-
-            document.addEventListener('touchmove', e => {
-                if (window.scrollY === 0 && touchStartY > 0) {
-                    pullDistance = e.touches[0].clientY - touchStartY;
-                    if (pullDistance > 0) {
-                        e.preventDefault();
-                        document.body.style.transform = `translateY(${pullDistance}px)`;
-                    }
-                }
-            });
-
-            document.addEventListener('touchend', () => {
-                if (pullDistance > pullThreshold) {
-                    // Trigger refresh
-                    location.reload();
-                }
-                document.body.style.transform = '';
-                touchStartY = 0;
-                pullDistance = 0;
-            });
         }
 
-        // Initialize mobile optimizations
+        // Initialize mobile sidebar when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
-            initMobileOptimizations();
+            init();
+            initMobileSidebar();
         });
     </script>
 </body>
