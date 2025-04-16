@@ -10,832 +10,1914 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="GNC CLG">
     <link rel="apple-touch-icon" href="/assets/IMG_9120-WHITE.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         :root {
-            --primary: #006400;
-            --primary-dark: #004d00;
-            --primary-light: #008000;
-            --secondary: #ff8c00;
-            --background: #f5f5f5;
-            --surface: #ffffff;
-            --text: #333333;
-            --text-light: #666666;
-            --border: #dddddd;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --info: #17a2b8;
-            --radius-sm: 4px;
-            --radius-md: 8px;
-            --radius-lg: 16px;
-            --spacing-xs: 4px;
-            --spacing-sm: 8px;
-            --spacing-md: 16px;
-            --spacing-lg: 24px;
-            --spacing-xl: 32px;
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
-            --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
-            --header-height: 60px;
-            --bottom-nav-height: 56px;
-            --primary-color: #1a73e8;
-            --success-color: #34a853;
-            --warning-color: #fbbc05;
-            --danger-color: #ea4335;
-            --info-color: #4285f4;
-            --text-primary: #202124;
-            --text-secondary: #5f6368;
-            --border-radius: 8px;
-            --shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --primary: #006400; /* Dark Green */
+            --secondary: #ff8c00; /* Orange */
+            --light-bg: #f5f5f5;
+            --text: #333;
+            --light-text: #666;
+            --border: #ddd;
+            --win: #d4edda;
+            --loss: #f8d7da;
+            --draw: #fff3cd;
+            --upcoming: #e2e3e5;
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
-
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--background);
+            background-color: var(--light-bg);
             color: var(--text);
-            line-height: 1.5;
-            overflow-x: hidden;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-
-        /* Header Styles */
-        .header {
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+        
+        .header-logo {
+            max-width: 80px;
+            height: auto;
+            flex-shrink: 0;
+        }
+        
+        .header-text {
+            flex: 1;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            width: 100%;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 100px);
+            position: sticky;
+                top: 0;
+                transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .sidebar.collapsed {
+            width: 60px;
+            padding: 1rem 0;
+            overflow: visible;
+        }
+        
+        .sidebar.collapsed .sidebar-header h2,
+        .sidebar.collapsed .team-selector,
+        .sidebar.collapsed .team-stat-label,
+        .sidebar.collapsed .team-upcoming h3,
+        .sidebar.collapsed .upcoming-match-teams,
+        .sidebar.collapsed .upcoming-match-venue {
+            display: none;
+        }
+        
+        .sidebar.collapsed .team-stats {
+            margin: 0;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
+        }
+        
+        .sidebar.collapsed .team-stats h3 {
+            font-size: 1rem;
+            margin: 0 0 8px 0;
+            color: var(--primary);
+            font-weight: 600;
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 4px;
+        }
+        
+        .sidebar.collapsed .team-stats .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .sidebar.collapsed .team-stats .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4px;
+            background: var(--light-bg);
+            border-radius: 4px;
+        }
+        
+        .sidebar.collapsed .team-stats .stat-label {
+            font-size: 0.7rem;
+            color: var(--light-text);
+            margin-bottom: 2px;
+        }
+        
+        .sidebar.collapsed .team-stats .stat-value {
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        /* Icons for mini sidebar */
+        .stat-icon {
+            display: none;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .sidebar.collapsed .stat-icon {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Tooltip for mini sidebar */
+        .sidebar.collapsed .team-stat-item::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--primary);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            margin-left: 0.5rem;
+            z-index: 1000;
+        }
+        
+        .sidebar.collapsed .team-stat-item::after {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-right-color: var(--primary);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            margin-left: -0.5rem;
+            z-index: 1000;
+        }
+        
+        .sidebar.collapsed .team-stat-item:hover::before,
+        .sidebar.collapsed .team-stat-item:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .sidebar.collapsed .upcoming-match {
+            padding: 0.75rem 0;
+            text-align: center;
+            background: none;
+        }
+        
+        .sidebar.collapsed .upcoming-match-date {
+            font-size: 0.8rem;
+            margin: 0;
+        }
+        
+        .sidebar.collapsed + .sidebar-toggle {
+            left: 60px;
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+                width: 0;
+                padding: 0;
+            }
+            
+            .sidebar.collapsed + .sidebar-toggle {
+                left: 15px;
+            }
+        }
+        
+        /* Overlay for when sidebar is open on mobile */
+        .sidebar-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: var(--header-height);
-            background-color: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            padding: 0 var(--spacing-md);
-            z-index: 1000;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .header-logo {
-            height: 40px;
-            width: auto;
-        }
-
-        .header-title {
-            margin-left: var(--spacing-md);
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
             bottom: 0;
-            left: 0;
-            right: 0;
-            height: var(--bottom-nav-height);
-            background-color: var(--surface);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: var(--shadow-md);
-            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-
-        .nav-item {
-            flex: 1;
+        
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .sidebar-toggle {
+            position: fixed;
+            top: 50%;
+            left: 300px;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            background-color: white;
+            color: var(--primary);
+            border-radius: 50%;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: var(--spacing-xs);
-            color: var(--text-light);
-            text-decoration: none;
-            font-size: 0.8rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 11;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1;
+            border: 2px solid var(--primary);
         }
-
-        .nav-item.active {
+        
+        .sidebar-toggle:hover {
+            background-color: var(--primary);
+            color: white;
+            opacity: 1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar-toggle {
+                top: 15px;
+                left: 15px;
+                transform: none;
+                width: 36px;
+                height: 36px;
+                background-color: white;
+                color: var(--primary);
+                border: 2px solid var(--primary);
+            }
+        }
+        
+        .sidebar.collapsed + .sidebar-toggle {
+            left: 0;
+            transform: translateY(-50%) scale(0.95);
+        }
+        
+        .sidebar.collapsed + .sidebar-toggle:hover {
+            transform: translateY(-50%) scale(1);
+        }
+        
+        /* Simple arrow icon */
+        .sidebar-toggle .arrow {
+            width: 12px;
+            height: 12px;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: inherit;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sidebar.collapsed + .sidebar-toggle .arrow::before {
+            content: '>';
+        }
+        
+        .sidebar-toggle .arrow::before {
+            content: '<';
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar-toggle {
+                top: 15px;
+                left: 15px;
+                transform: none;
+                width: 36px;
+                height: 36px;
+                background-color: white;
+                color: var(--primary);
+                border: 2px solid var(--primary);
+            }
+            
+            .sidebar.collapsed + .sidebar-toggle {
+                left: 15px;
+                transform: scale(0.95);
+            }
+            
+            .sidebar.collapsed + .sidebar-toggle:hover {
+                transform: scale(1);
+            }
+            
+            .sidebar-toggle .arrow {
+                font-size: 18px;
+            }
+        }
+        
+        .content-area {
+            flex: 1;
+            padding: 1rem;
+            max-width: calc(100% - 300px);
+            transition: max-width 0.3s ease;
+        }
+        
+        .content-area.expanded {
+            max-width: 100%;
+        }
+        
+        .sidebar-header {
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        
+        .sidebar-header h2 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .team-selector {
+            margin-bottom: 1rem;
+        }
+        
+        .team-selector select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            font-size: 0.95rem;
+        }
+        
+        .team-stats {
+            margin-bottom: 1.5rem;
+        }
+        
+        .team-stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .team-stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .team-stat-label {
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
+        .team-stat-value {
+            font-weight: 600;
+        }
+        
+        .team-stat-value.win {
+            color: #155724;
+        }
+        
+        .team-stat-value.loss {
+            color: #721c24;
+        }
+        
+        .team-stat-value.draw {
+            color: #856404;
+        }
+        
+        .team-upcoming {
+            margin-top: 1.5rem;
+        }
+        
+        .team-upcoming h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
             color: var(--primary);
         }
-
-        .nav-item i {
-            font-size: 1.2rem;
-            margin-bottom: var(--spacing-xs);
+        
+        .upcoming-match {
+            padding: 0.75rem;
+            background-color: var(--light-bg);
+            border-radius: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .upcoming-match-date {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .upcoming-match-teams {
+            font-size: 0.9rem;
+        }
+        
+        .upcoming-match-venue {
+            font-size: 0.85rem;
+            color: var(--light-text);
+            margin-top: 0.25rem;
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-height: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 1000;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+            }
+            
+            .content-area {
+                max-width: 100%;
+                margin-top: 60px; /* Space for the toggle button */
+            }
+            
+            .sidebar-toggle {
+                top: 15px;
+                left: 15px;
+                transform: none;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .sidebar.collapsed + .sidebar-toggle {
+                left: 15px;
+                transform: none;
+            }
+            
+            body.sidebar-open {
+                overflow: hidden;
+            }
+            
+            .content-area {
+                max-width: 100%;
+            }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .controls {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Main Content */
-        .main-content {
-            margin-top: var(--header-height);
-            margin-bottom: var(--bottom-nav-height);
-            padding: var(--spacing-md);
+        .controls-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 11;
         }
 
-        /* Quick Stats */
-        .quick-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
+        .controls-toggle:hover {
+            background: var(--primary-dark);
+            transform: translateY(-50%) scale(1.1);
         }
 
-        .stat-card {
-            background-color: var(--surface);
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
+        .controls-toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .controls.collapsed .controls-toggle i {
+            transform: rotate(180deg);
+        }
+
+        .controls.collapsed {
+            padding: 0.5rem;
+            max-height: 60px;
+            overflow: hidden;
+        }
+
+        .controls.collapsed .filter-row {
+            margin-bottom: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .controls .filter-row {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .controls.collapsed .search-container {
+            max-width: 200px;
+        }
+
+        .controls.collapsed select {
+            padding: 0.5rem;
+        }
+
+        .controls.collapsed .date-range {
+            display: none;
+        }
+
+        .controls.collapsed .filter-row > * {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .controls.collapsed .search-container {
+                max-width: 100%;
+            }
+            
+            .controls-toggle {
+                position: static;
+                transform: none;
+                margin-left: 1rem;
+            }
+            
+            .controls.collapsed .controls-toggle {
+                margin-left: 0.5rem;
+            }
+        }
+        
+        .search-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+        
+        .search-group {
+            flex: 1;
+            position: relative;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .search-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+        
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 0.5rem;
+            padding-left: 2rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            font-size: 0.95rem;
+        }
+        
+        .search-input-wrapper i {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-text);
+        }
+        
+        .date-range-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .date-range-input {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            font-size: 0.95rem;
+            min-width: 200px;
+        }
+        
+        .reset-btn {
+            background-color: var(--light-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .reset-btn:hover {
+            background-color: var(--border);
+        }
+        
+        .reset-btn i {
+            font-size: 0.9rem;
+        }
+        
+        .calendar-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+        
+        .calendar-btn:hover {
+            background-color: #005200;
+        }
+        
+        .calendar-btn i {
+            font-size: 1.1rem;
+        }
+        
+        /* Add styles for the calendar popup */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            overflow-y: auto;
+        }
+        
+        .calendar-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 90%;
+            width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .calendar-popup h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .calendar-popup .close-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--light-text);
+        }
+        
+        .calendar-popup .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .calendar-popup button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+        
+        .calendar-popup .cancel-btn {
+            background: var(--light-bg);
+            border: 1px solid var(--border);
+        }
+        
+        .calendar-popup .save-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+        
+        .calendar-popup .matches-list {
+            max-height: 50vh;
+            overflow-y: auto;
+            margin: 1rem 0;
+            padding-right: 0.5rem;
+        }
+        
+        .calendar-popup .match-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .calendar-popup .match-item:last-child {
+            border-bottom: none;
+        }
+        
+        .calendar-popup .match-item label {
+            flex: 1;
+            cursor: pointer;
+        }
+        
+        .calendar-popup input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        
+        body.popup-open {
+            overflow: hidden;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+            max-width: calc(33.333% - 1rem);
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .filter-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+        
+        .select-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .filter-group select {
+            flex: 1;
+            min-width: 0;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            background-color: white;
+            font-size: 0.95rem;
+        }
+        
+        .match-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .date-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .match-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .match-card.win {
+            border-left: 5px solid green;
+        }
+        
+        .match-card.loss {
+            border-left: 5px solid red;
+        }
+        
+        .match-card.draw {
+            border-left: 5px solid orange;
+        }
+        
+        .match-card.upcoming {
+            border-left: 5px solid gray;
+        }
+        
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background-color: rgba(0,0,0,0.03);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .competition {
+            font-weight: 600;
+        }
+        
+        .match-info {
+            display: flex;
+            font-size: 0.85rem;
+            color: var(--light-text);
+            gap: 1rem;
+        }
+        
+        .match-content {
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .teams {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .team {
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
         }
-
+        
+        .team-name {
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+        
+        .score-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 0 1rem;
+        }
+        
+        .score {
+            background-color: var(--light-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .vs {
+            font-size: 0.8rem;
+            color: var(--light-text);
+        }
+        
+        .metadata {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 0.85rem;
+            color: var(--light-text);
+        }
+        
+        .venue {
+            font-weight: 500;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+        
+        .badge.win {
+            background-color: var(--win);
+            color: #155724;
+        }
+        
+        .badge.loss {
+            background-color: var(--loss);
+            color: #721c24;
+        }
+        
+        .badge.draw {
+            background-color: var(--draw);
+            color: #856404;
+        }
+        
+        .badge.upcoming {
+            background-color: var(--upcoming);
+            color: #383d41;
+        }
+        
+        .no-results {
+            background-color: white;
+            padding: 3rem 1rem;
+            text-align: center;
+            border-radius: 0.5rem;
+            color: var(--light-text);
+        }
+        
+        .no-results p {
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-group {
+                min-width: 100%;
+                max-width: 100%;
+            }
+            
+            .search-row {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .search-group {
+                width: 100%;
+            }
+            
+            .date-range-group {
+                width: 100%;
+            }
+            
+            .date-range-input {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .match-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .teams {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .metadata {
+                width: 100%;
+                align-items: center;
+                border-top: 1px solid var(--border);
+                padding-top: 1rem;
+            }
+        }
+        
+        .stats-container {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .stat-card {
+            background-color: var(--light-bg);
+            padding: 1rem;
+            border-radius: 0.25rem;
+            text-align: center;
+        }
+        
         .stat-value {
             font-size: 1.5rem;
             font-weight: 600;
             color: var(--primary);
-            margin-bottom: var(--spacing-xs);
+            margin-bottom: 0.25rem;
         }
-
+        
         .stat-label {
             font-size: 0.9rem;
-            color: var(--text-light);
+            color: var(--light-text);
         }
-
-        /* Match Cards */
-        .match-list {
+        
+        .stat-card.win {
+            border-left: 4px solid var(--win);
+        }
+        
+        .stat-card.loss {
+            border-left: 4px solid var(--loss);
+        }
+        
+        .stat-card.draw {
+            border-left: 4px solid var(--draw);
+        }
+        
+        .stat-card.upcoming {
+            border-left: 4px solid var(--upcoming);
+        }
+        
+        .share-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+        
+        .share-btn:hover {
+            background-color: #e67e00;
+        }
+        
+        .share-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 90%;
+            width: 400px;
+        }
+        
+        .share-options {
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-md);
-            max-width: 600px;
-            margin: 0 auto;
+            gap: 1rem;
+            margin: 1rem 0;
         }
-
-        .date-header {
-            font-weight: 500;
-            color: #5f6368;
-            padding: 24px 20px 12px;
-            font-size: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .today-marker {
-            background: #1a73e8;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .match-card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin: 8px auto;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            position: relative;
-            max-width: 600px;
-            width: 100%;
-        }
-
-        .match-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 8px;
-        }
-
-        .match-card.win::before {
-            background-color: #34a853;
-        }
-
-        .match-card.loss::before {
-            background-color: #ea4335;
-        }
-
-        .match-card.draw::before {
-            background-color: #fbbc05;
-        }
-
-        .match-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-
-        .competition {
-            font-size: 16px;
-            font-weight: 500;
-            color: #202124;
-        }
-
-        .venue {
-            color: #5f6368;
-            font-size: 14px;
-            text-align: right;
-        }
-
-        .match-teams {
+        
+        .share-option {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin: 16px 0;
-            font-size: 14px;
-            line-height: 20px;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
-
-        .team {
+        
+        .share-option:hover {
+            background-color: var(--light-bg);
+        }
+        
+        .share-option i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .share-option.whatsapp i {
+            color: #25D366;
+        }
+        
+        .share-option.email i {
+            color: var(--primary);
+        }
+        
+        .share-option.copy i {
+            color: var(--secondary);
+        }
+        
+        .share-url {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .share-url input {
             flex: 1;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            font-size: 0.95rem;
+        }
+        
+        /* Add styles for today marker */
+        .today-marker {
+            position: relative;
+            text-align: center;
+            padding: 10px 0;
+            margin: 10px 0;
+            background: var(--primary);
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .today-marker span {
+            background: white;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.9em;
+        }
+        
+        /* Add styles for the team category */
+        .match-header-main {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .team-category {
+            font-size: 1rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .competition {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            font-weight: 500;
+        }
+        
+        /* Add styles for autocomplete */
+        .search-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+        
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .autocomplete-suggestion {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .autocomplete-suggestion:last-child {
+            border-bottom: none;
+        }
+        
+        .autocomplete-suggestion:hover {
+            background-color: var(--light-bg);
+        }
+        
+        .autocomplete-suggestion.active {
+            background-color: var(--light-bg);
+        }
+        
+        .sidebar .upcoming-matches {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .upcoming-matches h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+        
+        .sidebar .upcoming-match {
+            padding: 0.75rem;
+            background: var(--light-bg);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .sidebar .upcoming-match .match-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        
+        .sidebar .upcoming-match .match-time {
+            color: var(--primary);
+            font-weight: 600;
+            white-space: nowrap;
+            min-width: 70px;
+        }
+        
+        .sidebar .upcoming-match .team-category {
+            color: var(--text);
+            font-weight: 500;
+            flex-grow: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .sidebar .upcoming-match .match-details {
+            color: var(--light-text);
+            font-size: 0.85rem;
+            margin-top: 4px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .team:first-child {
-            text-align: right;
+        .sidebar.collapsed .upcoming-match .match-header {
+            margin-bottom: 2px;
         }
-
-        .team:last-child {
-            text-align: left;
+        
+        .sidebar.collapsed .upcoming-match {
+            padding: 0.5rem;
         }
-
-        .team.grange {
-            color: #1a73e8;
-            font-weight: 500;
-        }
-
-        .score-container {
-            background: #f1f3f4;
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 14px;
-            color: #202124;
-            min-width: 80px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        .match-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 12px;
-        }
-
-        .time {
-            color: #5f6368;
-            font-size: 14px;
-        }
-
-        .round {
-            background: #1a73e8;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 16px;
-        }
-
-        .date-header {
-            font-weight: 500;
-            color: #5f6368;
-            padding: 24px 20px 12px;
-            font-size: 16px;
-        }
-
-        /* Filters */
+        
         .filters {
-            background-color: var(--surface);
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .filter-row {
             display: flex;
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            margin: 0 0 1rem 0;
         }
-
-        .filter-group {
-            flex: 1;
-        }
-
-        .filter-label {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            margin-bottom: var(--spacing-xs);
-        }
-
-        select {
-            width: 100%;
-            padding: var(--spacing-sm);
+        
+        .filters select {
+            padding: 0.5rem;
             border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            background-color: var(--surface);
-            font-size: 0.95rem;
+            border-radius: 4px;
+            background: white;
+            min-width: 150px;
+            font-size: 0.9rem;
+        }
+        
+        .filters select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 100, 0, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.75rem;
+            }
+            
+            .filters select {
+                width: 100%;
+            }
+        }
+
+        /* Add to Home Screen prompt styles */
+        .add-to-home {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .add-to-home.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100%);
+            }
+            to {
+                transform: translate(-50%, 0);
+            }
+        }
+
+        .add-to-home button {
+            margin: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .add-to-home .install-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .add-to-home .close-btn {
+            background: var(--light-bg);
             color: var(--text);
         }
 
-        /* Search Bar */
-        .search-bar {
-            position: relative;
-            margin-bottom: var(--spacing-md);
+        /* Notification permission prompt styles */
+        .notification-prompt {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+            max-width: 300px;
         }
 
-        .search-input {
-            width: 100%;
-            padding: var(--spacing-sm) var(--spacing-md);
-            padding-left: calc(var(--spacing-md) * 2.5);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
+        .notification-prompt.show {
+            display: block;
+            animation: slideIn 0.3s ease;
         }
 
-        .search-icon {
-            position: absolute;
-            left: var(--spacing-md);
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-light);
-        }
-
-        /* Loading States */
-        .skeleton {
-            background: linear-gradient(
-                90deg,
-                var(--border) 25%,
-                var(--background) 37%,
-                var(--border) 63%
-            );
-            background-size: 400% 100%;
-            animation: skeleton-loading 1.4s ease infinite;
-        }
-
-        @keyframes skeleton-loading {
-            0% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0 50%;
-            }
-        }
-
-        /* Responsive Design */
-        @media (min-width: 768px) {
-            .match-list {
-                display: flex;
-                flex-direction: column;
-            }
-
-            .date-section {
-                grid-column: auto;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .main-content {
-                max-width: 1200px;
-                margin-left: auto;
-                margin-right: auto;
-            }
-        }
-
-        /* Animations */
         @keyframes slideIn {
             from {
-                transform: translateY(20px);
-                opacity: 0;
+                transform: translateX(100%);
             }
             to {
-                transform: translateY(0);
-                opacity: 1;
+                transform: translateX(0);
             }
         }
 
-        .match-card {
-            animation: slideIn 0.3s ease-out;
-        }
-
-        /* Dark Mode Support */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --background: #121212;
-                --surface: #1e1e1e;
-                --text: #ffffff;
-                --text-light: #999999;
-                --border: #333333;
-            }
-
-            .header {
-                background-color: var(--surface);
-            }
-
-            .bottom-nav {
-                background-color: var(--surface);
-                border-top: 1px solid var(--border);
-            }
-
-            .match-card {
-                background-color: var(--surface);
-            }
-
-            .match-header {
-                background-color: rgba(255,255,255,0.03);
-            }
-
-            .match-card.is-result {
-                border-left-color: var(--primary-light);
-            }
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: var(--background);
-            color: var(--text-primary);
-            line-height: 1.5;
-        }
-
-        .match-card {
-            background: var(--surface);
-            border-radius: var(--border-radius);
-            padding: var(--spacing-md);
-            margin: var(--spacing-sm) 0;
-            box-shadow: var(--shadow);
-        }
-
-        .match-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .match-competition {
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .match-time {
-            color: var(--text-secondary);
-            font-size: 0.9em;
-        }
-
-        .match-teams {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            gap: var(--spacing-sm);
-            align-items: center;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .team {
-            text-align: center;
-        }
-
-        .team.grange {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .match-score {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: var(--spacing-xs);
-        }
-
-        .score {
-            font-size: 1.2em;
-            font-weight: 500;
-        }
-
-        .vs {
-            color: var(--text-light);
-            font-size: 0.8em;
-        }
-
-        .match-details {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-secondary);
-            font-size: 0.9em;
-        }
-
-        .date-header {
-            font-weight: 500;
-            color: #5f6368;
-            padding: 24px 20px 12px;
-            font-size: 16px;
-        }
-
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--surface);
-            display: flex;
-            justify-content: space-around;
-            padding: var(--spacing-sm);
-            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.8em;
-        }
-
-        .nav-item.active {
-            color: var(--primary-color);
-        }
-
-        .nav-item i {
-            font-size: 1.2em;
-            margin-bottom: var(--spacing-xs);
-        }
-
-        #matchContainer {
-            padding: var(--spacing-md);
-            padding-bottom: calc(var(--spacing-xl) * 2);
-        }
-
-        .filters {
-            position: sticky;
-            top: 0;
-            background: var(--background);
-            padding: var(--spacing-md);
-            z-index: 100;
-            box-shadow: var(--shadow);
-        }
-
-        .filter-group {
-            margin-bottom: var(--spacing-md);
-        }
-
-        select, input {
-            width: 100%;
-            padding: var(--spacing-sm);
-            border: 1px solid var(--border);
-            border-radius: var(--border-radius);
-            background: var(--surface);
-            color: var(--text-primary);
-            font-size: 1em;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--spacing-sm);
-            margin: var(--spacing-md) 0;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            padding: var(--spacing-md);
-            border-radius: var(--border-radius);
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.5em;
-            font-weight: 500;
-            margin-bottom: var(--spacing-xs);
-        }
-
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.9em;
-        }
-
-        /* Add CSS for today's date highlight */
-        .date-header.today {
-            color: #1a73e8;
-            font-weight: 600;
-            position: relative;
-        }
-        .date-header.today::after {
-            content: '• Today';
-            color: #34a853;
-            margin-left: 8px;
-            font-size: 14px;
-        }
-
-        /* Stats Section */
-        .stats-section {
-            padding: var(--spacing-md);
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        /* Teams Section */
-        .teams-section {
-            padding: var(--spacing-md);
-        }
-
-        .teams-list {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .teams-list h2 {
-            color: var(--text-primary);
-            margin-bottom: var(--spacing-md);
-            font-size: 1.5rem;
-        }
-
-        .team-item {
-            background: var(--surface);
-            border-radius: var(--border-radius);
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
-            box-shadow: var(--shadow);
-        }
-
-        .team-item h3 {
-            color: var(--text-primary);
-            margin-bottom: var(--spacing-sm);
-            font-size: 1.2rem;
-        }
-
-        .team-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--spacing-sm);
-        }
-
-        .team-stats .stat {
-            text-align: center;
-        }
-
-        .team-stats .stat-value {
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: var(--primary-color);
-            display: block;
-        }
-
-        .team-stats .stat-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        /* More Section */
-        .more-section {
-            padding: var(--spacing-md);
-        }
-
-        .more-options {
-            max-width: 600px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-md);
-        }
-
-        .more-btn {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-md);
-            padding: var(--spacing-md);
-            background: var(--surface);
+        .notification-prompt button {
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
             border: none;
-            border-radius: var(--border-radius);
-            color: var(--text-primary);
-            font-size: 1rem;
+            border-radius: 4px;
             cursor: pointer;
-            box-shadow: var(--shadow);
-            transition: background-color 0.2s;
+            width: 100%;
         }
 
-        .more-btn:hover {
-            background: var(--background);
+        .notification-prompt .allow-btn {
+            background: var(--primary);
+            color: white;
+            margin-bottom: 0.5rem;
         }
 
-        .more-btn i {
-            font-size: 1.2rem;
-            color: var(--primary-color);
+        .notification-prompt .deny-btn {
+            background: var(--light-bg);
+            color: var(--text);
         }
     </style>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Add Flatpickr for date picking -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
-    <header class="header">
-        <img src="/assets/IMG_9120-WHITE.png" alt="GNC CLG Logo" class="header-logo">
-        <div class="header-title">GNC CLG</div>
-    </header>
-
-    <nav class="bottom-nav">
-        <a href="#fixtures" class="nav-item active">
-            <i class="fas fa-calendar"></i>
-            <span>Fixtures</span>
-        </a>
-        <a href="#stats" class="nav-item">
-            <i class="fas fa-chart-bar"></i>
-            <span>Stats</span>
-        </a>
-        <a href="#teams" class="nav-item">
-            <i class="fas fa-users"></i>
-            <span>Teams</span>
-        </a>
-        <a href="#more" class="nav-item">
-            <i class="fas fa-ellipsis-h"></i>
-            <span>More</span>
-        </a>
-    </nav>
-
-    <main class="main-content">
-        <div class="quick-stats">
-            <div class="stat-card">
-                <div class="stat-value" id="totalMatches">0</div>
-                <div class="stat-label">Total Matches</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="upcomingMatches">0</div>
-                <div class="stat-label">Upcoming</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="winCount">0</div>
-                <div class="stat-label">Wins</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="lossCount">0</div>
-                <div class="stat-label">Losses</div>
-            </div>
+    <header>
+        <img src="/assets/IMG_9120-WHITE.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
+        <div class="header-text">
+        <h1>Grange Naomh Colmcille CLG</h1>
+        <p>Fixtures & Results 2025</p>
         </div>
-
-        <div class="filters">
-            <div class="search-bar">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" placeholder="Search matches...">
-            </div>
-            <div class="filter-row">
-                <div class="filter-group">
-                    <div class="filter-label">Team</div>
-                    <select id="teamFilter">
+        <img src="/assets/IMG_9120-WHITE.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
+    </header>
+    
+    <div class="main-content">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Team Statistics</h2>
+                <div class="team-selector">
+                    <select id="sidebarTeamFilter">
                         <option value="all">All Teams</option>
                     </select>
                 </div>
+            </div>
+            
+            <div class="team-stats">
+                <div class="team-stat-item" data-tooltip="Total Matches">
+                    <i class="fas fa-trophy stat-icon"></i>
+                    <span class="team-stat-label">Total Matches</span>
+                    <span class="team-stat-value" id="sidebarTotalCount">0</span>
+                </div>
+                <div class="team-stat-item" data-tooltip="Wins">
+                    <i class="fas fa-check-circle stat-icon"></i>
+                    <span class="team-stat-label">Wins</span>
+                    <span class="team-stat-value win" id="sidebarWinCount">0</span>
+                </div>
+                <div class="team-stat-item" data-tooltip="Losses">
+                    <i class="fas fa-times-circle stat-icon"></i>
+                    <span class="team-stat-label">Losses</span>
+                    <span class="team-stat-value loss" id="sidebarLossCount">0</span>
+                </div>
+                <div class="team-stat-item" data-tooltip="Draws">
+                    <i class="fas fa-minus-circle stat-icon"></i>
+                    <span class="team-stat-label">Draws</span>
+                    <span class="team-stat-value draw" id="sidebarDrawCount">0</span>
+                </div>
+                <div class="team-stat-item" data-tooltip="Upcoming Matches">
+                    <i class="fas fa-calendar-alt stat-icon"></i>
+                    <span class="team-stat-label">Upcoming Matches</span>
+                    <span class="team-stat-value" id="sidebarUpcomingCount">0</span>
+                </div>
+            </div>
+            
+            <div class="team-upcoming">
+                <h3>Next 3 Upcoming Matches</h3>
+                <div id="upcomingMatchesList">
+                    <!-- Upcoming matches will be populated here -->
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-toggle" id="sidebarToggle">
+            <div class="arrow"></div>
+        </div>
+        
+        <div class="content-area">
+        <div class="controls">
+                <div class="search-row">
+                    <div class="search-group">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search matches...">
+                        </div>
+                        <button class="reset-btn" id="resetSearch" title="Reset search">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="date-range-group">
+                        <input type="text" id="dateRange" class="date-range-input" placeholder="Select date range">
+                        <button class="reset-btn" id="resetDate" title="Reset date range">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <button class="calendar-btn" id="addToCalendar">
+                            <i class="fas fa-calendar-plus"></i>
+                            Add to Calendar
+                        </button>
+                    </div>
+                </div>
+                <div class="filter-row">
                 <div class="filter-group">
-                    <div class="filter-label">Competition</div>
+                    <label for="teamFilter">Team</label>
+                        <div class="select-wrapper">
+                    <select id="teamFilter">
+                        <option value="all">All Teams</option>
+                    </select>
+                            <button class="reset-btn" id="resetTeam" title="Reset team filter">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                </div>
+                <div class="filter-group">
+                    <label for="competitionFilter">Competition</label>
+                        <div class="select-wrapper">
                     <select id="competitionFilter">
                         <option value="all">All Competitions</option>
                     </select>
+                            <button class="reset-btn" id="resetCompetition" title="Reset competition filter">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                 </div>
-            </div>
-            <div class="filter-row">
                 <div class="filter-group">
-                    <div class="filter-label">Status</div>
+                    <label for="statusFilter">Status</label>
+                        <div class="select-wrapper">
                     <select id="statusFilter">
                         <option value="all">All Matches</option>
-                        <option value="fixture">Upcoming</option>
-                        <option value="result">Results</option>
+                        <option value="fixture">Upcoming Fixtures</option>
+                        <option value="result">Past Results</option>
                     </select>
+                            <button class="reset-btn" id="resetStatus" title="Reset status filter">
+                                <i class="fas fa-times"></i>
+                            </button>
+                    </div>
                 </div>
-                <div class="filter-group">
-                    <div class="filter-label">Date Range</div>
-                    <input type="text" id="dateRange" class="search-input" placeholder="Select dates">
-                </div>
+                    <button class="share-btn" id="shareBtn">
+                        <i class="fas fa-share-alt"></i>
+                        Share
+                    </button>
             </div>
         </div>
-
+        
         <div id="matchContainer" class="match-list">
             <!-- Matches will be populated here -->
+            </div>
         </div>
-    </main>
+    </div>
+    
+    <div class="add-to-home">
+        <p>Add this app to your home screen for quick access!</p>
+        <button class="install-btn">Install</button>
+        <button class="close-btn">Maybe Later</button>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="js/matchData.js"></script>
+    <div class="notification-prompt">
+        <p>Get notified about upcoming matches!</p>
+        <button class="allow-btn">Allow Notifications</button>
+        <button class="deny-btn">No Thanks</button>
+    </div>
+    
     <script>
-        // Initialize matches array
+        // Parse the CSV data (this would normally be loaded from a file)
+        function parseCSV(csvText) {
+            console.log('Parsing CSV data...');
+            const lines = csvText.trim().split('\n');
+            const headers = lines[0].split(',');
+            
+            const parsedData = lines.slice(1).map(line => {
+                const values = line.split(',');
+                const entry = {};
+                
+                headers.forEach((header, index) => {
+                    entry[header] = values[index] || '';
+                });
+                
+                return entry;
+            });
+            
+            console.log('Parsed matches:', parsedData.length);
+            return parsedData;
+        }
+        
+        // Sample data from the CSV
+        const csvData = `Date,Competition,Sex,Round,Team,Where,Result,Home Team,Home Score,Away Team,Away Score,Venue,Time,Referee,Fixture Src,Fixture ID,Calendar Sync,Calendar Event ID
+Mon 31 Mar 25,Minor Div 3 League,Girls,Round 1,Minor Girls,HOME,LOSS,Grange Naomh Colmcille CLG,2-10,Shamrock Gaels,6-9,Grange St Colmcille's,6:45 PM,Leo Dougan,url,GFAS-25-024B,RESULT,jkrhk4igrk3qcfbfteoqclvq5c
+Thu 03 Apr 25,U16 Div 5 League,Girls,Round 1,U16 Girls,HOME,WIN,Grange Naomh Colmcille CLG,11-7,Naomh Peadar,4-6,Grange St Colmcille's,6:45 PM,Ronan Gildernew,url,GFAS-25-9339,RESULT,auqq9chl1shoeuvbkon4m598j0
+Sat 05 Apr 25,Senior Division 2 League,Ladies,Round 1,Senior Ladies,AWAY,DRAW,Naomh Peadar,2-7,Grange Naomh Colmcille CLG,3-4,St Peter's Lurgan,6:45 PM,Pat Mc Dade,url,GFAS-25-3A57,RESULT,2i2tkgrucb297g6avqrmnicsgk
+Sun 06 Apr 25,2025 Intermediate Football League Division 2B,Men,Round 1,Senior Men,HOME,WIN,Grange Naomh Colmcille CLG,1-15,Clann Eireann,0-11,Grange St Colmcille's,2:00 PM,Oisin Mc Kee,url,GFAS-25-7FCC,RESULT,6f0rv0g8bkqc6hhs5aiuuq2gu8
+Mon 07 Apr 25,Minor Div 3 League,Girls,Round 2,Minor Girls,AWAY,LOSS,CLG Chú Chulainn An Mullach Bán,5-16,Grange Naomh Colmcille CLG,2-6,Mullaghbawn,6:45 PM,Damian Shields,url,GFAS-25-F1BE,RESULT,v8ioj6po64aqmga22mbvdru750
+Mon 07 Apr 25,U-18 Division 2 League,Boys,Round 1,Minor Boys,AWAY,WIN,CLG Chú Chulainn An Mullach Bán,1-8,Naomh Colum,4-17,Mullaghbawn,6:45 PM,Oliver Hearty,url,GFAS-25-3E6D,RESULT,7j24hagtpals6meq5c10fl51fo
+Tue 08 Apr 25,U-14 Division 2 Football League,Boys,Round 1,U14 Boys,AWAY,LOSS,Wolfe Tones,13-6,Naomh Colum,0-6,Wolfe Tones Derrymacash,6:45 PM,Denise Mc Donald,url,GFAS-25-4F6C,RESULT,bn58nrp4ti30jmnvjtdou55m7k
+Thu 10 Apr 25,U16 Div 5 League,Girls,Round 2,U16 Girls,AWAY,WIN,An Port Mór,2-2,Grange Naomh Colmcille CLG,7-19,An Port Mor,6:45 PM,Ronan Gildernew,url,GFAS-25-9C96,RESULT,6ettr8qen34er06nnkb79gn138
+Sun 13 Apr 25,U14 Div 2 League,Girls,Round 1,U14 Girls,HOME,LOSS,Grange Naomh Colmcille CLG,4-0,Wolfe Tones,3-11,Grange St Colmcille's,11:00 AM,Conall Mc Ginnity,url,GFAS-25-19F9,RESULT,3mljuo6jkp1godmt4rmvjdnb4g
+Sun 13 Apr 25,2025 Intermediate Football League Division 2B,Men,Round 2,Senior Men,AWAY,WIN,Na Piarsaigh Eanach Mor,0-10,Grange Naomh Colmcille CLG,2-9,Annaghmore,2:00 PM,Conall Mc Ginnity,url,GFAS-25-A8FE,RESULT,fgbb6ob7cb1kp8ur3otmpc9jc0
+Mon 14 Apr 25,Minor Div 3 League,Girls,Round 3,Minor Girls,HOME,LOSS,Grange Naomh Colmcille CLG,2-5,Naomh Labhaoise,4-9,Grange St Colmcille's,6:45 PM,Eugene Hughes,url,GFAS-25-4B1F,RESULT,1fse2ffoisqi1nt19p67aoen68
+Mon 14 Apr 25,U-18 Division 2 League,Boys,Round 2,Minor Boys,HOME,WIN,Naomh Colum,4-22,An Port Mór,1-9,Maghery,6:45 PM,Denise Mc Donald,url,GFAS-25-3EE2,RESULT,l9b55jom8comjlqhu5tv8dso4s
+Tue 15 Apr 25,U-14 Division 2 Football League,Boys,Round 2,U14 Boys,HOME,---,Naomh Colum,---,Carrickcruppen,---,Grange,6:45 PM,Shane Mc Keown,url,GFAS-25-9281,ADDED,ok5al7031aqechgkshjfps0io0
+Thu 17 Apr 25,U-16 Division 2 Football League,Boys,Round 1,U16 Boys,HOME,---,Naomh Colum,---,CLG Chú Chulainn An Mullach Bán,---,Maghery,6:45 PM,Christopher Lennon,url,GFAS-25-33FB,ADDED,ae6bk16g2rkdhoh1ve9eiqsmos
+Thu 17 Apr 25,Go-Games (Regional | Mid 1),Girls,Round 1,U12 Girls,AWAY,---,Shamrock Gaels,---,Grange Naomh Colmcille CLG,---,Shamrock Gaels,6:45 PM,---,manual,GFAS-25-1A9C,ADDED,8dpgcbgc1f7djgquk6qeud9760
+Thu 24 Apr 25,Go-Games (Regional | Mid 1),Girls,Round 2,U12 Girls,HOME,---,Grange Naomh Colmcille CLG,---,Pearse Og,---,Grange St Colmcille's,6:45 PM,---,manual,GFAS-25-A4DE,ADDED,930vm1afj3hojrh1lhkcv1lh64
+Thu 24 Apr 25,U-16 Division 2 Football League,Boys,Round 2,U16 Boys,AWAY,---,Clann Eireann,---,Naomh Colum,---,Clann Eireann,7:00 PM,Colin Mallon,url,GFAS-25-0361,ADDED,e82fbld6bsb5lii62t3a4te3pk
+Fri 25 Apr 25,2025 Intermediate Football League Division 2B,Men,Round 3,Senior Men,HOME,---,Grange Naomh Colmcille CLG,---,Tir na nÓg,---,Grange St Colmcille's,7:00 PM,Tony O Hare,url,GFAS-25-822E,ADDED,mlbav50sl9c69qcu99395jin3s
+Sat 26 Apr 25,Go-Games (Group 2),Boys,Round 1,U8.5 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Middletown,---,Grange St Colmcille's,11:00 AM,---,manual,GFAS-25-FCB3,ADDED,anab480tv8vee05rck9k17fa5k
+Sat 26 Apr 25,Go-Games (Regional | North 2),Boys,Round 1,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Sarsfields,---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-4A16,MODIFIED,ba8qa0d3hkvg2qhjn0vfk7jlks
+Mon 28 Apr 25,Senior Division 2 League,Ladies,Round 2,Senior Ladies,HOME,---,Grange Naomh Colmcille CLG,---,Clan na Gael,---,Grange St Colmcille's,7:00 PM,TBC,url,GFAS-25-A506,ADDED,c8ul9d18hafufincl3dcdid93o
+Mon 28 Apr 25,U-18 Division 2 League,Boys,Round 3,Minor Boys,HOME,---,Naomh Colum,---,Tir na nÓg,---,,7:15 PM,TBC,url,GFAS-25-7821,ADDED,a132vcrpihfgupuh8f8dqc9ds0
+Tue 29 Apr 25,U-14 Division 2 Football League,Boys,Round 3,U14 Boys,AWAY,---,Pearse Og,---,Naomh Colum,---,Pearse Ogs,7:00 PM,TBC,url,GFAS-25-99B1,ADDED,8alhsrpetsq1b96dq5pcde7kr0
+Thu 01 May 25,U16 Div 5 League,Girls,Round 3,U16 Girls,HOME,---,Grange Naomh Colmcille CLG,---,O'Doirnin Blues,---,Grange St Colmcille's,7:00 PM,Shane Mc Keown,url,GFAS-25-995C,ADDED,4hn9hudm62huui5cn7en5imrv4
+Thu 01 May 25,U-16 Division 2 Football League,Boys,Round 3,U16 Boys,HOME,---,Naomh Colum,---,Carrickcruppen,---,Maghery,7:15 PM,TBC,url,GFAS-25-952E,ADDED,hr4h3jt4h27j7eau2q9h1le6q0
+Thu 01 May 25,2025 Intermediate Football League Division 2B,Men,Round 4,Senior Men,AWAY,---,Collegeland,---,Grange Naomh Colmcille CLG,---,Collegeland,7:15 PM,Ruan Mc Kinstry,url,GFAS-25-A8B9,ADDED,gm3c76gglidlnbcsr7vqdgb8d8
+Sat 03 May 25,Go-Games (Group 2),Boys,Round 2,U8.5 Boys,AWAY,---,Derrynoose St Mochuas,---,Grange Naomh Colmcille CLG,---,Derrynoose St Mochuas,11:00 AM,---,manual,GFAS-25-0671,ADDED,vossauqa6ek2v5uoq8v510g5kk
+Sat 03 May 25,Go-Games (Regional | North 2),Boys,Round 2,U12 Boys,AWAY,---,Ballyhegan Davitts,---,Grange Naomh Colmcille CLG,---,Ballyhegan Davitts,4:00 PM,---,manual,GFAS-25-96CC,MODIFIED,fqr2it4ulknk220q4jbrsrb2b4
+Sun 04 May 25,U14 Div 2 League,Girls,Round 2,U14 Girls,AWAY,---,Tir na nÓg,---,Grange Naomh Colmcille CLG,---,Páirc an Athar Uí Raifeartaigh,12:00 PM,TBC,url,GFAS-25-587E,ADDED,akpiuv6oguv16knhojebregpg4
+Mon 05 May 25,U-18 Division 2 League,Boys,Round 4,Minor Boys,AWAY,---,Culloville Blues GAC,---,Naomh Colum,---,Culloville Top field,7:15 PM,Paul Graham,url,GFAS-25-F192,ADDED,ea0tdklkvngsc5rp4homjeoabo
+Tue 06 May 25,U-14 Division 2 Football League,Boys,Round 4,U14 Boys,HOME,---,Naomh Colum,---,Naomh Eoin B Team,---,,7:15 PM,TBC,url,GFAS-25-E644,ADDED,e1c6huvplk9ofoits6evrk6a8k
+Thu 08 May 25,U16 Div 5 League,Girls,Round 4,U16 Girls,AWAY,---,Patrick Rankin,---,Grange Naomh Colmcille CLG,---,,7:00 PM,Keith Goodfellow,url,GFAS-25-B0EC,ADDED,ls5qisadmgp3g7tvto5akrjfro
+Thu 08 May 25,U-16 Division 2 Football League,Boys,Round 4,U16 Boys,AWAY,---,Naomh Peadar,---,Naomh Colum,---,St Peter's Lurgan,7:15 PM,TBC,url,GFAS-25-FB0F,ADDED,tqrme22gmiuo18joeeb588jg4o
+Fri 09 May 25,2025 Intermediate Football League Division 2B,Men,Round 5,Senior Men,AWAY,---,Wolfe Tones,---,Grange Naomh Colmcille CLG,---,Wolfe Tones Derrymacash,7:15 PM,TBC,url,GFAS-25-092D,ADDED,ei2pchql0acrrct3bl37i981k4
+Sat 10 May 25,Go-Games (Group 2),Boys,Round 3,U8.5 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Madden Raparees,---,Grange St Colmcille's,11:00 AM,---,manual,GFAS-25-A593,ADDED,vtq2pk5012bec60igh2gtea4j8
+Sat 10 May 25,Go-Games (Regional | North 2),Boys,Round 3,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,St Mary's Aghagallon,---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-21A5,MODIFIED,nhplupdcr7r6h6s24d9eskbqko
+Sat 10 May 25,Senior Division 2 League,Ladies,Round 4,Senior Ladies,AWAY,---,Derrynoose,---,Grange Naomh Colmcille CLG,---,Derrynoose,7:00 PM,TBC,url,GFAS-25-5211,ADDED,gd29ae869mhto09j573o5ossto
+Sun 11 May 25,U14 Div 2 League,Girls,Round 3,U14 Girls,HOME,---,Grange Naomh Colmcille CLG,---,Madden,---,Grange St Colmcille's,12:00 PM,TBC,url,GFAS-25-EE8F,ADDED,0uhqgoqunljl32ldmhq8057mpc
+Tue 13 May 25,U-14 Division 2 Football League,Boys,Round 5,U14 Boys,AWAY,---,Madden,---,Naomh Colum,---,Madden,7:15 PM,TBC,url,GFAS-25-3E97,ADDED,4mc7e4ufflc8u9gn2vsrsbbsqk
+Thu 15 May 25,Go-Games (Regional | Mid 1),Girls,Round 3,U12 Girls,AWAY,---,Mullabrack,---,Grange Naomh Colmcille CLG,---,Mullabrack,7:00 PM,---,manual,GFAS-25-BDF0,ADDED,ructcgpgki3va6cq6iee7vauso
+Sat 17 May 25,Go-Games (Regional | North 2),Boys,Round 4,U12 Boys,AWAY,---,Tir na nÓg,---,Grange Naomh Colmcille CLG,---,Tir na nÓg,4:00 PM,---,manual,GFAS-25-B562,MODIFIED,o324e4m8upjoith6lmva14jv4g
+Sat 17 May 25,2025 Intermediate Football League Division 2B,Men,Round 6,Senior Men,HOME,---,Grange Naomh Colmcille CLG,---,Derrynoose,---,Grange St Colmcille's,6:00 PM,TBC,url,GFAS-25-AE72,ADDED,tsihkmk25m9pteq14tg7svlr00
+Sat 17 May 25,Minor Div 3 League,Girls,Round 4,Minor Girls,AWAY,---,Wolfe Tones,---,Grange Naomh Colmcille CLG,---,Wolfe Tones Derrymacash,7:00 PM,Christopher Lennon,url,GFAS-25-23C1,ADDED,naap5udsll19t28uqffduh1iao
+Thu 22 May 25,Go-Games (Regional | Mid 1),Girls,Round 4,U12 Girls,HOME,---,Grange Naomh Colmcille CLG,---,Madden,---,Grange St Colmcille's,7:00 PM,---,manual,GFAS-25-00A6,ADDED,m04mvppe6bsh6mn8vm36o0hbjc
+Fri 23 May 25,2025 Intermediate Football League Division 2B,Men,Round 7,Senior Men,AWAY,---,Peadar Ó Doirnín Foirceal,---,Grange Naomh Colmcille CLG,---,Forkhill,7:30 PM,TBC,url,GFAS-25-84C9,ADDED,ik7kh0mo231tg57hggl4uhscbc
+Sat 24 May 25,Go-Games (Group 2),Boys,Round 4,U8.5 Boys,AWAY,---,Collegeland O'Rahilly's,---,Grange Naomh Colmcille CLG,---,Collegeland O'Rahilly's,11:00 AM,---,manual,GFAS-25-D31C,ADDED,l2v250s8tfbd7vr60faansik6o
+Sat 24 May 25,Go-Games (Regional | North 2),Boys,Round 5,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Naomh Eoin (B Team),---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-566F,MODIFIED,fioq7dtfjfp8u05ptu4oe9hvf0
+Sat 24 May 25,Senior Division 2 League,Ladies,Round 5,Senior Ladies,HOME,---,Grange Naomh Colmcille CLG,---,Armagh Harps,---,Grange St Colmcille's,7:00 PM,TBC,url,GFAS-25-27EC,ADDED,irfaoi2vnih431je2541rpv5fk
+Sun 25 May 25,U14 Div 2 League,Girls,Round 4,U14 Girls,AWAY,---,Armagh Harps,---,Grange Naomh Colmcille CLG,---,Armagh Harps,12:00 PM,TBC,url,GFAS-25-D018,ADDED,t35q9kmm9n1jkij301cgb1tr6s
+Mon 26 May 25,U-18 Division 2 League,Boys,Round 5,Minor Boys,HOME,---,Naomh Colum,---,Silverbridge,---,,7:15 PM,TBC,url,GFAS-25-0D41,ADDED,kvenrnqnj7ljtm826qlrbk332g
+Thu 29 May 25,U-16 Division 2 Football League,Boys,Round 5,U16 Boys,HOME,---,Naomh Colum,---,Naomh Eoin B Team,---,,7:15 PM,TBC,url,GFAS-25-0131,ADDED,oqn7rd1g8ejhhm0o2ecjroh4do
+Sat 31 May 25,Go-Games (Group 2),Boys,Round 5,U8.5 Boys,BYE,BYE,Grange Naomh Colmcille CLG,---,BYE,---,BYE,11:00 AM,BYE,manual,GFAS-25-4DCE,ADDED,1rd89728dhnfdstdekjm1362j8
+Sat 31 May 25,Go-Games (Regional | North 2),Boys,Round 6,U12 Boys,AWAY,---,Pearse Og,---,Grange Naomh Colmcille CLG,---,Pearse Og,4:00 PM,---,manual,GFAS-25-45BF,MODIFIED,t8f7lm8n7tgfmnlma28de2qdrk
+Sat 31 May 25,Senior Division 2 League,Ladies,Round 6,Senior Ladies,AWAY,---,CLG Chú Chulainn An Mullach Bán,---,Grange Naomh Colmcille CLG,---,Mullaghbawn,7:00 PM,TBC,url,GFAS-25-4EE1,ADDED,djjff3vk8q5p2ltrgqiun1gijo
+Mon 02 Jun 25,U-18 Division 2 League,Boys,Round 6,Minor Boys,AWAY,---,Killeavy St Moninna,---,Naomh Colum,---,Memorial Park,7:15 PM,TBC,url,GFAS-25-B577,ADDED,e6u7s3ss2fgej5q1rnvnrm794c
+Thu 05 Jun 25,Go-Games (Regional | Mid 1),Girls,Round 5,U12 Girls,AWAY,---,Derrynoose,---,Grange Naomh Colmcille CLG,---,Derrynoose,7:00 PM,---,manual,GFAS-25-0466,ADDED,1bq6b1q7e9qh6efh3p80daoqlk
+Thu 05 Jun 25,U-16 Division 2 Football League,Boys,Round 6,U16 Boys,AWAY,---,Tir na nÓg,---,Naomh Colum,---,Páirc an Athar Uí Raifeartaigh,7:15 PM,TBC,url,GFAS-25-C748,ADDED,amdfrdb9fh1u8l4iio8o5322t4
+Fri 06 Jun 25,2025 Intermediate Football League Division 2B,Men,Round 8,Senior Men,AWAY,---,Clann Eireann,---,Grange Naomh Colmcille CLG,---,Clann Eireann,7:30 PM,TBC,url,GFAS-25-EEFF,ADDED,afafsmldun5gdtegp1o09ndlb8
+Sat 07 Jun 25,Go-Games (Regional | North 2),Boys,Round 7,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,An Port Mór,---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-57D9,MODIFIED,ekcfovcrlqt6717oou7nmcu6e8
+Sat 07 Jun 25,Minor Div 3 League,Girls,Round 5,Minor Girls,HOME,---,Grange Naomh Colmcille CLG,---,St Patrick's,---,Grange St Colmcille's,7:30 PM,TBC,url,GFAS-25-609B,ADDED,4gs5t3g2i2gee8jqb7tch5sc2g
+Thu 12 Jun 25,U16 Div 5 League,Girls,Round 6,U16 Girls,AWAY,---,Naomh Peadar,---,Grange Naomh Colmcille CLG,---,St Peter's Lurgan,7:00 PM,TBC,url,GFAS-25-5A68,ADDED,o5iphmtjs1eu0ku8aesq46vn1o
+Fri 13 Jun 25,2025 Intermediate Football League Division 2B,Men,Round 9,Senior Men,HOME,---,Grange Naomh Colmcille CLG,---,Na Piarsaigh Eanach Mor,---,Grange St Colmcille's,7:45 PM,TBC,url,GFAS-25-F534,ADDED,6nu2i3o166e26r314sj0j4uuhg
+Sat 14 Jun 25,Go-Games (Group 2),Boys,Round 6,U8.5 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Keady Michael Dwyers,---,Grange St Colmcille's,11:00 AM,---,manual,GFAS-25-2A24,ADDED,ubcuq4ncn59ciig3ths93q8uq8
+Sat 14 Jun 25,Go-Games (Regional | North 2),Boys,Round 8,U12 Boys,AWAY,---,Sarsfields,---,Grange Naomh Colmcille CLG,---,Sarsfields,4:00 PM,---,manual,GFAS-25-4972,MODIFIED,6ub290gt06l6laqlkjdcgf75sg
+Sat 14 Jun 25,Senior Division 2 League,Ladies,Round 3,Senior Ladies,HOME,---,Grange Naomh Colmcille CLG,---,Tir na nÓg,---,Grange St Colmcille's,7:30 PM,TBC,url,GFAS-25-DFC2,ADDED,einarlj4sv4iv8ql1vearn32ok
+Sun 15 Jun 25,U14 Div 2 League,Girls,Round 6,U14 Girls,AWAY,---,CLG Chú Chulainn An Mullach Bán,---,Grange Naomh Colmcille CLG,---,Mullaghbawn,12:00 PM,TBC,url,GFAS-25-9E93,ADDED,abo4pnln0k4js8ub3nmk4hd0ik
+Thu 19 Jun 25,U-16 Division 2 Football League,Boys,Round 7,U16 Boys,HOME,---,Naomh Colum,---,Culloville Blues GAC,---,,7:15 PM,TBC,url,GFAS-25-3BA3,ADDED,vglla13amvmsnt0n240vj02hpg
+Fri 20 Jun 25,2025 Intermediate Football League Division 2B,Men,Round 10,Senior Men,AWAY,---,Tir na nÓg,---,Grange Naomh Colmcille CLG,---,Páirc an Athar Uí Raifeartaigh,7:45 PM,TBC,url,GFAS-25-CD2B,ADDED,s4q0n6pnpdd057p9r0tmt13vg0
+Sat 21 Jun 25,Go-Games (Group 2),Boys,Round 7,U8.5 Boys,AWAY,---,Tullysaran O'Connells,---,Grange Naomh Colmcille CLG,---,Tullysaran O'Connells,11:00 AM,---,manual,GFAS-25-7B2F,ADDED,gts78m2pbt815knfh21hapmb6c
+Sat 21 Jun 25,Go-Games (Regional | North 2),Boys,Round 9,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Ballyhegan Davitts,---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-8778,MODIFIED,h07v8mou4hqr0tj3je0aq1ta98
+Sat 21 Jun 25,Minor Div 3 League,Girls,Round 6,Minor Girls,AWAY,---,Naomh Peadar,---,Grange Naomh Colmcille CLG,---,St Peter's Lurgan,7:30 PM,TBC,url,GFAS-25-7B7A,ADDED,ni4lgehfh8vui30gcqcr4diuak
+Sun 22 Jun 25,U14 Div 2 League,Girls,Round 7,U14 Girls,HOME,---,Grange Naomh Colmcille CLG,---,Keady Michael Dwyers,---,Grange St Colmcille's,12:00 PM,TBC,url,GFAS-25-340D,ADDED,behbo8922ncmcqjrp6s3knojv4
+Mon 23 Jun 25,U-18 Division 2 League,Boys,Round 8,Minor Boys,HOME,---,Naomh Colum,---,Madden,---,,7:15 PM,TBC,url,GFAS-25-6D7D,ADDED,iqobad8l6g2dirqg1rl3sgqsec
+Tue 24 Jun 25,U-14 Division 2 Football League,Boys,Round 6,U14 Boys,HOME,---,Naomh Colum,---,An Port Mór,---,,7:15 PM,TBC,url,GFAS-25-E463,ADDED,bvo53mf6pfp2optaui1spe8jps
+Thu 26 Jun 25,U-16 Division 2 Football League,Boys,Round 8,U16 Boys,AWAY,---,Ballyhegan,---,Naomh Colum,---,Ballyhegan Park,7:15 PM,TBC,url,GFAS-25-2A29,ADDED,3552b1h3puplbc771g6lvhb89s
+Fri 27 Jun 25,2025 Intermediate Football League Division 2B,Men,Round 11,Senior Men,HOME,---,Grange Naomh Colmcille CLG,---,Collegeland,---,Grange St Colmcille's,7:45 PM,TBC,url,GFAS-25-6B1D,ADDED,vhml3tg7d041fkmi3kk3s77p2s
+Sat 28 Jun 25,Go-Games (Group 2),Boys,Round 8,U8.5 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Ballymacnab Round Towers,---,Grange St Colmcille's,11:00 AM,---,manual,GFAS-25-3585,ADDED,lcfq5af5kam1utho8ckisu8rbg
+Sat 28 Jun 25,Go-Games (Regional | North 2),Boys,Round 10,U12 Boys,AWAY,---,St Mary's Aghagallon,---,Grange Naomh Colmcille CLG,---,St Mary's Aghagallon,4:00 PM,---,manual,GFAS-25-7028,MODIFIED,09oc6h9ru0bl5vlkhle4tk7nfo
+Sat 28 Jun 25,Senior Division 2 League,Ladies,Round 7,Senior Ladies,HOME,---,Grange Naomh Colmcille CLG,---,Mullabrack,---,Grange St Colmcille's,7:30 PM,TBC,url,GFAS-25-ECEF,ADDED,htag15ut0vdtrfb7ccjepha2jk
+Mon 30 Jun 25,U-18 Division 2 League,Boys,Round 9,Minor Boys,AWAY,---,Wolfe Tones,---,Naomh Colum,---,Wolfe Tones Derrymacash,7:15 PM,TBC,url,GFAS-25-9AC0,ADDED,8ofb5i3qoompmbejren5ecbklg
+Thu 03 Jul 25,U16 Div 5 League,Girls,Round 7,U16 Girls,HOME,---,Grange Naomh Colmcille CLG,---,An Port Mór,---,Grange St Colmcille's,7:00 PM,TBC,url,GFAS-25-B1D0,ADDED,2umlgcvm88e0ocfedeh11a7v3s
+Fri 04 Jul 25,2025 Intermediate Football League Division 2B,Men,Round 12,Senior Men,HOME,---,Grange Naomh Colmcille CLG,---,Wolfe Tones,---,Grange St Colmcille's,7:45 PM,TBC,url,GFAS-25-CFEA,ADDED,9bl6mua1pcmhdhdrs0hbdisosg
+Sat 05 Jul 25,Go-Games (Regional | North 2),Boys,Round 11,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Tir na nÓg,---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-1245,MODIFIED,reoj0dgl2t06co7q4tp4ckrbjc
+Mon 07 Jul 25,Minor Div 3 League,Girls,Round 8,Minor Girls,HOME,---,Grange Naomh Colmcille CLG,---,O'Hanlons,---,Grange St Colmcille's,7:00 PM,TBC,url,GFAS-25-79BC,ADDED,oegtgl7jp9pmvjs100im842oc0
+Mon 21 Jul 25,Minor Div 3 League,Girls,Round 9,Minor Girls,AWAY,---,Silverbridge,---,Grange Naomh Colmcille CLG,---,Silverbridge,7:00 PM,TBC,url,GFAS-25-F4C9,ADDED,a1s44ia9p7hspdhdlb726qkktc
+Thu 24 Jul 25,U16 Div 5 League,Girls,Round 8,U16 Girls,AWAY,---,O'Doirnin Blues,---,Grange Naomh Colmcille CLG,---,Top Field,7:00 PM,TBC,url,GFAS-25-DC04,ADDED,7mguk52kbi7jr5t2nin0jf9qjc
+Fri 25 Jul 25,2025 Intermediate Football League Division 2B,Men,Round 13,Senior Men,AWAY,---,Derrynoose,---,Grange Naomh Colmcille CLG,---,Derrynoose,7:30 PM,TBC,url,GFAS-25-3F6D,ADDED,s01r12q1dlj31bsv6l09ri42o8
+Sat 26 Jul 25,Go-Games (Group 2),Boys,Round 9,U8.5 Boys,AWAY,---,Granemore St Mary'sG,---,Grange Naomh Colmcille CLG,---,Granemore St Mary's,11:00 AM,---,manual,GFAS-25-C350,ADDED,e3mm27tfctld7u9m6g8nfjgnk0
+Sat 26 Jul 25,Go-Games (Regional | North 2),Boys,Round 12,U12 Boys,AWAY,---,Naomh Eoin (B Team),---,Grange Naomh Colmcille CLG,---,Naomh Eoin,4:00 PM,---,manual,GFAS-25-1D4C,MODIFIED,jn0dt1t014c7084c46kd23uin8
+Mon 28 Jul 25,U-18 Division 2 League,Boys,Round 10,Minor Boys,HOME,---,Naomh Colum,---,Middletown GAA,---,,7:15 PM,TBC,url,GFAS-25-D9A6,ADDED,7o9vh7t6l0j1hj2858scl0iti4
+Thu 31 Jul 25,U16 Div 5 League,Girls,Round 9,U16 Girls,HOME,---,Grange Naomh Colmcille CLG,---,Patrick Rankin,---,Grange St Colmcille's,7:00 PM,TBC,url,GFAS-25-C27A,ADDED,fptgf7sihi03if9vm5q504inis
+Fri 01 Aug 25,2025 Intermediate Football League Division 2B,Men,Round 14,Senior Men,HOME,---,Grange Naomh Colmcille CLG,---,Peadar Ó Doirnín Foirceal,---,Grange St Colmcille's,7:30 PM,TBC,url,GFAS-25-1DBF,ADDED,k1vmt730d7h5sni5pj5ni5aplg
+Sat 02 Aug 25,Go-Games (Regional | North 2),Boys,Round 13,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Pearse Og,---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-558A,MODIFIED,bai765jjt6enniih2vjio4dnck
+Mon 04 Aug 25,U-18 Division 2 League,Boys,Round 11,Minor Boys,AWAY,---,Ballyhegan,---,Naomh Colum,---,Ballyhegan Park,7:15 PM,TBC,url,GFAS-25-71E1,ADDED,gc713if1um9smbc0sc42pq8lcs
+Tue 05 Aug 25,U-14 Division 2 Football League,Boys,Round 7,U14 Boys,AWAY,---,Keady Michael Dwyers,---,Naomh Colum,---,Gerard McGleenan Park,7:15 PM,TBC,url,GFAS-25-06AC,ADDED,kbrpo39162qof1oeh7gapt4i2s
+Sat 09 Aug 25,Go-Games (Regional | North 2),Boys,Round 14,U12 Boys,AWAY,---,An Port Mór,---,Grange Naomh Colmcille CLG,---,An Port Mór,4:00 PM,---,manual,GFAS-25-0AA4,MODIFIED,aph06h477nrumo25bd0c6ff790
+Tue 12 Aug 25,U-14 Division 2 Football League,Boys,Round 8,U14 Boys,HOME,---,Naomh Colum,---,Clann Eireann,---,,7:15 PM,TBC,url,GFAS-25-93AB,ADDED,d0a3gcapttuqrj23369uucnlak
+Tue 26 Aug 25,U-14 Division 2 Football League,Boys,Round 9,U14 Boys,AWAY,---,St Patrick's,---,Naomh Colum,---,St Patrick's Cullyhanna,7:00 PM,TBC,url,GFAS-25-EF7D,ADDED,vvde8k8vumgmvag1mo2s56jeko
+Tue 09 Sep 25,U-14 Division 2 Football League,Boys,Round 11,U14 Boys,HOME,---,Naomh Colum,---,Tir na nÓg,---,,6:45 PM,TBC,url,GFAS-25-88A9,ADDED,vto769uh0hji9kpuqi6nqrqr64
+Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Colmcille CLG,---,BYE,---,BYE,11:00 AM,BYE,url,GFAS-25-9879,ADDED,uf3ktble4775n3o549e990rqa4
+`;
+        
+        // Parse the CSV data and store it in a global variable
         let matches = [];
-
-        // Parse the CSV data when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
+        
+        // Function to format date in a more readable format
+        function formatDate(dateStr) {
+            const parts = dateStr.split(' ');
+            return `${parts[0]} ${parts[1]} ${parts[2]}`;
+        }
+        
+        // Extract unique teams, competitions for filters
+        function extractFilterOptions() {
+            console.log('Extracting filter options...');
+            const teams = new Set();
+            const competitions = new Map(); // Changed to Map to store sex with competition
+            
+            matches.forEach(match => {
+                if (match.Team) teams.add(match.Team);
+                if (match.Competition) {
+                    // Store competition with its sex category
+                    competitions.set(match.Competition, match.Sex);
+                }
+            });
+            
+            const options = {
+                teams: Array.from(teams).sort(),
+                competitions: Array.from(competitions.entries())
+                    .sort((a, b) => {
+                        // First sort by sex
+                        const sexOrder = { 'Men': 1, 'Ladies': 2, 'Boys': 3, 'Girls': 4 };
+                        const sexA = sexOrder[a[1]] || 999;
+                        const sexB = sexOrder[b[1]] || 999;
+                        if (sexA !== sexB) return sexA - sexB;
+                        // Then sort by competition name
+                        return a[0].localeCompare(b[0]);
+                    })
+            };
+            
+            console.log('Filter options:', options);
+            return options;
+        }
+        
+        // Populate filter dropdowns
+        function populateFilters() {
+            console.log('Populating filters...');
+            const options = extractFilterOptions();
+            const teamFilter = document.getElementById('teamFilter');
+            const competitionFilter = document.getElementById('competitionFilter');
+            
+            // Clear existing options except the first one
+            while (teamFilter.options.length > 1) {
+                teamFilter.remove(1);
+            }
+            while (competitionFilter.options.length > 1) {
+                competitionFilter.remove(1);
+            }
+            
+            options.teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                teamFilter.appendChild(option);
+            });
+            
+            options.competitions.forEach(([competition, sex]) => {
+                const option = document.createElement('option');
+                option.value = competition;
+                // Format the display text with sex category
+                option.textContent = `${sex} - ${competition}`;
+                competitionFilter.appendChild(option);
+            });
+        }
+        
+        // Function to update statistics
+        function updateStats(matches) {
+            const stats = {
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                upcoming: 0
+            };
+            
+            matches.forEach(match => {
+                if (match.Result === 'WIN') stats.wins++;
+                else if (match.Result === 'LOSS') stats.losses++;
+                else if (match.Result === 'DRAW') stats.draws++;
+                else if (match.Result === '---' || !match.Result) stats.upcoming++;
+            });
+            
+            document.getElementById('winCount').textContent = stats.wins;
+            document.getElementById('lossCount').textContent = stats.losses;
+            document.getElementById('drawCount').textContent = stats.draws;
+            document.getElementById('upcomingCount').textContent = stats.upcoming;
+        }
+        
+        // Enhanced display matches function
+        function displayMatches() {
+            console.log('Displaying matches...');
+            const filteredMatches = filterMatches();
+            const matchContainer = document.getElementById('matchContainer');
+            matchContainer.innerHTML = '';
+            
+            if (filteredMatches.length === 0) {
+                matchContainer.innerHTML = `
+                    <div class="no-results">
+                        <p>No matches found for the selected filters.</p>
+                        <p>Try changing your filter options.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Group matches by date
+            const groupedMatches = groupMatchesByDate(filteredMatches);
+            
+            // Sort dates chronologically
+            const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
+                const dateA = parseDate(a);
+                const dateB = parseDate(b);
+                return dateA - dateB;
+            });
+                
+            // Get today's date for comparison
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+            // Create a container for today's date marker
+            const todayMarker = document.createElement('div');
+            todayMarker.className = 'today-marker';
+            todayMarker.innerHTML = '<span>Today</span>';
+            todayMarker.style.display = 'none'; // Initially hidden
+            
+            // Loop through dates and matches
+            sortedDates.forEach(date => {
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'date-header';
+                dateHeader.textContent = formatDate(date);
+                matchContainer.appendChild(dateHeader);
+                
+                // Sort matches within each date chronologically
+                const sortedMatches = groupedMatches[date].sort((a, b) => {
+                    // If both matches have times, sort by time
+                    if (a.Time && b.Time) {
+                        return a.Time.localeCompare(b.Time);
+                    }
+                    // If only one has time, put the one with time first
+                    return (b.Time ? 1 : 0) - (a.Time ? 1 : 0);
+                });
+                
+                sortedMatches.forEach(match => {
+                    const matchCard = createMatchCard(match);
+                    matchContainer.appendChild(matchCard);
+                });
+                
+                // Insert today marker after the appropriate date
+                const currentDate = parseDate(date);
+                if (currentDate <= today && 
+                    (!sortedDates[sortedDates.indexOf(date) + 1] || 
+                     parseDate(sortedDates[sortedDates.indexOf(date) + 1]) > today)) {
+                    matchContainer.appendChild(todayMarker.cloneNode(true));
+                }
+            });
+            
+            // Scroll to today's marker after a short delay to ensure rendering
+            setTimeout(() => {
+                const todayMarker = document.querySelector('.today-marker');
+                if (todayMarker) {
+                    todayMarker.style.display = 'block';
+                    todayMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+            
+            console.log('Matches displayed:', filteredMatches.length);
+        }
+        
+        // Initialize the application
+        function init() {
             console.log('Initializing application...');
             try {
                 // Parse the CSV data first
@@ -857,98 +1939,871 @@
                     </div>
                 `;
             }
-        });
-
-        // Parse the CSV data
-        function parseCSV(csvData) {
-            const lines = csvData.split('\n');
-            const matches = [];
-            
-            // Skip header row
-            for (let i = 1; i < lines.length; i++) {
-                const line = lines[i];
-                if (!line.trim()) continue;
-                
-                const [
-                    date,
-                    competition,
-                    sex,
-                    round,
-                    team,
-                    where,
-                    result,
-                    homeTeam,
-                    homeScore,
-                    awayTeam,
-                    awayScore,
-                    venue,
-                    time,
-                    referee,
-                    source,
-                    id,
-                    status,
-                    hash
-                ] = line.split(',').map(field => field.trim());
-
-                if (date && competition) {
-                    matches.push({
-                        Date: date,
-                        Competition: competition,
-                        Sex: sex,
-                        Round: round,
-                        Team: team,
-                        Where: where,
-                        Result: result,
-                        'Home Team': homeTeam,
-                        'Home Score': homeScore,
-                        'Away Team': awayTeam,
-                        'Away Score': awayScore,
-                        Venue: venue,
-                        Time: time,
-                        Referee: referee,
-                        Source: source,
-                        ID: id,
-                        Status: status,
-                        Hash: hash
-                    });
-                }
-            }
-
-            return matches;
         }
-
-        // Update parseDate function to handle the new date format
+        
+        // Separate UI initialization
+        function initializeUI() {
+            try {
+                // Initialize the UI components
+                populateFilters();
+                populateSidebarTeamFilter();
+                initSidebarToggle();
+                initSearchAutocomplete();
+                
+                // Initialize date picker with no default date
+                const dateRangePicker = flatpickr("#dateRange", {
+                    mode: "range",
+                    dateFormat: "d M Y",
+                    onChange: function(selectedDates, dateStr) {
+                        displayMatches();
+                    }
+                });
+                
+                // Add event listeners
+                document.getElementById('teamFilter').addEventListener('change', displayMatches);
+                document.getElementById('competitionFilter').addEventListener('change', displayMatches);
+                document.getElementById('statusFilter').addEventListener('change', displayMatches);
+                document.getElementById('sidebarTeamFilter').addEventListener('change', function() {
+                    const selectedTeam = this.value;
+                    updateTeamStats(selectedTeam);
+                });
+                
+                // Remove the debounce from search input
+                const searchInput = document.getElementById('searchInput');
+                
+                // Initialize reset buttons
+                document.getElementById('resetSearch').addEventListener('click', () => {
+                    searchInput.value = '';
+                    displayMatches();
+                });
+                
+                document.getElementById('resetDate').addEventListener('click', () => {
+                    dateRangePicker.clear();
+                    displayMatches();
+                });
+                
+                document.getElementById('resetTeam').addEventListener('click', () => {
+                    document.getElementById('teamFilter').value = 'all';
+                    displayMatches();
+                });
+                
+                document.getElementById('resetCompetition').addEventListener('click', () => {
+                    document.getElementById('competitionFilter').value = 'all';
+                    displayMatches();
+                });
+                
+                document.getElementById('resetStatus').addEventListener('click', () => {
+                    document.getElementById('statusFilter').value = 'all';
+                    displayMatches();
+                });
+                
+                // Initialize share functionality
+                document.getElementById('shareBtn').addEventListener('click', showSharePopup);
+                
+                // Initialize calendar integration
+                document.getElementById('addToCalendar').addEventListener('click', showCalendarPopup);
+                
+                // Initialize team stats with 'all' teams first
+                updateTeamStats('all');
+                
+                // Display matches after all initialization
+                displayMatches();
+                
+                console.log('Application initialized successfully');
+            } catch (error) {
+                console.error('Error initializing UI:', error);
+                document.getElementById('matchContainer').innerHTML = `
+                    <div class="no-results">
+                        <p>Error initializing the application. Please try refreshing the page.</p>
+                        <p>Error details: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Debounce function to limit search input processing
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // Enhanced filter matches function to include search and date range
+        function filterMatches() {
+            const teamFilter = document.getElementById('teamFilter').value;
+            const competitionFilter = document.getElementById('competitionFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Get date range safely
+            let dateRange = null;
+            const dateRangeInput = document.getElementById('dateRange');
+            if (dateRangeInput && dateRangeInput._flatpickr && dateRangeInput._flatpickr.selectedDates.length > 0) {
+                dateRange = dateRangeInput._flatpickr.selectedDates;
+            }
+            
+            return matches.filter(match => {
+                // Team filter
+                if (teamFilter !== 'all' && match.Team !== teamFilter) return false;
+                
+                // Competition filter
+                if (competitionFilter !== 'all' && match.Competition !== competitionFilter) return false;
+                
+                // Status filter
+                if (statusFilter === 'fixture') {
+                    // Show only upcoming matches (no result or '---')
+                    if (match.Result && match.Result !== '---') return false;
+                } else if (statusFilter === 'result') {
+                    // Show only past matches (has a result)
+                    if (!match.Result || match.Result === '---') return false;
+                }
+                // For 'all' status, we don't filter by result
+                
+                // Search filter
+                if (searchQuery) {
+                    const searchableText = [
+                        match.Competition,
+                        match.Team,
+                        match['Home Team'],
+                        match['Away Team'],
+                        match.Venue,
+                        match.Round
+                    ].join(' ').toLowerCase();
+                    
+                    if (!searchableText.includes(searchQuery)) return false;
+                }
+                
+                // Date range filter - only apply if dates are selected
+                if (dateRange && dateRange.length === 2) {
+                    const matchDate = parseDate(match.Date);
+                    const startDate = dateRange[0];
+                    const endDate = dateRange[1];
+                    
+                    if (matchDate < startDate || matchDate > endDate) return false;
+                }
+                
+                return true;
+            });
+        }
+        
+        // Group matches by date
+        function groupMatchesByDate(matches) {
+            const groupedMatches = {};
+            
+            matches.forEach(match => {
+                const date = match.Date;
+                if (!groupedMatches[date]) {
+                    groupedMatches[date] = [];
+                }
+                groupedMatches[date].push(match);
+            });
+            
+            return groupedMatches;
+        }
+        
+        // Helper function to parse date strings like "Mon 31 Mar 25"
         function parseDate(dateStr) {
-            if (!dateStr) return new Date();
-            
-            // Split the date string into parts (e.g., "Mon 31 Mar 25" -> ["Mon", "31", "Mar", "25"])
             const parts = dateStr.split(' ');
-            if (parts.length !== 4) return new Date(); // Invalid format
-            
             const day = parseInt(parts[1]);
-            const month = parts[2];
-            const year = parseInt(parts[3]);
-            
-            // Convert month name to number (0-11)
+            const month = getMonthNumber(parts[2]);
+            const year = 2000 + parseInt(parts[3]);
+            return new Date(year, month, day);
+        }
+        
+        function getMonthNumber(monthStr) {
             const months = {
                 'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
                 'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
             };
-            
-            // Create date with full year (2025)
-            return new Date(2000 + year, months[month], day);
+            return months[monthStr];
         }
-
-        // Update formatDate function to handle the new date format
-        function formatDate(dateStr) {
-            const date = parseDate(dateStr);
-            return date.toLocaleDateString('en-GB', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
+        
+        // Create a match card element
+        function createMatchCard(match) {
+            const matchCard = document.createElement('div');
+            matchCard.className = 'match-card';
+            
+            // Add result class if available
+            if (match.Result && match.Result !== '---') {
+                matchCard.classList.add(match.Result.toLowerCase());
+            } else {
+                matchCard.classList.add('upcoming');
+            }
+            
+            // Format scores
+            let homeTeam = match['Home Team'];
+            let awayTeam = match['Away Team'];
+            let homeScore = match['Home Score'] !== '---' ? match['Home Score'] : '';
+            let awayScore = match['Away Score'] !== '---' ? match['Away Score'] : '';
+            
+            // Determine badge text
+            let badgeText = '';
+            let badgeClass = '';
+            
+            if (match.Result === 'WIN') {
+                badgeText = 'Win';
+                badgeClass = 'win';
+            } else if (match.Result === 'LOSS') {
+                badgeText = 'Loss';
+                badgeClass = 'loss';
+            } else if (match.Result === 'DRAW') {
+                badgeText = 'Draw';
+                badgeClass = 'draw';
+            } else if (match.Result === '---' || !match.Result) {
+                badgeText = 'Upcoming';
+                badgeClass = 'upcoming';
+            }
+            
+            matchCard.innerHTML = `
+                <div class="match-header">
+                    <div class="match-header-main">
+                        <span class="team-category">${match.Team}</span>
+                    <span class="competition">${match.Competition}</span>
+                    </div>
+                    <div class="match-info">
+                        <span>${match.Round}</span>
+                        <span>${match.Sex}</span>
+                    </div>
+                </div>
+                <div class="match-content">
+                    <div class="teams">
+                        <div class="team">
+                            <div class="team-name">${homeTeam}</div>
+                        </div>
+                        <div class="score-container">
+                            ${homeScore && awayScore 
+                                ? `<span class="score">${homeScore}</span><span class="score">${awayScore}</span>` 
+                                : `<span class="vs">vs</span>`
+                            }
+                        </div>
+                        <div class="team">
+                            <div class="team-name">${awayTeam}</div>
+                        </div>
+                    </div>
+                    <div class="metadata">
+                        <span class="venue">${match.Venue}</span>
+                        <span class="time">${match.Time}</span>
+                        ${badgeText ? `<span class="badge ${badgeClass}">${badgeText}</span>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            return matchCard;
+        }
+        
+        // Calendar integration functions
+        function showCalendarPopup() {
+            const filteredMatches = filterMatches();
+            if (filteredMatches.length === 0) {
+                alert('No matches selected to add to calendar.');
+                return;
+            }
+            
+            // Prevent body scrolling
+            document.body.classList.add('popup-open');
+            
+            const popup = document.createElement('div');
+            popup.className = 'calendar-popup';
+            popup.innerHTML = `
+                <button class="close-btn">&times;</button>
+                <h3>Add to Calendar</h3>
+                <p>Select matches to add to your calendar:</p>
+                <div class="matches-list">
+                    ${filteredMatches.map(match => `
+                        <div class="match-item">
+                            <input type="checkbox" id="match-${match['Fixture ID']}" value="${match['Fixture ID']}">
+                            <label for="match-${match['Fixture ID']}">
+                                ${formatDate(match.Date)} - ${match.Competition}: ${match['Home Team']} vs ${match['Away Team']}
+                            </label>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="actions">
+                    <button class="cancel-btn">Cancel</button>
+                    <button class="save-btn">Add to Calendar</button>
+                </div>
+            `;
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            
+            document.body.appendChild(overlay);
+            document.body.appendChild(popup);
+            
+            // Event listeners for popup
+            const closePopup = () => {
+                document.body.removeChild(overlay);
+                document.body.removeChild(popup);
+                document.body.classList.remove('popup-open');
+            };
+            
+            popup.querySelector('.close-btn').addEventListener('click', closePopup);
+            popup.querySelector('.cancel-btn').addEventListener('click', closePopup);
+            
+            // Close on overlay click
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    closePopup();
+                }
+            });
+            
+            // Close on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closePopup();
+                }
+            });
+            
+            popup.querySelector('.save-btn').addEventListener('click', () => {
+                const selectedMatches = Array.from(popup.querySelectorAll('input[type="checkbox"]:checked'))
+                    .map(checkbox => matches.find(m => m['Fixture ID'] === checkbox.value));
+                
+                if (selectedMatches.length > 0) {
+                    addToCalendar(selectedMatches);
+                }
+                
+                closePopup();
             });
         }
+        
+        function addToCalendar(matches) {
+            matches.forEach(match => {
+                const event = {
+                    title: `${match.Competition}: ${match['Home Team']} vs ${match['Away Team']}`,
+                    start: `${match.Date} ${match.Time}`,
+                    location: match.Venue,
+                    description: `Round: ${match.Round}\nReferee: ${match.Referee || 'TBA'}`,
+                    url: match['Fixture Src'] === 'url' ? `https://example.com/fixtures/${match['Fixture ID']}` : ''
+                };
+                
+                // Generate calendar links
+                const googleCalendarUrl = generateGoogleCalendarUrl(event);
+                const outlookCalendarUrl = generateOutlookCalendarUrl(event);
+                const icalContent = generateICalContent(event);
+                
+                // Create download link for .ics file
+                const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = `match-${match['Fixture ID']}.ics`;
+                link.click();
+                
+                // Open calendar options in new window
+                const calendarOptions = window.open('', '_blank');
+                calendarOptions.document.write(`
+                    <html>
+                        <head>
+                            <title>Add to Calendar</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; padding: 20px; }
+                                .button { 
+                                    display: inline-block;
+                                    padding: 10px 20px;
+                                    margin: 5px;
+                                    background-color: #006400;
+                                    color: white;
+                                    text-decoration: none;
+                                    border-radius: 5px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <h2>Add "${event.title}" to your calendar</h2>
+                            <p>
+                                <a href="${googleCalendarUrl}" class="button" target="_blank">Add to Google Calendar</a>
+                                <a href="${outlookCalendarUrl}" class="button" target="_blank">Add to Outlook</a>
+                            </p>
+                            <p>The .ics file has been downloaded. You can import it into your calendar application.</p>
+                        </body>
+                    </html>
+                `);
+            });
+        }
+        
+        function generateGoogleCalendarUrl(event) {
+            const params = new URLSearchParams({
+                action: 'TEMPLATE',
+                text: event.title,
+                dates: `${formatDateForGoogle(event.start)}/${formatDateForGoogle(event.start)}`,
+                details: event.description,
+                location: event.location,
+                url: event.url
+            });
+            
+            return `https://calendar.google.com/calendar/render?${params.toString()}`;
+        }
+        
+        function generateOutlookCalendarUrl(event) {
+            const params = new URLSearchParams({
+                subject: event.title,
+                startdt: event.start,
+                enddt: event.start,
+                body: event.description,
+                location: event.location,
+                url: event.url
+            });
+            
+            return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
+        }
+        
+        function generateICalContent(event) {
+            return `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Grange Naomh Colmcille CLG//Fixtures//EN
+BEGIN:VEVENT
+DTSTART:${formatDateForICal(event.start)}
+DTEND:${formatDateForICal(event.start)}
+SUMMARY:${event.title}
+DESCRIPTION:${event.description}
+LOCATION:${event.location}
+URL:${event.url}
+END:VEVENT
+END:VCALENDAR`;
+        }
+        
+        function formatDateForGoogle(dateStr) {
+            const date = new Date(dateStr);
+            return date.toISOString().replace(/-|:|\.\d+/g, '');
+        }
+        
+        function formatDateForICal(dateStr) {
+            const date = new Date(dateStr);
+            return date.toISOString().replace(/-|:/g, '').split('.')[0] + 'Z';
+        }
+        
+        // Share functionality
+        function showSharePopup() {
+            const filteredMatches = filterMatches();
+            if (filteredMatches.length === 0) {
+                alert('No matches to share.');
+                return;
+            }
+            
+            // Create share URL with current filters
+            const shareUrl = new URL(window.location.href);
+            const params = new URLSearchParams();
+            
+            if (document.getElementById('teamFilter').value !== 'all') {
+                params.append('team', document.getElementById('teamFilter').value);
+            }
+            if (document.getElementById('competitionFilter').value !== 'all') {
+                params.append('competition', document.getElementById('competitionFilter').value);
+            }
+            if (document.getElementById('statusFilter').value !== 'all') {
+                params.append('status', document.getElementById('statusFilter').value);
+            }
+            if (document.getElementById('searchInput').value) {
+                params.append('search', document.getElementById('searchInput').value);
+            }
+            
+            const dateRange = document.getElementById('dateRange')._flatpickr.selectedDates;
+            if (dateRange && dateRange.length === 2) {
+                params.append('startDate', dateRange[0].toISOString().split('T')[0]);
+                params.append('endDate', dateRange[1].toISOString().split('T')[0]);
+            }
+            
+            shareUrl.search = params.toString();
+            const shareUrlString = shareUrl.toString();
+            
+            // Create share text
+            const shareText = `Check out these ${filteredMatches.length} matches from Grange Naomh Colmcille CLG!`;
+            
+            const popup = document.createElement('div');
+            popup.className = 'share-popup';
+            popup.innerHTML = `
+                <button class="close-btn">&times;</button>
+                <h3>Share Matches</h3>
+                <div class="share-options">
+                    <div class="share-option whatsapp" onclick="window.open('https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrlString)}')">
+                        <i class="fab fa-whatsapp"></i>
+                        Share on WhatsApp
+                    </div>
+                    <div class="share-option email" onclick="window.open('mailto:?subject=${encodeURIComponent('Grange Naomh Colmcille CLG Matches')}&body=${encodeURIComponent(shareText + '\n\n' + shareUrlString)}')">
+                        <i class="fas fa-envelope"></i>
+                        Share via Email
+                    </div>
+                    <div class="share-option copy" onclick="navigator.clipboard.writeText('${shareUrlString}')">
+                        <i class="fas fa-link"></i>
+                        Copy Link
+                    </div>
+                </div>
+                <div class="share-url">
+                    <input type="text" value="${shareUrlString}" readonly>
+                    <button class="reset-btn" onclick="navigator.clipboard.writeText('${shareUrlString}')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            `;
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            
+            document.body.appendChild(overlay);
+            document.body.appendChild(popup);
+            
+            // Event listeners
+            const closePopup = () => {
+                document.body.removeChild(overlay);
+                document.body.removeChild(popup);
+            };
+            
+            popup.querySelector('.close-btn').addEventListener('click', closePopup);
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closePopup();
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closePopup();
+            });
+        }
+        
+        // Function to update team statistics in the sidebar
+        function updateTeamStats(teamName) {
+            const stats = {
+                total: 0,
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                upcoming: 0
+            };
+            
+            // Get all matches for the selected team
+            const teamMatches = teamName === 'all' 
+                ? matches 
+                : matches.filter(match => match.Team === teamName);
+            
+            // Count each match only once
+            teamMatches.forEach(match => {
+                stats.total++;
+                
+                if (match.Result === 'WIN') {
+                    stats.wins++;
+                } else if (match.Result === 'LOSS') {
+                    stats.losses++;
+                } else if (match.Result === 'DRAW') {
+                    stats.draws++;
+                } else if (match.Result === '---' || !match.Result) {
+                    stats.upcoming++;
+                }
+            });
+            
+            // Update sidebar stats
+            document.getElementById('sidebarTotalCount').textContent = stats.total;
+            document.getElementById('sidebarWinCount').textContent = stats.wins;
+            document.getElementById('sidebarLossCount').textContent = stats.losses;
+            document.getElementById('sidebarDrawCount').textContent = stats.draws;
+            document.getElementById('sidebarUpcomingCount').textContent = stats.upcoming;
+            
+            // Update upcoming matches in the sidebar
+            updateUpcomingMatches(teamName);
+        }
+        
+        // Function to update upcoming matches in the sidebar
+        function updateUpcomingMatches(teamName) {
+            const teamMatches = teamName === 'all' 
+                ? matches 
+                : matches.filter(match => match.Team === teamName);
+            
+            // Filter upcoming matches
+            const upcomingMatches = teamMatches
+                .filter(match => !match.Result || match.Result === '---')
+                .sort((a, b) => parseDate(a.Date) - parseDate(b.Date))
+                .slice(0, 3);
+            
+            const upcomingMatchesList = document.getElementById('upcomingMatchesList');
+            upcomingMatchesList.innerHTML = '';
+            
+            if (upcomingMatches.length === 0) {
+                upcomingMatchesList.innerHTML = '<p>No upcoming matches</p>';
+                return;
+            }
+            
+            upcomingMatches.forEach(match => {
+                const matchElement = document.createElement('div');
+                matchElement.className = 'upcoming-match';
+                matchElement.innerHTML = `
+                    <div class="upcoming-match-date">${formatDate(match.Date)}</div>
+                    <div class="upcoming-match-teams">${match['Home Team']} vs ${match['Away Team']}</div>
+                    <div class="upcoming-match-venue">${match.Venue} - ${match.Time}</div>
+                `;
+                upcomingMatchesList.appendChild(matchElement);
+            });
+        }
+        
+        // Populate sidebar team filter
+        function populateSidebarTeamFilter() {
+            const options = extractFilterOptions();
+            const sidebarTeamFilter = document.getElementById('sidebarTeamFilter');
+            
+            // Clear existing options except the first one
+            while (sidebarTeamFilter.options.length > 1) {
+                sidebarTeamFilter.remove(1);
+            }
+            
+            options.teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                sidebarTeamFilter.appendChild(option);
+            });
+        }
+        
+        // Initialize sidebar toggle functionality
+        function initSidebarToggle() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const contentArea = document.querySelector('.content-area');
+            
+            // Create overlay element
+            const overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            
+            // Check if user has a preference stored
+            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                contentArea.classList.add('expanded');
+                if (window.innerWidth <= 992) {
+                    sidebarToggle.style.left = '15px';
+                    sidebarToggle.style.transform = 'none';
+                } else {
+                    sidebarToggle.style.left = '60px';
+                    sidebarToggle.style.transform = 'translateY(-50%)';
+                }
+            }
+            
+            // Check screen size and auto-collapse on small screens
+            function checkScreenSize() {
+                if (window.innerWidth <= 992) {
+                    sidebar.classList.add('collapsed');
+                    contentArea.classList.add('expanded');
+                    sidebarToggle.style.left = '15px';
+                    sidebarToggle.style.transform = 'none';
+                    
+                    // Reset any mini-sidebar specific styles
+                    contentArea.style.marginLeft = '0';
+                    contentArea.style.width = '100%';
+                } else {
+                    // Restore user preference for larger screens
+                    if (sidebarCollapsed) {
+                        sidebar.classList.add('collapsed');
+                        contentArea.classList.add('expanded');
+                        sidebarToggle.style.left = '60px';
+                        sidebarToggle.style.transform = 'translateY(-50%)';
+                        contentArea.style.marginLeft = '60px';
+                        contentArea.style.width = 'calc(100% - 60px)';
+                    } else {
+                        sidebar.classList.remove('collapsed');
+                        contentArea.classList.remove('expanded');
+                        sidebarToggle.style.left = '300px';
+                        sidebarToggle.style.transform = 'translateY(-50%)';
+                        contentArea.style.marginLeft = '0';
+                        contentArea.style.width = 'calc(100% - 300px)';
+                    }
+                }
+            }
+            
+            // Check screen size on load and resize
+            checkScreenSize();
+            window.addEventListener('resize', checkScreenSize);
+            
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                contentArea.classList.toggle('expanded');
+                
+                // Handle overlay and mini-sidebar for different screen sizes
+                if (window.innerWidth <= 992) {
+                    if (sidebar.classList.contains('collapsed')) {
+                        overlay.classList.remove('active');
+                        document.body.classList.remove('sidebar-open');
+                        sidebarToggle.style.left = '15px';
+                    } else {
+                        overlay.classList.add('active');
+                        document.body.classList.add('sidebar-open');
+                        sidebarToggle.style.left = '15px';
+                    }
+                } else {
+                    // Handle mini-sidebar for desktop
+                    if (sidebar.classList.contains('collapsed')) {
+                        sidebarToggle.style.left = '60px';
+                        contentArea.style.marginLeft = '60px';
+                        contentArea.style.width = 'calc(100% - 60px)';
+                    } else {
+                        sidebarToggle.style.left = '300px';
+                        contentArea.style.marginLeft = '0';
+                        contentArea.style.width = 'calc(100% - 300px)';
+                    }
+                }
+                
+                // Save preference
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            });
+            
+            // Close sidebar when clicking overlay (mobile only)
+            overlay.addEventListener('click', () => {
+                if (window.innerWidth <= 992) {
+                    sidebar.classList.add('collapsed');
+                    contentArea.classList.add('expanded');
+                    overlay.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
+                    sidebarToggle.style.left = '15px';
+                }
+            });
+            
+            // Close sidebar when pressing Escape key (mobile only)
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && window.innerWidth <= 992) {
+                    sidebar.classList.add('collapsed');
+                    contentArea.classList.add('expanded');
+                    overlay.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
+                    sidebarToggle.style.left = '15px';
+                }
+            });
+        }
+        
+        // Initialize search functionality with autocomplete
+        function initSearchAutocomplete() {
+            const searchInput = document.getElementById('searchInput');
+            const suggestionsContainer = document.createElement('div');
+            suggestionsContainer.className = 'autocomplete-suggestions';
+            searchInput.parentNode.appendChild(suggestionsContainer);
+            
+            let currentFocus = -1;
+            
+            // Create a list of all searchable terms
+            const searchableTerms = new Set();
+            matches.forEach(match => {
+                searchableTerms.add(match.Team);
+                searchableTerms.add(match.Competition);
+                searchableTerms.add(match.Venue);
+                searchableTerms.add(match.Round);
+            });
+            
+            searchInput.addEventListener('input', function() {
+                const val = this.value.toLowerCase();
+                suggestionsContainer.innerHTML = '';
+                
+                if (val.length < 2) {
+                    suggestionsContainer.style.display = 'none';
+                    return;
+                }
+                
+                const matches = Array.from(searchableTerms)
+                    .filter(term => term.toLowerCase().includes(val))
+                    .slice(0, 5); // Limit to 5 suggestions
+                
+                if (matches.length > 0) {
+                    matches.forEach(match => {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-suggestion';
+                        div.innerHTML = match;
+                        div.addEventListener('click', function() {
+                            searchInput.value = match;
+                            suggestionsContainer.style.display = 'none';
+            displayMatches();
+                        });
+                        suggestionsContainer.appendChild(div);
+                    });
+                    suggestionsContainer.style.display = 'block';
+                } else {
+                    suggestionsContainer.style.display = 'none';
+                }
+                
+                currentFocus = -1;
+            });
+            
+            // Handle keyboard navigation
+            searchInput.addEventListener('keydown', function(e) {
+                const suggestions = suggestionsContainer.getElementsByClassName('autocomplete-suggestion');
+                
+                if (suggestions.length > 0) {
+                    // Remove active class from all suggestions
+                    Array.from(suggestions).forEach(s => s.classList.remove('active'));
+                    
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        currentFocus++;
+                        if (currentFocus >= suggestions.length) currentFocus = 0;
+                        suggestions[currentFocus].classList.add('active');
+                        suggestions[currentFocus].scrollIntoView({ block: 'nearest' });
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        currentFocus--;
+                        if (currentFocus < 0) currentFocus = suggestions.length - 1;
+                        suggestions[currentFocus].classList.add('active');
+                        suggestions[currentFocus].scrollIntoView({ block: 'nearest' });
+                    } else if (e.key === 'Enter' && currentFocus > -1) {
+                        e.preventDefault();
+                        suggestions[currentFocus].click();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        suggestionsContainer.style.display = 'none';
+                    }
+                } else if (e.key === 'Enter') {
+                    // Only trigger search on Enter if no suggestions are shown
+                    displayMatches();
+                }
+            });
+            
+            // Close suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
+        }
+        
+        // Start the app when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Add scroll handling for controls
+        let lastScrollTop = 0;
+        const controls = document.querySelector('.controls');
+        const controlsHeight = controls.offsetHeight;
+        let isManuallyCollapsed = false;
+        
+        // Add toggle button to controls
+        const toggleButton = document.createElement('button');
+        toggleButton.className = 'controls-toggle';
+        toggleButton.innerHTML = '<i class="fas fa-chevron-up"></i>';
+        controls.appendChild(toggleButton);
+        
+        function toggleControls() {
+            isManuallyCollapsed = !isManuallyCollapsed;
+            controls.classList.toggle('collapsed');
+            // Update toggle button icon
+            toggleButton.innerHTML = isManuallyCollapsed ? 
+                '<i class="fas fa-chevron-down"></i>' : 
+                '<i class="fas fa-chevron-up"></i>';
+        }
+        
+        toggleButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleControls();
+        });
+        
+        window.addEventListener('scroll', () => {
+            if (isManuallyCollapsed) return; // Don't auto-collapse if manually toggled
+            
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > controlsHeight) {
+                controls.classList.add('collapsed');
+            } else {
+                controls.classList.remove('collapsed');
+            }
+            
+            lastScrollTop = scrollTop;
+        });
 
         // Service Worker Registration
         if ('serviceWorker' in navigator) {
@@ -963,327 +2818,79 @@
             });
         }
 
-        // Initialize date picker
-        flatpickr("#dateRange", {
-            mode: "range",
-            dateFormat: "D M d Y",
-            onChange: function(selectedDates) {
-                displayMatches();
+        // User Preferences
+        const userPreferences = {
+            get: key => localStorage.getItem(key),
+            set: (key, value) => localStorage.setItem(key, value),
+            remove: key => localStorage.removeItem(key)
+        };
+
+        // Add to Home Screen
+        let deferredPrompt;
+        const addToHome = document.querySelector('.add-to-home');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Show the prompt if user hasn't dismissed it before
+            if (!userPreferences.get('installPromptDismissed')) {
+                addToHome.classList.add('show');
             }
         });
 
-        // Your existing helper functions (formatDate, parseDate, etc.)
-        function groupMatchesByDate(matches) {
-            return matches.reduce((groups, match) => {
-                const date = match.Date;
-                if (!groups[date]) {
-                    groups[date] = [];
-                }
-                groups[date].push(match);
-                return groups;
-            }, {});
-        }
+        document.querySelector('.install-btn').addEventListener('click', async () => {
+            addToHome.classList.remove('show');
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                userPreferences.set('installPromptDismissed', 'true');
+            }
+        });
 
-        function filterMatches() {
-            const searchTerm = document.querySelector('.search-input').value.toLowerCase();
-            const teamFilter = document.getElementById('teamFilter').value;
-            const competitionFilter = document.getElementById('competitionFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-            const dateRange = document.getElementById('dateRange').value;
+        document.querySelector('.close-btn').addEventListener('click', () => {
+            addToHome.classList.remove('show');
+            userPreferences.set('installPromptDismissed', 'true');
+        });
 
-            // Get today's date at midnight for comparison
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+        // Push Notifications
+        const notificationPrompt = document.querySelector('.notification-prompt');
 
-            return matches.filter(match => {
-                // Search filter
-                const matchText = `${match['Home Team']} ${match['Away Team']} ${match.Competition} ${match.Venue}`.toLowerCase();
-                if (!matchText.includes(searchTerm)) return false;
-
-                // Team filter
-                if (teamFilter !== 'all' && 
-                    !match['Home Team'].includes(teamFilter) && 
-                    !match['Away Team'].includes(teamFilter)) return false;
-
-                // Competition filter
-                if (competitionFilter !== 'all' && 
-                    match.Competition !== competitionFilter) return false;
-
-                // Status and date filtering
-                const matchDate = parseDate(match.Date);
-                matchDate.setHours(0, 0, 0, 0);
-
-                if (statusFilter === 'fixture') {
-                    // Show only matches from today onwards
-                    return matchDate >= today;
-                } else if (statusFilter === 'result') {
-                    // Show only matches before today
-                    return matchDate < today;
-                }
-
-                // Date range filter
-                if (dateRange) {
-                    const [startStr, endStr] = dateRange.split(' to ');
-                    if (startStr && endStr) {
-                        const startDate = parseDate(startStr);
-                        const endDate = parseDate(endStr);
-                        if (matchDate < startDate || matchDate > endDate) return false;
-                    }
-                }
-
-                return true;
-            });
-        }
-
-        function populateFilters() {
-            // Get unique teams
-            const teams = new Set();
-            matches.forEach(match => {
-                if (match['Home Team'].includes('Grange')) teams.add(match['Home Team']);
-                if (match['Away Team'].includes('Grange')) teams.add(match['Away Team']);
-            });
-
-            // Get unique competitions
-            const competitions = new Set(matches.map(match => match.Competition));
-
-            // Populate team filter
-            const teamFilter = document.getElementById('teamFilter');
-            teamFilter.innerHTML = '<option value="all">All Teams</option>';
-            Array.from(teams).sort().forEach(team => {
-                const option = document.createElement('option');
-                option.value = team;
-                option.textContent = team;
-                teamFilter.appendChild(option);
-            });
-
-            // Populate competition filter
-            const competitionFilter = document.getElementById('competitionFilter');
-            competitionFilter.innerHTML = '<option value="all">All Competitions</option>';
-            Array.from(competitions).sort().forEach(competition => {
-                const option = document.createElement('option');
-                option.value = competition;
-                option.textContent = competition;
-                competitionFilter.appendChild(option);
-            });
-
-            // Add event listeners to filters
-            document.querySelector('.search-input').addEventListener('input', displayMatches);
-            teamFilter.addEventListener('change', displayMatches);
-            competitionFilter.addEventListener('change', displayMatches);
-            document.getElementById('statusFilter').addEventListener('change', displayMatches);
-        }
-
-        function updateStats(filteredMatches) {
-            // Update total matches
-            document.getElementById('totalMatches').textContent = filteredMatches.length;
-
-            // Update upcoming matches
-            const upcoming = filteredMatches.filter(match => 
-                !match.Result || match.Result === '---' || match.Result === 'BYE'
-            ).length;
-            document.getElementById('upcomingMatches').textContent = upcoming;
-
-            // Update win/loss count
-            const wins = filteredMatches.filter(match => match.Result === 'WIN').length;
-            const losses = filteredMatches.filter(match => match.Result === 'LOSS').length;
-            document.getElementById('winCount').textContent = wins;
-            document.getElementById('lossCount').textContent = losses;
-        }
-
-        // Separate UI initialization
-        function initializeUI() {
-            console.log('Initializing UI...');
-            try {
-                // Set default filter to "all"
-                document.getElementById('statusFilter').value = 'all';
-                
-                // Initialize filters
-                populateFilters();
-                
-                // Initialize date picker
-                flatpickr("#dateRange", {
-                    mode: "range",
-                    dateFormat: "D M d Y",
-                    onChange: function(selectedDates) {
-                        displayMatches();
-                    }
-                });
-                
-                // Display initial matches
-                displayMatches();
-
-                // Initialize bottom navigation
-                const navItems = document.querySelectorAll('.nav-item');
-                const mainContent = document.querySelector('.main-content');
-                const quickStats = document.querySelector('.quick-stats');
-                const filters = document.querySelector('.filters');
-                const matchContainer = document.getElementById('matchContainer');
-
-                // Create content sections
-                const statsSection = document.createElement('div');
-                statsSection.className = 'stats-section';
-                statsSection.style.display = 'none';
-                statsSection.innerHTML = `
-                    <div class="stats">
-                        <div class="stat-card">
-                            <div class="stat-value" id="totalWins">0</div>
-                            <div class="stat-label">Total Wins</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="winRate">0%</div>
-                            <div class="stat-label">Win Rate</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="totalDraws">0</div>
-                            <div class="stat-label">Draws</div>
-                        </div>
-                    </div>
-                `;
-
-                const teamsSection = document.createElement('div');
-                teamsSection.className = 'teams-section';
-                teamsSection.style.display = 'none';
-                teamsSection.innerHTML = `
-                    <div class="teams-list">
-                        <h2>Teams</h2>
-                        <div id="teamsList"></div>
-                    </div>
-                `;
-
-                const moreSection = document.createElement('div');
-                moreSection.className = 'more-section';
-                moreSection.style.display = 'none';
-                moreSection.innerHTML = `
-                    <div class="more-options">
-                        <button class="more-btn" id="shareBtn">
-                            <i class="fas fa-share-alt"></i>
-                            Share App
-                        </button>
-                        <button class="more-btn" id="addToCalendar">
-                            <i class="fas fa-calendar-plus"></i>
-                            Add to Calendar
-                        </button>
-                        <button class="more-btn" id="settingsBtn">
-                            <i class="fas fa-cog"></i>
-                            Settings
-                        </button>
-                    </div>
-                `;
-
-                // Add sections to main content
-                mainContent.appendChild(statsSection);
-                mainContent.appendChild(teamsSection);
-                mainContent.appendChild(moreSection);
-
-                // Function to show/hide sections
-                function showSection(section) {
-                    // Hide all sections
-                    quickStats.style.display = 'none';
-                    filters.style.display = 'none';
-                    matchContainer.style.display = 'none';
-                    statsSection.style.display = 'none';
-                    teamsSection.style.display = 'none';
-                    moreSection.style.display = 'none';
-
-                    // Show selected section
-                    section.style.display = 'block';
-                }
-
-                // Add click handlers
-                navItems.forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        navItems.forEach(i => i.classList.remove('active'));
-                        item.classList.add('active');
-                        
-                        const section = item.getAttribute('href').substring(1);
-                        switch(section) {
-                            case 'fixtures':
-                                quickStats.style.display = 'grid';
-                                filters.style.display = 'block';
-                                matchContainer.style.display = 'block';
-                                break;
-                            case 'stats':
-                                showSection(statsSection);
-                                updateStats(matches);
-                                break;
-                            case 'teams':
-                                showSection(teamsSection);
-                                updateTeamsList();
-                                break;
-                            case 'more':
-                                showSection(moreSection);
-                                break;
-                        }
-                    });
-                });
-
-                // Add pull-to-refresh functionality
-                let touchStart = 0;
-                document.addEventListener('touchstart', e => {
-                    touchStart = e.touches[0].clientY;
-                });
-
-                document.addEventListener('touchend', e => {
-                    const touchEnd = e.changedTouches[0].clientY;
-                    if (touchStart < touchEnd && window.scrollY === 0) {
-                        location.reload();
-                    }
-                });
-
-                // Function to update teams list
-                function updateTeamsList() {
-                    const teamsList = document.getElementById('teamsList');
-                    const teams = new Set();
-                    matches.forEach(match => {
-                        if (match['Home Team'].includes('Grange')) teams.add(match['Home Team']);
-                        if (match['Away Team'].includes('Grange')) teams.add(match['Away Team']);
-                    });
-
-                    teamsList.innerHTML = Array.from(teams).sort().map(team => `
-                        <div class="team-item">
-                            <h3>${team}</h3>
-                            <div class="team-stats">
-                                <div class="stat">
-                                    <span class="stat-value">${getTeamStats(team).wins}</span>
-                                    <span class="stat-label">Wins</span>
-                                </div>
-                                <div class="stat">
-                                    <span class="stat-value">${getTeamStats(team).losses}</span>
-                                    <span class="stat-label">Losses</span>
-                                </div>
-                                <div class="stat">
-                                    <span class="stat-value">${getTeamStats(team).draws}</span>
-                                    <span class="stat-label">Draws</span>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-
-                // Function to get team stats
-                function getTeamStats(team) {
-                    const teamMatches = matches.filter(match => 
-                        match['Home Team'] === team || match['Away Team'] === team
-                    );
-                    return {
-                        wins: teamMatches.filter(match => match.Result === 'WIN').length,
-                        losses: teamMatches.filter(match => match.Result === 'LOSS').length,
-                        draws: teamMatches.filter(match => match.Result === 'DRAW').length
-                    };
-                }
-
-                console.log('Application initialized successfully');
-            } catch (error) {
-                console.error('Error initializing UI:', error);
-                document.getElementById('matchContainer').innerHTML = `
-                    <div class="no-results">
-                        <p>Error initializing the application. Please try refreshing the page.</p>
-                        <p>Error details: ${error.message}</p>
-                    </div>
-                `;
+        async function initializeNotifications() {
+            if (!('Notification' in window)) return;
+            
+            if (Notification.permission === 'default' && !userPreferences.get('notificationPromptDismissed')) {
+                notificationPrompt.classList.add('show');
             }
         }
+
+        document.querySelector('.allow-btn').addEventListener('click', async () => {
+            notificationPrompt.classList.remove('show');
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: 'YOUR_VAPID_PUBLIC_KEY' // You'll need to replace this with your actual VAPID key
+                    });
+                    // Here you would typically send the subscription to your server
+                    console.log('Push notification subscription:', subscription);
+                }
+            } catch (error) {
+                console.error('Error setting up push notifications:', error);
+            }
+            userPreferences.set('notificationPromptDismissed', 'true');
+        });
+
+        document.querySelector('.deny-btn').addEventListener('click', () => {
+            notificationPrompt.classList.remove('show');
+            userPreferences.set('notificationPromptDismissed', 'true');
+        });
+
+        // Initialize notifications after page load
+        window.addEventListener('load', initializeNotifications);
     </script>
 </body>
-</html> 
+</html>
