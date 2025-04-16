@@ -79,6 +79,7 @@
             max-height: calc(100vh - 100px);
             position: sticky;
             top: 0;
+            transition: all 0.3s ease;
             z-index: 10;
         }
         
@@ -1363,90 +1364,6 @@
                 width: 100%;
             }
         }
-
-        /* Mobile sidebar styles */
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-            }
-
-            .sidebar {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100vh;
-                max-height: 100vh;
-                z-index: 1000;
-                background-color: white;
-                padding: 1.5rem;
-                overflow-y: auto;
-            }
-
-            .sidebar.active {
-                display: block;
-            }
-
-            .sidebar-toggle {
-                display: block !important; /* Force display on mobile */
-                position: fixed;
-                top: 1rem;
-                right: 1rem;
-                z-index: 990;
-                background-color: var(--primary);
-                color: white;
-                border: none;
-                border-radius: 50%;
-                width: 44px;
-                height: 44px;
-                cursor: pointer;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                display: flex !important;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .sidebar-toggle i {
-                font-size: 1.5rem;
-            }
-
-            .sidebar-close {
-                position: absolute;
-                top: 1rem;
-                right: 1rem;
-                background-color: var(--primary);
-                color: white;
-                border: none;
-                border-radius: 50%;
-                width: 44px;
-                height: 44px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .sidebar-close i {
-                font-size: 1.5rem;
-            }
-
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.5);
-                z-index: 989;
-            }
-
-            .sidebar-overlay.active {
-                display: block;
-            }
-        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1458,24 +1375,14 @@
     <header>
         <img src="assets/IMG_9120-WHITE.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
         <div class="header-text">
-            <h1>Grange Naomh Colmcille CLG</h1>
-            <p>Fixtures & Results 2025</p>
+        <h1>Grange Naomh Colmcille CLG</h1>
+        <p>Fixtures & Results 2025</p>
         </div>
         <img src="assets/IMG_9120-WHITE.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
     </header>
-
-    <!-- Move toggle button here, right after header -->
-    <button class="sidebar-toggle" id="sidebarToggle">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
+    
     <div class="main-content">
         <div class="sidebar" id="sidebar">
-            <button class="sidebar-close" id="sidebarClose">
-                <i class="fas fa-times"></i>
-            </button>
             <div class="sidebar-header">
                 <h2>Team Statistics</h2>
                 <div class="team-selector">
@@ -2784,55 +2691,6 @@ END:VCALENDAR`;
             
             lastScrollTop = scrollTop;
         });
-
-        // Add this near the top of your existing script section
-        function initMobileSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            const toggleBtn = document.getElementById('sidebarToggle');
-            const closeBtn = document.getElementById('sidebarClose');
-
-            // Show/hide mobile controls based on screen size
-            function updateMobileControls() {
-                const isMobile = window.innerWidth <= 768;
-                if (!isMobile) {
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            }
-
-            // Toggle sidebar
-            toggleBtn.addEventListener('click', () => {
-                console.log('Toggle button clicked'); // Debug log
-                sidebar.classList.add('active');
-                overlay.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            });
-
-            // Close sidebar
-            function closeSidebar() {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-
-            closeBtn.addEventListener('click', closeSidebar);
-            overlay.addEventListener('click', closeSidebar);
-
-            // Update on resize
-            window.addEventListener('resize', updateMobileControls);
-
-            // Initial setup
-            updateMobileControls();
-        }
-
-        // Make sure this runs after DOM is loaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initMobileSidebar);
-        } else {
-            initMobileSidebar();
-        }
     </script>
 </body>
 </html>
