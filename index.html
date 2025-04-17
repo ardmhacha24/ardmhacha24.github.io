@@ -3026,18 +3026,28 @@ END:VCALENDAR`;
             if (match.isTraining) {
                 const matchCard = document.createElement('div');
                 matchCard.className = 'match-card training';
+                
+                // Extract location info if present in summary
+                const locationMatch = match.Team.match(/\(\*\*(.*?)\*\*\)/);
+                const location = locationMatch ? locationMatch[1].trim() : '';
+                const teamName = match.Team.replace(/\(\*\*(.*?)\*\*\)/, '').trim();
+                
+                // Check if it's an away game
+                const isAway = teamName.startsWith('@');
+                const cleanTeamName = teamName.replace('@', '').replace('*TEMP*', '').trim();
+                
                 matchCard.innerHTML = `
                     <div class="match-content">
                         <div class="match-header">
                             <span class="competition">${match.Competition}</span>
-                            <span class="team">${match.Team}</span>
+                            <span class="team">${cleanTeamName}</span>
                         </div>
                         <div class="metadata">
-                            <span class="venue">${match.Venue}</span>
+                            ${location ? `<span class="venue">${location}</span>` : ''}
+                            ${isAway ? `<span class="venue-type">Away Game</span>` : ''}
                             <span class="time">${match.Time} - ${match.EndTime}</span>
-                            <span class="badge training">Training</span>
+                            <span class="badge training">${isAway ? 'Away Training' : 'Training'}</span>
                         </div>
-                        ${match.Description ? `<div class="description">${match.Description}</div>` : ''}
                     </div>
                 `;
                 return matchCard;
@@ -3045,11 +3055,12 @@ END:VCALENDAR`;
             return originalCreateMatchCard(match);
         };
 
-        // Add styles for training events
+        // Add styles for the enhanced training cards
         const style = document.createElement('style');
         style.textContent = `
             .match-card.training {
                 border-left: 4px solid #4a90e2;
+                background-color: #f8f9fa;
             }
             
             .match-card.training .badge.training {
@@ -3064,17 +3075,36 @@ END:VCALENDAR`;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                margin-bottom: 8px;
             }
 
             .match-card.training .team {
                 font-weight: bold;
+                color: #2c3e50;
             }
-
-            .match-card.training .description {
+            
+            .match-card.training .metadata {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                align-items: center;
                 font-size: 0.9em;
                 color: #666;
-                margin-top: 8px;
-                white-space: pre-line;
+            }
+
+            .match-card.training .venue {
+                color: #2c3e50;
+                font-style: italic;
+            }
+
+            .match-card.training .venue-type {
+                color: #e74c3c;
+                font-weight: 500;
+            }
+
+            .match-card.training .time {
+                color: #2c3e50;
+                font-weight: 500;
             }
         `;
         document.head.appendChild(style);
