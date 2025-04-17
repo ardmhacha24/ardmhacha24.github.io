@@ -3063,6 +3063,11 @@ END:VCALENDAR`;
                 console.error('Error fetching training events:', error);
             }
         }
+
+        // Add this before modifying createMatchCard
+        if (!window.originalCreateMatchCard) {
+            window.originalCreateMatchCard = createMatchCard;
+        }
     </script>
 </body>
 </html>
