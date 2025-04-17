@@ -3123,9 +3123,7 @@ END:VCALENDAR`;
                 const response = await fetch('https://calendar-worker.ardmhacha.workers.dev/', {
                     method: 'GET',
                     mode: 'cors',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'Accept': 'application/json' }
                 });
                 
                 if (!response.ok) {
@@ -3140,42 +3138,53 @@ END:VCALENDAR`;
                     return;
                 }
 
-                const trainingMatches = events.items.map(event => {
-                    const startDate = new Date(event.start.dateTime);
-                    // Format date to match the format used by matches
-                    const formattedDate = startDate.toLocaleDateString('en-GB', {
-                        weekday: 'short',
-                        day: 'numeric',
-                        month: 'short',
-                        year: '2-digit'
-                    });
+                // Create a Set to track unique event IDs (without the date suffix)
+                const processedBaseIds = new Set();
+                const trainingMatches = [];
+
+                events.items.forEach(event => {
+                    // Extract base ID (remove date suffix if present)
+                    const baseId = event.id.split('_')[0];
                     
-                    return {
-                        'Date': formattedDate,
-                        'Time': event.start.formattedTime,
-                        'EndTime': event.end.formattedTime,
-                        'Competition': 'Training',
-                        'Team': event.summary,
-                        'Home Team': 'Training',
-                        'Away Team': '',
-                        'Venue': event.location || '',
-                        'Result': '---',
-                        'Fixture ID': event.id, // Use the original event ID
-                        'Fixture Src': 'google-calendar',
-                        'isTraining': true,
-                        // Add calendar-specific fields
-                        'calendarStart': event.start.dateTime,
-                        'calendarEnd': event.end.dateTime
-                    };
+                    // Only process if we haven't seen this base ID
+                    if (!processedBaseIds.has(baseId)) {
+                        processedBaseIds.add(baseId);
+                        
+                        // Parse the date in the correct format
+                        const startDate = new Date(event.start.dateTime);
+                        const formattedDate = startDate.toLocaleDateString('en-GB', {
+                            weekday: 'short',
+                            day: 'numeric',
+                            month: 'short',
+                            year: '2-digit'
+                        });
+
+                        trainingMatches.push({
+                            'Date': formattedDate,
+                            'Time': event.start.formattedTime,
+                            'EndTime': event.end.formattedTime,
+                            'Competition': 'Training',
+                            'Team': event.summary,
+                            'Home Team': 'Training',
+                            'Away Team': '',
+                            'Venue': event.location || 'TBD',
+                            'Result': '---',
+                            'Fixture ID': baseId,
+                            'Fixture Src': 'google-calendar',
+                            'isTraining': true,
+                            'calendarStart': event.start.dateTime,
+                            'calendarEnd': event.end.dateTime
+                        });
+                    }
                 });
-                
+
                 // Get existing non-training matches
                 const existingMatches = window.matches.filter(m => !m.isTraining);
                 
                 // Merge and update matches
                 window.matches = [...existingMatches, ...trainingMatches];
-                matches = window.matches; // Keep the local variable in sync
-                
+                matches = window.matches;
+
                 // Sort by date and time
                 window.matches.sort((a, b) => {
                     const dateA = parseDate(a.Date);
@@ -3189,8 +3198,8 @@ END:VCALENDAR`;
                     }
                     return dateA - dateB;
                 });
-                
-                // Redisplay matches
+
+                // Update display
                 displayMatches();
                 console.log('Display updated with training events');
             } catch (error) {
