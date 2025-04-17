@@ -3017,52 +3017,63 @@ END:VCALENDAR`;
         };
         
         // Add this to your init() function
-        document.addEventListener('DOMContentLoaded', () => {
-            initGoogleCalendar();
-        });
+        //document.addEventListener('DOMContentLoaded', () => {
+        //    initGoogleCalendar();
+        //});
 
         // Add this function to fetch training events from your backend
         async function fetchTrainingEvents() {
             try {
-                console.log('Current matches:', matches); // Add this line
+                console.log('Starting to fetch training events...');
                 const response = await fetch('https://calendar-worker.ardmhacha.workers.dev/');
+                console.log('Worker response:', response);
+                
                 if (!response.ok) {
                     throw new Error('Failed to fetch training events');
                 }
+                
                 const events = await response.json();
-                console.log('Received calendar events:', events); // Add this line
+                console.log('Calendar events received:', events);
                 
-                // Convert training events to match format
-                const trainingMatches = events.items.map(event => ({
-                    'Date': new Date(event.start.dateTime || event.start.date).toLocaleDateString(),
-                    'Time': event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString() : 'All Day',
-                    'Competition': 'Training',
-                    'Team': event.summary.split(' ')[0],
-                    'Home Team': 'Training',
-                    'Away Team': '',
-                    'Venue': event.location || 'TBD',
-                    'Result': '---',
-                    'Fixture ID': `training-${event.id}`,
-                    'Fixture Src': 'google-calendar',
-                    'isTraining': true
-                }));
-                console.log('Converted training matches:', trainingMatches); // Add this line
-
-                // Merge with existing matches
+                if (!events.items || !Array.isArray(events.items)) {
+                    console.error('Unexpected events format:', events);
+                    return;
+                }
+                
+                const trainingMatches = events.items.map(event => {
+                    console.log('Processing event:', event);
+                    return {
+                        'Date': new Date(event.start.dateTime || event.start.date).toLocaleDateString(),
+                        'Time': event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString() : 'All Day',
+                        'Competition': 'Training',
+                        'Team': event.summary.split(' ')[0],
+                        'Home Team': 'Training',
+                        'Away Team': '',
+                        'Venue': event.location || 'TBD',
+                        'Result': '---',
+                        'Fixture ID': `training-${event.id}`,
+                        'Fixture Src': 'google-calendar',
+                        'isTraining': true
+                    };
+                });
+                
+                console.log('Processed training matches:', trainingMatches);
+                
+                // Update matches array
                 matches = [...matches, ...trainingMatches];
-                console.log('Updated matches array:', matches); // Add this line
+                console.log('Updated matches array:', matches);
                 
-                // Sort by date and time
+                // Sort and display
                 matches.sort((a, b) => {
                     const dateA = new Date(`${a.Date} ${a.Time}`);
                     const dateB = new Date(`${b.Date} ${b.Time}`);
                     return dateA - dateB;
                 });
-
-                // Redisplay matches
+                
                 displayMatches();
+                console.log('Display updated with training events');
             } catch (error) {
-                console.error('Error fetching training events:', error);
+                console.error('Error in fetchTrainingEvents:', error);
             }
         }
 
@@ -3073,15 +3084,15 @@ END:VCALENDAR`;
 
         // Add this where you initialize your matches
         async function init() {
+            console.log('Initializing application...');
             // Your existing initialization code...
             
-            // After loading matches and before displaying them
-            try {
-                console.log('Fetching training events...');
-                await fetchTrainingEvents();
-            } catch (error) {
-                console.error('Error loading training events:', error);
-            }
+            // After parsing CSV and loading matches
+            console.log('Fetching training events...');
+            await fetchTrainingEvents();  // Add this line
+            
+            // Your existing display code...
+            displayMatches();
         }
 
         // Make sure init is called
