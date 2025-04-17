@@ -1820,9 +1820,8 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
         }
         
         // Populate filter dropdowns
-        function populateFilters() {
+        function populateFilters(options) {
             console.log('Populating filters...');
-            const options = extractFilterOptions();
             const teamFilter = document.getElementById('teamFilter');
             const competitionFilter = document.getElementById('competitionFilter');
             
@@ -2968,10 +2967,17 @@ END:VCALENDAR`;
                 console.log('Calendar response:', response);
                 const events = response.result.items;
                 const trainingEvents = events.map(event => ({
-                    'Date': new Date(event.start.dateTime || event.start.date).toLocaleDateString(),
-                    'Time': event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString() : 'All Day',
+                    'Date': new Date(event.start.dateTime || event.start.date).toLocaleDateString('en-GB', {
+                        weekday: 'short',
+                        day: 'numeric',
+                        month: 'short',
+                        year: '2-digit'
+                    }),
+                    'Time': event.start.dateTime ? 
+                            new Date(event.start.dateTime).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}) : 
+                            'All Day',
                     'Competition': 'Training',
-                    'Team': event.summary.split(' ')[0], // Assuming format "Team Training"
+                    'Team': event.summary.split(' ')[0],
                     'Home Team': 'Training',
                     'Away Team': '',
                     'Venue': event.location || 'TBD',
@@ -3076,9 +3082,14 @@ END:VCALENDAR`;
                 }
                 
                 const trainingMatches = events.items.map(event => ({
-                    'Date': new Date(event.start.dateTime || event.start.date).toLocaleDateString(),
+                    'Date': new Date(event.start.dateTime || event.start.date).toLocaleDateString('en-GB', {
+                        weekday: 'short',
+                        day: 'numeric',
+                        month: 'short',
+                        year: '2-digit'
+                    }),
                     'Time': event.start.dateTime ? 
-                            new Date(event.start.dateTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 
+                            new Date(event.start.dateTime).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}) : 
                             'All Day',
                     'Competition': 'Training',
                     'Team': event.summary.split(' ')[0],
@@ -3093,18 +3104,29 @@ END:VCALENDAR`;
                 
                 console.log('Processed training matches:', trainingMatches);
                 
-                // Get current matches array
-                const currentMatches = window.matches || [];
+                // Ensure we're working with the global matches array
+                if (!window.matches) {
+                    window.matches = matches;
+                }
                 
                 // Merge and update matches
-                window.matches = [...currentMatches, ...trainingMatches];
+                window.matches = [...window.matches, ...trainingMatches];
+                matches = window.matches; // Keep the local variable in sync
                 
                 // Sort by date and time
                 window.matches.sort((a, b) => {
-                    const dateA = new Date(`${a.Date} ${a.Time}`);
-                    const dateB = new Date(`${b.Date} ${b.Time}`);
+                    const dateA = new Date(parseDate(a.Date));
+                    const dateB = new Date(parseDate(b.Date));
+                    if (dateA.getTime() === dateB.getTime()) {
+                        // If dates are the same, sort by time
+                        const timeA = a.Time === 'All Day' ? '00:00' : a.Time;
+                        const timeB = b.Time === 'All Day' ? '00:00' : b.Time;
+                        return timeA.localeCompare(timeB);
+                    }
                     return dateA - dateB;
                 });
+                
+                console.log('Matches array updated with training events');
                 
                 // Redisplay matches
                 displayMatches();
@@ -3133,6 +3155,20 @@ END:VCALENDAR`;
             console.log('DOM loaded, initializing...');
             init().catch(error => console.error('Initialization error:', error));
         });
+
+        // Parse CSV data function
+        function parseCSVData() {
+            console.log('Parsing CSV data...');
+            try {
+                matches = parseCSV(csvData);
+                window.matches = matches; // Ensure it's available in window scope
+                console.log('CSV data parsed successfully:', matches.length, 'matches');
+                return matches;
+            } catch (error) {
+                console.error('Error parsing CSV data:', error);
+                throw error;
+            }
+        }
     </script>
 </body>
 </html>
