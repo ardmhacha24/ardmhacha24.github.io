@@ -3157,11 +3157,13 @@ END:VCALENDAR`;
                 }
 
                 // Get existing non-training matches
-                const existingMatches = window.matches.filter(m => !m.isTraining);
+                const existingMatches = matches.filter(m => !m.isTraining);
                 
                 // Process training events
                 const trainingMatches = events.items.map(event => {
-                    const startDate = new Date(event.start.dateTime);
+                    const startDate = new Date(event.start.dateTime || event.start.date);
+                    const endDate = new Date(event.end.dateTime || event.end.date);
+                    
                     return {
                         'Date': startDate.toLocaleDateString('en-GB', {
                             weekday: 'short',
@@ -3169,33 +3171,47 @@ END:VCALENDAR`;
                             month: 'short',
                             year: '2-digit'
                         }),
-                        'Time': event.start.formattedTime,
-                        'EndTime': event.end.formattedTime,
+                        'Time': startDate.toLocaleTimeString('en-GB', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        }),
+                        'EndTime': endDate.toLocaleTimeString('en-GB', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        }),
                         'Competition': 'Training',
-                        'Team': event.summary, // Keep the full summary
+                        'Team': event.summary, // Keep full summary
                         'Home Team': 'Training',
                         'Away Team': '',
                         'Venue': event.location || 'TBD',
                         'Result': '---',
-                        'Fixture ID': event.id,
+                        'Fixture ID': `training-${event.id}`,
                         'Fixture Src': 'google-calendar',
                         'isTraining': true,
-                        'calendarStart': event.start.dateTime,
-                        'calendarEnd': event.end.dateTime
+                        'Description': event.description || ''
                     };
                 });
 
-                // Merge and update matches
-                window.matches = [...existingMatches, ...trainingMatches];
-                matches = window.matches;
+                // Update matches array with unique entries
+                matches = [...existingMatches];
+                
+                // Add only unique training matches
+                const processedIds = new Set(matches.map(m => m['Fixture ID']));
+                trainingMatches.forEach(match => {
+                    if (!processedIds.has(match['Fixture ID'])) {
+                        matches.push(match);
+                        processedIds.add(match['Fixture ID']);
+                    }
+                });
 
                 // Sort by date and time
-                window.matches.sort((a, b) => {
+                matches.sort((a, b) => {
                     const dateA = parseDate(a.Date);
                     const dateB = parseDate(b.Date);
                     
                     if (dateA.getTime() === dateB.getTime()) {
-                        // Convert times to 24-hour format for comparison
                         const timeA = a.Time || '00:00';
                         const timeB = b.Time || '00:00';
                         return timeA.localeCompare(timeB);
