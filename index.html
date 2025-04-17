@@ -1488,6 +1488,16 @@
             border-radius: 12px;
             font-size: 0.8em;
         }
+
+        .match-card.training .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .match-card.training .team {
+            font-weight: bold;
+        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -2992,9 +3002,12 @@ END:VCALENDAR`;
             displayMatches(allEvents);
         }
         
-        // Modify your createMatchCard function to handle training events
+        // Store original function BEFORE any modifications
         const originalCreateMatchCard = createMatchCard;
+
+        // Modified createMatchCard function
         createMatchCard = function(match) {
+            console.log('Creating card for match:', match);
             if (match.isTraining) {
                 const matchCard = document.createElement('div');
                 matchCard.className = 'match-card training';
@@ -3015,61 +3028,85 @@ END:VCALENDAR`;
             }
             return originalCreateMatchCard(match);
         };
-        
-        // Add this to your init() function
-        //document.addEventListener('DOMContentLoaded', () => {
-        //    initGoogleCalendar();
-        //});
 
-        // Add this function to fetch training events from your backend
+        // Add styles for training events
+        const style = document.createElement('style');
+        style.textContent = `
+            .match-card.training {
+                border-left: 4px solid #4a90e2;
+            }
+            
+            .match-card.training .badge.training {
+                background-color: #4a90e2;
+                color: white;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 0.8em;
+            }
+
+            .match-card.training .match-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .match-card.training .team {
+                font-weight: bold;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Fetch training events function
         async function fetchTrainingEvents() {
             try {
                 console.log('Starting to fetch training events...');
                 const response = await fetch('https://calendar-worker.ardmhacha.workers.dev/');
-                console.log('Worker response:', response);
+                console.log('Worker response status:', response.status);
                 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch training events');
+                    throw new Error(`Failed to fetch training events: ${response.status}`);
                 }
                 
                 const events = await response.json();
                 console.log('Calendar events received:', events);
                 
-                if (!events.items || !Array.isArray(events.items)) {
-                    console.error('Unexpected events format:', events);
+                if (!events.items) {
+                    console.error('No items in events response:', events);
                     return;
                 }
                 
-                const trainingMatches = events.items.map(event => {
-                    console.log('Processing event:', event);
-                    return {
-                        'Date': new Date(event.start.dateTime || event.start.date).toLocaleDateString(),
-                        'Time': event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString() : 'All Day',
-                        'Competition': 'Training',
-                        'Team': event.summary.split(' ')[0],
-                        'Home Team': 'Training',
-                        'Away Team': '',
-                        'Venue': event.location || 'TBD',
-                        'Result': '---',
-                        'Fixture ID': `training-${event.id}`,
-                        'Fixture Src': 'google-calendar',
-                        'isTraining': true
-                    };
-                });
+                const trainingMatches = events.items.map(event => ({
+                    'Date': new Date(event.start.dateTime || event.start.date).toLocaleDateString(),
+                    'Time': event.start.dateTime ? 
+                            new Date(event.start.dateTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 
+                            'All Day',
+                    'Competition': 'Training',
+                    'Team': event.summary.split(' ')[0],
+                    'Home Team': 'Training',
+                    'Away Team': '',
+                    'Venue': event.location || 'TBD',
+                    'Result': '---',
+                    'Fixture ID': `training-${event.id}`,
+                    'Fixture Src': 'google-calendar',
+                    'isTraining': true
+                }));
                 
                 console.log('Processed training matches:', trainingMatches);
                 
-                // Update matches array
-                matches = [...matches, ...trainingMatches];
-                console.log('Updated matches array:', matches);
+                // Get current matches array
+                const currentMatches = window.matches || [];
                 
-                // Sort and display
-                matches.sort((a, b) => {
+                // Merge and update matches
+                window.matches = [...currentMatches, ...trainingMatches];
+                
+                // Sort by date and time
+                window.matches.sort((a, b) => {
                     const dateA = new Date(`${a.Date} ${a.Time}`);
                     const dateB = new Date(`${b.Date} ${b.Time}`);
                     return dateA - dateB;
                 });
                 
+                // Redisplay matches
                 displayMatches();
                 console.log('Display updated with training events');
             } catch (error) {
@@ -3077,26 +3114,25 @@ END:VCALENDAR`;
             }
         }
 
-        // Add this before modifying createMatchCard
-        if (!window.originalCreateMatchCard) {
-            window.originalCreateMatchCard = createMatchCard;
-        }
-
-        // Add this where you initialize your matches
+        // Initialize the application
         async function init() {
             console.log('Initializing application...');
-            // Your existing initialization code...
             
-            // After parsing CSV and loading matches
-            console.log('Fetching training events...');
-            await fetchTrainingEvents();  // Add this line
+            // Parse CSV data and load initial matches
+            await parseCSVData();
             
-            // Your existing display code...
+            // Fetch and integrate training events
+            await fetchTrainingEvents();
+            
+            // Initial display
             displayMatches();
         }
 
-        // Make sure init is called
-        document.addEventListener('DOMContentLoaded', init);
+        // Remove any other DOMContentLoaded listeners and use just this one
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing...');
+            init().catch(error => console.error('Initialization error:', error));
+        });
     </script>
 </body>
 </html>
