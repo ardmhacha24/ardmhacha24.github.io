@@ -3139,48 +3139,35 @@ END:VCALENDAR`;
                     console.error('No items in events response:', events);
                     return;
                 }
-                
-                // Create a Set to track unique event IDs
-                const processedIds = new Set();
-                
-                const trainingMatches = events.items
-                    .filter(event => {
-                        // Only include each event once
-                        if (processedIds.has(event.id)) {
-                            return false;
-                        }
-                        processedIds.add(event.id);
-                        return true;
-                    })
-                    .map(event => {
-                        const startDate = new Date(event.start.dateTime);
-                        return {
-                            'Date': startDate.toLocaleDateString('en-GB', {
-                                weekday: 'short',
-                                day: 'numeric',
-                                month: 'short',
-                                year: '2-digit'
-                            }),
-                            'Time': event.start.formattedTime,
-                            'EndTime': event.end.formattedTime,
-                            'Competition': 'Training',
-                            'Team': event.summary,
-                            'Home Team': 'Training',
-                            'Away Team': '',
-                            'Venue': event.location || '',
-                            'Result': '---',
-                            'Fixture ID': `training-${event.id}`,
-                            'Fixture Src': 'google-calendar',
-                            'isTraining': true
-                        };
+
+                const trainingMatches = events.items.map(event => {
+                    const startDate = new Date(event.start.dateTime);
+                    // Format date to match the format used by matches
+                    const formattedDate = startDate.toLocaleDateString('en-GB', {
+                        weekday: 'short',
+                        day: 'numeric',
+                        month: 'short',
+                        year: '2-digit'
                     });
-                
-                console.log('Processed training matches:', trainingMatches);
-                
-                // Ensure we're working with the global matches array
-                if (!window.matches) {
-                    window.matches = matches;
-                }
+                    
+                    return {
+                        'Date': formattedDate,
+                        'Time': event.start.formattedTime,
+                        'EndTime': event.end.formattedTime,
+                        'Competition': 'Training',
+                        'Team': event.summary,
+                        'Home Team': 'Training',
+                        'Away Team': '',
+                        'Venue': event.location || '',
+                        'Result': '---',
+                        'Fixture ID': event.id, // Use the original event ID
+                        'Fixture Src': 'google-calendar',
+                        'isTraining': true,
+                        // Add calendar-specific fields
+                        'calendarStart': event.start.dateTime,
+                        'calendarEnd': event.end.dateTime
+                    };
+                });
                 
                 // Get existing non-training matches
                 const existingMatches = window.matches.filter(m => !m.isTraining);
@@ -3195,22 +3182,19 @@ END:VCALENDAR`;
                     const dateB = parseDate(b.Date);
                     
                     if (dateA.getTime() === dateB.getTime()) {
-                        // If dates are the same, sort by time
-                        const timeA = a.Time === 'All Day' ? '00:00' : a.Time;
-                        const timeB = b.Time === 'All Day' ? '00:00' : b.Time;
+                        // Convert times to 24-hour format for comparison
+                        const timeA = a.Time || '00:00';
+                        const timeB = b.Time || '00:00';
                         return timeA.localeCompare(timeB);
                     }
                     return dateA - dateB;
                 });
-                
-                console.log('Final merged and sorted matches:', window.matches);
                 
                 // Redisplay matches
                 displayMatches();
                 console.log('Display updated with training events');
             } catch (error) {
                 console.error('Error in fetchTrainingEvents:', error);
-                // Continue with existing matches if there's an error
                 displayMatches();
             }
         }
@@ -3248,6 +3232,42 @@ END:VCALENDAR`;
                 throw error;
             }
         }
+
+        // Function to create Google Calendar URL
+        function createCalendarUrl(match, title, location) {
+            const params = new URLSearchParams({
+                action: 'TEMPLATE',
+                text: title,
+                dates: `${match.calendarStart.replace(/[-:]/g, '')}/${match.calendarEnd.replace(/[-:]/g, '')}`,
+                details: `Training session for ${title}`,
+                location: location || 'Grange Grounds'
+            });
+            
+            return `https://calendar.google.com/calendar/render?${params.toString()}`;
+        }
+
+        // Add styles for calendar link
+        const calendarStyle = document.createElement('style');
+        calendarStyle.textContent = `
+            .match-card .calendar-link {
+                margin-top: 8px;
+                text-align: right;
+            }
+            
+            .match-card .calendar-link a {
+                color: #4a90e2;
+                text-decoration: none;
+                font-size: 0.9em;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+            
+            .match-card .calendar-link a:hover {
+                text-decoration: underline;
+            }
+        `;
+        document.head.appendChild(calendarStyle);
     </script>
 </body>
 </html>
