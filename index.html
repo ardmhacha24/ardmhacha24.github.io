@@ -3149,38 +3149,35 @@ END:VCALENDAR`;
                 }
                 
                 const events = await response.json();
-                console.log('Calendar events received:', events);
+                console.log('Raw calendar events received:', events);
                 
                 if (!events.items) {
                     console.error('No items in events response:', events);
                     return;
                 }
 
+                // Log existing matches before processing
+                console.log('Existing matches before processing:', matches.length, matches);
+
                 // Get existing non-training matches
                 const existingMatches = matches.filter(m => !m.isTraining);
+                console.log('Filtered non-training matches:', existingMatches.length, existingMatches);
                 
                 // Process training events
                 const trainingMatches = events.items.map(event => {
+                    console.log('Processing event:', event);
                     const startDate = new Date(event.start.dateTime || event.start.date);
                     const endDate = new Date(event.end.dateTime || event.end.date);
                     
-                    return {
+                    const trainingMatch = {
                         'Date': startDate.toLocaleDateString('en-GB', {
                             weekday: 'short',
                             day: 'numeric',
                             month: 'short',
                             year: '2-digit'
                         }),
-                        'Time': startDate.toLocaleTimeString('en-GB', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: false
-                        }),
-                        'EndTime': endDate.toLocaleTimeString('en-GB', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: false
-                        }),
+                        'Time': event.start.formattedTime,
+                        'EndTime': event.end.formattedTime,
                         'Competition': 'Training',
                         'Team': event.summary, // Keep full summary
                         'Home Team': 'Training',
@@ -3192,19 +3189,32 @@ END:VCALENDAR`;
                         'isTraining': true,
                         'Description': event.description || ''
                     };
+                    console.log('Created training match:', trainingMatch);
+                    return trainingMatch;
                 });
 
-                // Update matches array with unique entries
+                console.log('All processed training matches:', trainingMatches.length, trainingMatches);
+
+                // Reset matches array with non-training matches
                 matches = [...existingMatches];
+                console.log('Matches after reset:', matches.length, matches);
                 
                 // Add only unique training matches
                 const processedIds = new Set(matches.map(m => m['Fixture ID']));
+                console.log('Initial processed IDs:', processedIds);
+
                 trainingMatches.forEach(match => {
+                    console.log('Checking match:', match['Fixture ID']);
                     if (!processedIds.has(match['Fixture ID'])) {
+                        console.log('Adding new match:', match);
                         matches.push(match);
                         processedIds.add(match['Fixture ID']);
+                    } else {
+                        console.log('Skipping duplicate match:', match['Fixture ID']);
                     }
                 });
+
+                console.log('Final matches array:', matches.length, matches);
 
                 // Sort by date and time
                 matches.sort((a, b) => {
