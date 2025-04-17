@@ -3024,19 +3024,20 @@ END:VCALENDAR`;
         // Add this function to fetch training events from your backend
         async function fetchTrainingEvents() {
             try {
-                // Replace YOUR_WORKER_URL with your actual Cloudflare Worker URL
+                console.log('Current matches:', matches); // Add this line
                 const response = await fetch('https://calendar-worker.ardmhacha.workers.dev/');
                 if (!response.ok) {
                     throw new Error('Failed to fetch training events');
                 }
                 const events = await response.json();
+                console.log('Received calendar events:', events); // Add this line
                 
                 // Convert training events to match format
                 const trainingMatches = events.items.map(event => ({
                     'Date': new Date(event.start.dateTime || event.start.date).toLocaleDateString(),
                     'Time': event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString() : 'All Day',
                     'Competition': 'Training',
-                    'Team': event.summary.split(' ')[0], // Assuming format "Team Training"
+                    'Team': event.summary.split(' ')[0],
                     'Home Team': 'Training',
                     'Away Team': '',
                     'Venue': event.location || 'TBD',
@@ -3045,19 +3046,20 @@ END:VCALENDAR`;
                     'Fixture Src': 'google-calendar',
                     'isTraining': true
                 }));
+                console.log('Converted training matches:', trainingMatches); // Add this line
 
                 // Merge with existing matches
-                const allEvents = [...matches, ...trainingMatches];
+                matches = [...matches, ...trainingMatches];
+                console.log('Updated matches array:', matches); // Add this line
                 
                 // Sort by date and time
-                allEvents.sort((a, b) => {
+                matches.sort((a, b) => {
                     const dateA = new Date(`${a.Date} ${a.Time}`);
                     const dateB = new Date(`${b.Date} ${b.Time}`);
                     return dateA - dateB;
                 });
 
-                // Update the matches array and redisplay
-                matches = allEvents;
+                // Redisplay matches
                 displayMatches();
             } catch (error) {
                 console.error('Error fetching training events:', error);
@@ -3068,6 +3070,22 @@ END:VCALENDAR`;
         if (!window.originalCreateMatchCard) {
             window.originalCreateMatchCard = createMatchCard;
         }
+
+        // Add this where you initialize your matches
+        async function init() {
+            // Your existing initialization code...
+            
+            // After loading matches and before displaying them
+            try {
+                console.log('Fetching training events...');
+                await fetchTrainingEvents();
+            } catch (error) {
+                console.error('Error loading training events:', error);
+            }
+        }
+
+        // Make sure init is called
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
