@@ -1465,38 +1465,12 @@
             background: var(--light-bg);
             color: var(--text);
         }
-        
-        /* Add training event styles */
-        .match-card.training {
-            background-color: #f0f8ff;
-            border-left: 5px solid #4285f4;
-        }
-        
-        .badge.training {
-            background-color: #4285f4;
-            color: white;
-        }
-
-        .match-card.training {
-            border-left: 4px solid #4a90e2;
-        }
-        
-        .match-card.training .badge.training {
-            background-color: #4a90e2;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Add Flatpickr for date picking -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <!-- Add these scripts after your existing scripts -->
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://accounts.google.com/gsi/client"></script>
 </head>
 <body>
     <header>
@@ -1965,9 +1939,6 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                     </div>
                 `;
             }
-            
-            // Fetch training events after initial setup
-            fetchTrainingEvents();
         }
         
         // Separate UI initialization
@@ -2920,149 +2891,6 @@ END:VCALENDAR`;
 
         // Initialize notifications after page load
         window.addEventListener('load', initializeNotifications);
-
-        // Add these constants at the top of your script
-        const GOOGLE_API_KEY = 'YOUR_API_KEY'; // Replace with your API key
-        const CALENDAR_ID = '93e86f000690d251948613ab5ddebf7af6199f80d71ecda06e3f0c4c7d5fb290@group.calendar.google.com'; // Replace with your calendar ID
-        
-        // Add this to your initialization code
-        async function initGoogleCalendar() {
-            try {
-                await gapi.load('client', async () => {
-                    await gapi.client.init({
-                        apiKey: GOOGLE_API_KEY,
-                        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest']
-                    });
-                    
-                    console.log('Google Calendar API initialized');
-                    // Start loading training events
-                    await loadTrainingEvents();
-                });
-            } catch (error) {
-                console.error('Error initializing Google Calendar:', error);
-            }
-        }
-        
-        async function loadTrainingEvents() {
-            try {
-                console.log('Loading training events...');
-                const response = await gapi.client.calendar.events.list({
-                    'calendarId': CALENDAR_ID,
-                    'timeMin': (new Date()).toISOString(),
-                    'showDeleted': false,
-                    'singleEvents': true,
-                    'maxResults': 100,
-                    'orderBy': 'startTime'
-                });
-
-                console.log('Calendar response:', response);
-                const events = response.result.items;
-                const trainingEvents = events.map(event => ({
-                    'Date': new Date(event.start.dateTime || event.start.date).toLocaleDateString(),
-                    'Time': event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString() : 'All Day',
-                    'Competition': 'Training',
-                    'Team': event.summary.split(' ')[0], // Assuming format "Team Training"
-                    'Home Team': 'Training',
-                    'Away Team': '',
-                    'Venue': event.location || 'TBD',
-                    'Result': '---',
-                    'Fixture ID': `training-${event.id}`,
-                    'Fixture Src': 'google-calendar',
-                    'isTraining': true
-                }));
-
-                console.log('Training events:', trainingEvents);
-                // Merge training events with matches
-                mergeAndDisplayEvents(trainingEvents);
-            } catch (error) {
-                console.error('Error loading training events:', error);
-            }
-        }
-        
-        function mergeAndDisplayEvents(trainingEvents) {
-            // Get current matches
-            const currentMatches = filterMatches();
-            
-            // Combine matches and training events
-            const allEvents = [...currentMatches, ...trainingEvents].sort((a, b) => {
-                return new Date(a.Date + ' ' + a.Time) - new Date(b.Date + ' ' + b.Time);
-            });
-            
-            // Update display
-            displayMatches(allEvents);
-        }
-        
-        // Modify your createMatchCard function to handle training events
-        const originalCreateMatchCard = createMatchCard;
-        createMatchCard = function(match) {
-            if (match.isTraining) {
-                const matchCard = document.createElement('div');
-                matchCard.className = 'match-card training';
-                matchCard.innerHTML = `
-                    <div class="match-content">
-                        <div class="match-header">
-                            <span class="competition">${match.Competition}</span>
-                            <span class="team">${match.Team}</span>
-                        </div>
-                        <div class="metadata">
-                            <span class="venue">${match.Venue}</span>
-                            <span class="time">${match.Time}</span>
-                            <span class="badge training">Training</span>
-                        </div>
-                    </div>
-                `;
-                return matchCard;
-            }
-            return originalCreateMatchCard(match);
-        };
-        
-        // Add this to your init() function
-        document.addEventListener('DOMContentLoaded', () => {
-            initGoogleCalendar();
-        });
-
-        // Add this function to fetch training events from your backend
-        async function fetchTrainingEvents() {
-            try {
-                // Replace YOUR_WORKER_URL with your actual Cloudflare Worker URL
-                const response = await fetch('YOUR_WORKER_URL');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch training events');
-                }
-                const events = await response.json();
-                
-                // Convert training events to match format
-                const trainingMatches = events.items.map(event => ({
-                    'Date': new Date(event.start.dateTime || event.start.date).toLocaleDateString(),
-                    'Time': event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString() : 'All Day',
-                    'Competition': 'Training',
-                    'Team': event.summary.split(' ')[0], // Assuming format "Team Training"
-                    'Home Team': 'Training',
-                    'Away Team': '',
-                    'Venue': event.location || 'TBD',
-                    'Result': '---',
-                    'Fixture ID': `training-${event.id}`,
-                    'Fixture Src': 'google-calendar',
-                    'isTraining': true
-                }));
-
-                // Merge with existing matches
-                const allEvents = [...matches, ...trainingMatches];
-                
-                // Sort by date and time
-                allEvents.sort((a, b) => {
-                    const dateA = new Date(`${a.Date} ${a.Time}`);
-                    const dateB = new Date(`${b.Date} ${b.Time}`);
-                    return dateA - dateB;
-                });
-
-                // Update the matches array and redisplay
-                matches = allEvents;
-                displayMatches();
-            } catch (error) {
-                console.error('Error fetching training events:', error);
-            }
-        }
     </script>
 </body>
 </html>

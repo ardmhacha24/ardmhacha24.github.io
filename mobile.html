@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GNC CLG Mobile</title>
+    <meta name="theme-color" content="#006400">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="GNC CLG">
+    <link rel="apple-touch-icon" href="/assets/IMG_9120-WHITE.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        :root {
+            --primary: #006400;
+            --secondary: #ff8c00;
+            --light-bg: #f5f5f5;
+            --text: #333;
+            --light-text: #666;
+            --border: #ddd;
+            --win: #d4edda;
+            --loss: #f8d7da;
+            --draw: #fff3cd;
+            --upcoming: #e2e3e5;
+            --surface: white;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --spacing: 1rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: var(--light-bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: var(--spacing);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header-logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-size: 1.1rem;
+            margin: 0 var(--spacing);
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-btn.expanded {
+            transform: rotate(180deg);
+        }
+
+        /* Filter Bar Styles */
+        .filter-bar {
+            background: white;
+            padding: var(--spacing);
+            margin: var(--spacing);
+            border-radius: var(--radius);
+            box-shadow: 0 1px 3px var(--shadow);
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            overflow: hidden;
+            max-height: 500px;
+            opacity: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing);
+        }
+
+        .filter-bar.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .search-and-date {
+            display: flex;
+            gap: var(--spacing);
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .date-box {
+            position: relative;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .filters-row {
+            display: flex;
+            gap: var(--spacing);
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        .search-box input, .date-box input, .filter-group select {
+            width: 100%;
+            padding: 0.75rem;
+            padding-left: 2.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+        }
+
+        .filter-group select {
+            padding-left: 0.75rem;
+        }
+
+        .search-box i, .date-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-text);
+        }
+
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-top: 0.25rem;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .autocomplete-suggestions.show {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: var(--light-bg);
+        }
+
+        /* Flatpickr customization */
+        .flatpickr-calendar {
+            border-radius: var(--radius);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .flatpickr-day.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .flatpickr-day.selected:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .flatpickr-day.today {
+            border-color: var(--primary);
+        }
+
+        .flatpickr-day.today:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Match Card Styles */
+        .match-card {
+            background: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 5px solid gray;
+        }
+
+        .match-card.win {
+            border-left-color: green;
+        }
+
+        .match-card.loss {
+            border-left-color: red;
+        }
+
+        .match-card.draw {
+            border-left-color: orange;
+        }
+
+        .match-card.upcoming {
+            border-left-color: gray;
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background-color: rgba(0,0,0,0.03);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .match-header-main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .team-category {
+            font-size: 1rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .competition {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            font-weight: 500;
+        }
+
+        .match-info {
+            display: flex;
+            font-size: 0.85rem;
+            color: var(--light-text);
+            gap: 1rem;
+        }
+
+        .match-content {
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .teams {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .team-name {
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+
+        .score-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 0 1rem;
+        }
+
+        .score {
+            background-color: var(--light-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .vs {
+            font-size: 0.8rem;
+            color: var(--light-text);
+        }
+
+        .metadata {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 0.85rem;
+            color: var(--light-text);
+        }
+
+        .venue {
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+
+        .badge.win {
+            background-color: var(--win);
+            color: #155724;
+        }
+
+        .badge.loss {
+            background-color: var(--loss);
+            color: #721c24;
+        }
+
+        .badge.draw {
+            background-color: var(--draw);
+            color: #856404;
+        }
+
+        .badge.upcoming {
+            background-color: var(--upcoming);
+            color: #383d41;
+        }
+
+        @media (min-width: 768px) {
+            .filter-bar {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing);
+            }
+
+            .search-box {
+                grid-column: 1 / -1;
+                margin-bottom: 0;
+            }
+        }
+
+        /* Add styles for team category */
+        .team-category {
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="/assets/IMG_9120-WHITE.png" alt="GNC CLG Logo" class="header-logo">
+            <h1 class="header-title">GNC CLG Fixtures</h1>
+            <button class="menu-btn expanded" id="menuBtn">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="filter-bar" id="filterBar">
+        <div class="search-and-date">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search matches..." id="searchInput">
+                <div class="autocomplete-suggestions" id="suggestions"></div>
+            </div>
+            <div class="date-box">
+                <i class="fas fa-calendar"></i>
+                <input type="text" id="dateRange" placeholder="Select date range">
+            </div>
+        </div>
+        <div class="filters-row">
+            <div class="filter-group">
+                <select id="teamFilter">
+                    <option value="all">All Teams</option>
+                    <option value="Senior Men">Senior Men</option>
+                    <option value="Senior Ladies">Senior Ladies</option>
+                    <option value="Minor Boys">Minor Boys</option>
+                    <option value="Minor Girls">Minor Girls</option>
+                    <option value="U16 Boys">U16 Boys</option>
+                    <option value="U16 Girls">U16 Girls</option>
+                    <option value="U14 Boys">U14 Boys</option>
+                    <option value="U14 Girls">U14 Girls</option>
+                    <option value="U12 Boys">U12 Boys</option>
+                    <option value="U12 Girls">U12 Girls</option>
+                    <option value="U8.5 Boys">U8.5 Boys</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <select id="statusFilter">
+                    <option value="all">All Status</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="matchesContainer" class="matches-container">
+        <!-- Matches will be inserted here by JavaScript -->
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // Sample data for fixtures (same as before)
+        const sampleData = `Date,Competition,Sex,Round,Team,Where,Result,Home Team,Home Score,Away Team,Away Score,Venue,Time,Referee,Fixture Src,Fixture ID,Calendar Sync,Calendar Event ID
+Mon 31 Mar 25,Minor Div 3 League,Girls,Round 1,Minor Girls,HOME,LOSS,Grange Naomh Colmcille CLG,2-10,Shamrock Gaels,6-9,Grange St Colmcille's,6:45 PM,Leo Dougan,url,GFAS-25-024B,RESULT,jkrhk4igrk3qcfbfteoqclvq5c
+Thu 03 Apr 25,U16 Div 5 League,Girls,Round 1,U16 Girls,HOME,WIN,Grange Naomh Colmcille CLG,11-7,Naomh Peadar,4-6,Grange St Colmcille's,6:45 PM,Ronan Gildernew,url,GFAS-25-9339,RESULT,auqq9chl1shoeuvbkon4m598j0
+Sat 05 Apr 25,Senior Division 2 League,Ladies,Round 1,Senior Ladies,AWAY,DRAW,Naomh Peadar,2-7,Grange Naomh Colmcille CLG,3-4,St Peter's Lurgan,6:45 PM,Pat Mc Dade,url,GFAS-25-3A57,RESULT,2i2tkgrucb297g6avqrmnicsgk
+Sun 06 Apr 25,2025 Intermediate Football League Division 2B,Men,Round 1,Senior Men,HOME,WIN,Grange Naomh Colmcille CLG,1-15,Clann Eireann,0-11,Grange St Colmcille's,2:00 PM,Oisin Mc Kee,url,GFAS-25-7FCC,RESULT,6f0rv0g8bkqc6hhs5aiuuq2gu8
+Mon 07 Apr 25,Minor Div 3 League,Girls,Round 2,Minor Girls,AWAY,LOSS,CLG Chú Chulainn An Mullach Bán,5-16,Grange Naomh Colmcille CLG,2-6,Mullaghbawn,6:45 PM,Damian Shields,url,GFAS-25-F1BE,RESULT,v8ioj6po64aqmga22mbvdru750
+Mon 07 Apr 25,U-18 Division 2 League,Boys,Round 1,Minor Boys,AWAY,WIN,CLG Chú Chulainn An Mullach Bán,1-8,Naomh Colum,4-17,Mullaghbawn,6:45 PM,Oliver Hearty,url,GFAS-25-3E6D,RESULT,7j24hagtpals6meq5c10fl51fo
+Tue 08 Apr 25,U-14 Division 2 Football League,Boys,Round 1,U14 Boys,AWAY,LOSS,Wolfe Tones,13-6,Naomh Colum,0-6,Wolfe Tones Derrymacash,6:45 PM,Denise Mc Donald,url,GFAS-25-4F6C,RESULT,bn58nrp4ti30jmnvjtdou55m7k
+Thu 10 Apr 25,U16 Div 5 League,Girls,Round 2,U16 Girls,AWAY,WIN,An Port Mór,2-2,Grange Naomh Colmcille CLG,7-19,An Port Mor,6:45 PM,Ronan Gildernew,url,GFAS-25-9C96,RESULT,6ettr8qen34er06nnkb79gn138
+Sun 13 Apr 25,U14 Div 2 League,Girls,Round 1,U14 Girls,HOME,LOSS,Grange Naomh Colmcille CLG,4-0,Wolfe Tones,3-11,Grange St Colmcille's,11:00 AM,Conall Mc Ginnity,url,GFAS-25-19F9,RESULT,3mljuo6jkp1godmt4rmvjdnb4g
+Sun 13 Apr 25,2025 Intermediate Football League Division 2B,Men,Round 2,Senior Men,AWAY,WIN,Na Piarsaigh Eanach Mor,0-10,Grange Naomh Colmcille CLG,2-9,Annaghmore,2:00 PM,Conall Mc Ginnity,url,GFAS-25-A8FE,RESULT,fgbb6ob7cb1kp8ur3otmpc9jc0
+Mon 14 Apr 25,Minor Div 3 League,Girls,Round 3,Minor Girls,HOME,LOSS,Grange Naomh Colmcille CLG,2-5,Naomh Labhaoise,4-9,Grange St Colmcille's,6:45 PM,Eugene Hughes,url,GFAS-25-4B1F,RESULT,1fse2ffoisqi1nt19p67aoen68
+Mon 14 Apr 25,U-18 Division 2 League,Boys,Round 2,Minor Boys,HOME,WIN,Naomh Colum,4-22,An Port Mór,1-9,Maghery,6:45 PM,Denise Mc Donald,url,GFAS-25-3EE2,RESULT,l9b55jom8comjlqhu5tv8dso4s
+Tue 15 Apr 25,U-14 Division 2 Football League,Boys,Round 2,U14 Boys,HOME,---,Naomh Colum,---,Carrickcruppen,---,Grange,6:45 PM,Shane Mc Keown,url,GFAS-25-9281,ADDED,ok5al7031aqechgkshjfps0io0
+Thu 17 Apr 25,U-16 Division 2 Football League,Boys,Round 1,U16 Boys,HOME,---,Naomh Colum,---,CLG Chú Chulainn An Mullach Bán,---,Maghery,6:45 PM,Christopher Lennon,url,GFAS-25-33FB,ADDED,ae6bk16g2rkdhoh1ve9eiqsmos
+Thu 17 Apr 25,Go-Games (Regional | Mid 1),Girls,Round 1,U12 Girls,AWAY,---,Shamrock Gaels,---,Grange Naomh Colmcille CLG,---,Shamrock Gaels,6:45 PM,---,manual,GFAS-25-1A9C,ADDED,8dpgcbgc1f7djgquk6qeud9760
+Thu 24 Apr 25,Go-Games (Regional | Mid 1),Girls,Round 2,U12 Girls,HOME,---,Grange Naomh Colmcille CLG,---,Pearse Og,---,Grange St Colmcille's,6:45 PM,---,manual,GFAS-25-A4DE,ADDED,930vm1afj3hojrh1lhkcv1lh64
+Thu 24 Apr 25,U-16 Division 2 Football League,Boys,Round 2,U16 Boys,AWAY,---,Clann Eireann,---,Naomh Colum,---,Clann Eireann,7:00 PM,Colin Mallon,url,GFAS-25-0361,ADDED,e82fbld6bsb5lii62t3a4te3pk
+Fri 25 Apr 25,2025 Intermediate Football League Division 2B,Men,Round 3,Senior Men,HOME,---,Grange Naomh Colmcille CLG,---,Tir na nÓg,---,Grange St Colmcille's,7:00 PM,Tony O Hare,url,GFAS-25-822E,ADDED,mlbav50sl9c69qcu99395jin3s
+Sat 26 Apr 25,Go-Games (Group 2),Boys,Round 1,U8.5 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Middletown,---,Grange St Colmcille's,11:00 AM,---,manual,GFAS-25-FCB3,ADDED,anab480tv8vee05rck9k17fa5k
+Sat 26 Apr 25,Go-Games (Regional | North 2),Boys,Round 1,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Sarsfields,---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-4A16,MODIFIED,ba8qa0d3hkvg2qhjn0vfk7jlks
+Mon 28 Apr 25,Senior Division 2 League,Ladies,Round 2,Senior Ladies,HOME,---,Grange Naomh Colmcille CLG,---,Clan na Gael,---,Grange St Colmcille's,7:00 PM,TBC,url,GFAS-25-A506,ADDED,c8ul9d18hafufincl3dcdid93o
+Mon 28 Apr 25,U-18 Division 2 League,Boys,Round 3,Minor Boys,HOME,---,Naomh Colum,---,Tir na nÓg,---,,7:15 PM,TBC,url,GFAS-25-7821,ADDED,a132vcrpihfgupuh8f8dqc9ds0
+Tue 29 Apr 25,U-14 Division 2 Football League,Boys,Round 3,U14 Boys,AWAY,---,Pearse Og,---,Naomh Colum,---,Pearse Ogs,7:00 PM,TBC,url,GFAS-25-99B1,ADDED,8alhsrpetsq1b96dq5pcde7kr0
+Thu 01 May 25,U16 Div 5 League,Girls,Round 3,U16 Girls,HOME,---,Grange Naomh Colmcille CLG,---,O'Doirnin Blues,---,Grange St Colmcille's,7:00 PM,Shane Mc Keown,url,GFAS-25-995C,ADDED,4hn9hudm62huui5cn7en5imrv4
+Thu 01 May 25,U-16 Division 2 Football League,Boys,Round 3,U16 Boys,HOME,---,Naomh Colum,---,Carrickcruppen,---,Maghery,7:15 PM,TBC,url,GFAS-25-952E,ADDED,hr4h3jt4h27j7eau2q9h1le6q0
+Thu 01 May 25,2025 Intermediate Football League Division 2B,Men,Round 4,Senior Men,AWAY,---,Collegeland,---,Grange Naomh Colmcille CLG,---,Collegeland,7:15 PM,Ruan Mc Kinstry,url,GFAS-25-A8B9,ADDED,gm3c76gglidlnbcsr7vqdgb8d8
+Sat 03 May 25,Go-Games (Group 2),Boys,Round 2,U8.5 Boys,AWAY,---,Derrynoose St Mochuas,---,Grange Naomh Colmcille CLG,---,Derrynoose St Mochuas,11:00 AM,---,manual,GFAS-25-0671,ADDED,vossauqa6ek2v5uoq8v510g5kk
+Sat 03 May 25,Go-Games (Regional | North 2),Boys,Round 2,U12 Boys,AWAY,---,Ballyhegan Davitts,---,Grange Naomh Colmcille CLG,---,Ballyhegan Davitts,4:00 PM,---,manual,GFAS-25-96CC,MODIFIED,fqr2it4ulknk220q4jbrsrb2b4
+Sun 04 May 25,U14 Div 2 League,Girls,Round 2,U14 Girls,AWAY,---,Tir na nÓg,---,Grange Naomh Colmcille CLG,---,Páirc an Athar Uí Raifeartaigh,12:00 PM,TBC,url,GFAS-25-587E,ADDED,akpiuv6oguv16knhojebregpg4
+Mon 05 May 25,U-18 Division 2 League,Boys,Round 4,Minor Boys,AWAY,---,Culloville Blues GAC,---,Naomh Colum,---,Culloville Top field,7:15 PM,Paul Graham,url,GFAS-25-F192,ADDED,ea0tdklkvngsc5rp4homjeoabo
+Tue 06 May 25,U-14 Division 2 Football League,Boys,Round 4,U14 Boys,HOME,---,Naomh Colum,---,Naomh Eoin B Team,---,,7:15 PM,TBC,url,GFAS-25-E644,ADDED,e1c6huvplk9ofoits6evrk6a8k
+Thu 08 May 25,U16 Div 5 League,Girls,Round 4,U16 Girls,AWAY,---,Patrick Rankin,---,Grange Naomh Colmcille CLG,---,,7:00 PM,Keith Goodfellow,url,GFAS-25-B0EC,ADDED,ls5qisadmgp3g7tvto5akrjfro
+Thu 08 May 25,U-16 Division 2 Football League,Boys,Round 4,U16 Boys,AWAY,---,Naomh Peadar,---,Naomh Colum,---,St Peter's Lurgan,7:15 PM,TBC,url,GFAS-25-FB0F,ADDED,tqrme22gmiuo18joeeb588jg4o
+Fri 09 May 25,2025 Intermediate Football League Division 2B,Men,Round 5,Senior Men,AWAY,---,Wolfe Tones,---,Grange Naomh Colmcille CLG,---,Wolfe Tones Derrymacash,7:15 PM,TBC,url,GFAS-25-092D,ADDED,ei2pchql0acrrct3bl37i981k4
+Sat 10 May 25,Go-Games (Group 2),Boys,Round 3,U8.5 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Madden Raparees,---,Grange St Colmcille's,11:00 AM,---,manual,GFAS-25-A593,ADDED,vtq2pk5012bec60igh2gtea4j8
+Sat 10 May 25,Go-Games (Regional | North 2),Boys,Round 3,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,St Mary's Aghagallon,---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-21A5,MODIFIED,nhplupdcr7r6h6s24d9eskbqko
+Sat 10 May 25,Senior Division 2 League,Ladies,Round 4,Senior Ladies,AWAY,---,Derrynoose,---,Grange Naomh Colmcille CLG,---,Derrynoose,7:00 PM,TBC,url,GFAS-25-5211,ADDED,gd29ae869mhto09j573o5ossto
+Sun 11 May 25,U14 Div 2 League,Girls,Round 3,U14 Girls,HOME,---,Grange Naomh Colmcille CLG,---,Madden,---,Grange St Colmcille's,12:00 PM,TBC,url,GFAS-25-EE8F,ADDED,0uhqgoqunljl32ldmhq8057mpc
+Tue 13 May 25,U-14 Division 2 Football League,Boys,Round 5,U14 Boys,AWAY,---,Madden,---,Naomh Colum,---,Madden,7:15 PM,TBC,url,GFAS-25-3E97,ADDED,4mc7e4ufflc8u9gn2vsrsbbsqk
+Thu 15 May 25,Go-Games (Regional | Mid 1),Girls,Round 3,U12 Girls,AWAY,---,Mullabrack,---,Grange Naomh Colmcille CLG,---,Mullabrack,7:00 PM,---,manual,GFAS-25-BDF0,ADDED,ructcgpgki3va6cq6iee7vauso
+Sat 17 May 25,Go-Games (Regional | North 2),Boys,Round 4,U12 Boys,AWAY,---,Tir na nÓg,---,Grange Naomh Colmcille CLG,---,Tir na nÓg,4:00 PM,---,manual,GFAS-25-B562,MODIFIED,o324e4m8upjoith6lmva14jv4g
+Sat 17 May 25,2025 Intermediate Football League Division 2B,Men,Round 6,Senior Men,HOME,---,Grange Naomh Colmcille CLG,---,Derrynoose,---,Grange St Colmcille's,6:00 PM,TBC,url,GFAS-25-AE72,ADDED,tsihkmk25m9pteq14tg7svlr00
+Sat 17 May 25,Minor Div 3 League,Girls,Round 4,Minor Girls,AWAY,---,Wolfe Tones,---,Grange Naomh Colmcille CLG,---,Wolfe Tones Derrymacash,7:00 PM,Christopher Lennon,url,GFAS-25-23C1,ADDED,naap5udsll19t28uqffduh1iao
+Thu 22 May 25,Go-Games (Regional | Mid 1),Girls,Round 4,U12 Girls,HOME,---,Grange Naomh Colmcille CLG,---,Madden,---,Grange St Colmcille's,7:00 PM,---,manual,GFAS-25-00A6,ADDED,m04mvppe6bsh6mn8vm36o0hbjc
+Fri 23 May 25,2025 Intermediate Football League Division 2B,Men,Round 7,Senior Men,AWAY,---,Peadar Ó Doirnín Foirceal,---,Grange Naomh Colmcille CLG,---,Forkhill,7:30 PM,TBC,url,GFAS-25-84C9,ADDED,ik7kh0mo231tg57hggl4uhscbc
+Sat 24 May 25,Go-Games (Group 2),Boys,Round 4,U8.5 Boys,AWAY,---,Collegeland O'Rahilly's,---,Grange Naomh Colmcille CLG,---,Collegeland O'Rahilly's,11:00 AM,---,manual,GFAS-25-D31C,ADDED,l2v250s8tfbd7vr60faansik6o
+Sat 24 May 25,Go-Games (Regional | North 2),Boys,Round 5,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Naomh Eoin (B Team),---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-566F,MODIFIED,fioq7dtfjfp8u05ptu4oe9hvf0
+Sat 24 May 25,Senior Division 2 League,Ladies,Round 5,Senior Ladies,HOME,---,Grange Naomh Colmcille CLG,---,Armagh Harps,---,Grange St Colmcille's,7:00 PM,TBC,url,GFAS-25-27EC,ADDED,irfaoi2vnih431je2541rpv5fk
+Sun 25 May 25,U14 Div 2 League,Girls,Round 4,U14 Girls,AWAY,---,Armagh Harps,---,Grange Naomh Colmcille CLG,---,Armagh Harps,12:00 PM,TBC,url,GFAS-25-D018,ADDED,t35q9kmm9n1jkij301cgb1tr6s
+Mon 26 May 25,U-18 Division 2 League,Boys,Round 5,Minor Boys,HOME,---,Naomh Colum,---,Silverbridge,---,,7:15 PM,TBC,url,GFAS-25-0D41,ADDED,kvenrnqnj7ljtm826qlrbk332g
+Thu 29 May 25,U-16 Division 2 Football League,Boys,Round 5,U16 Boys,HOME,---,Naomh Colum,---,Naomh Eoin B Team,---,,7:15 PM,TBC,url,GFAS-25-0131,ADDED,oqn7rd1g8ejhhm0o2ecjroh4do
+Sat 31 May 25,Go-Games (Group 2),Boys,Round 5,U8.5 Boys,BYE,BYE,Grange Naomh Colmcille CLG,---,BYE,---,BYE,11:00 AM,BYE,manual,GFAS-25-4DCE,ADDED,1rd89728dhnfdstdekjm1362j8
+Sat 31 May 25,Go-Games (Regional | North 2),Boys,Round 6,U12 Boys,AWAY,---,Pearse Og,---,Grange Naomh Colmcille CLG,---,Pearse Og,4:00 PM,---,manual,GFAS-25-45BF,MODIFIED,t8f7lm8n7tgfmnlma28de2qdrk
+Sat 31 May 25,Senior Division 2 League,Ladies,Round 6,Senior Ladies,AWAY,---,CLG Chú Chulainn An Mullach Bán,---,Grange Naomh Colmcille CLG,---,Mullaghbawn,7:00 PM,TBC,url,GFAS-25-4EE1,ADDED,djjff3vk8q5p2ltrgqiun1gijo
+Mon 02 Jun 25,U-18 Division 2 League,Boys,Round 6,Minor Boys,AWAY,---,Killeavy St Moninna,---,Naomh Colum,---,Memorial Park,7:15 PM,TBC,url,GFAS-25-B577,ADDED,e6u7s3ss2fgej5q1rnvnrm794c
+Thu 05 Jun 25,Go-Games (Regional | Mid 1),Girls,Round 5,U12 Girls,AWAY,---,Derrynoose,---,Grange Naomh Colmcille CLG,---,Derrynoose,7:00 PM,---,manual,GFAS-25-0466,ADDED,1bq6b1q7e9qh6efh3p80daoqlk
+Thu 05 Jun 25,U-16 Division 2 Football League,Boys,Round 6,U16 Boys,AWAY,---,Tir na nÓg,---,Naomh Colum,---,Páirc an Athar Uí Raifeartaigh,7:15 PM,TBC,url,GFAS-25-C748,ADDED,amdfrdb9fh1u8l4iio8o5322t4
+Fri 06 Jun 25,2025 Intermediate Football League Division 2B,Men,Round 8,Senior Men,AWAY,---,Clann Eireann,---,Grange Naomh Colmcille CLG,---,Clann Eireann,7:30 PM,TBC,url,GFAS-25-EEFF,ADDED,afafsmldun5gdtegp1o09ndlb8
+Sat 07 Jun 25,Go-Games (Regional | North 2),Boys,Round 7,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,An Port Mór,---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-57D9,MODIFIED,ekcfovcrlqt6717oou7nmcu6e8
+Sat 07 Jun 25,Minor Div 3 League,Girls,Round 5,Minor Girls,HOME,---,Grange Naomh Colmcille CLG,---,St Patrick's,---,Grange St Colmcille's,7:30 PM,TBC,url,GFAS-25-609B,ADDED,4gs5t3g2i2gee8jqb7tch5sc2g
+Thu 12 Jun 25,U16 Div 5 League,Girls,Round 6,U16 Girls,AWAY,---,Naomh Peadar,---,Grange Naomh Colmcille CLG,---,St Peter's Lurgan,7:00 PM,TBC,url,GFAS-25-5A68,ADDED,o5iphmtjs1eu0ku8aesq46vn1o
+Fri 13 Jun 25,2025 Intermediate Football League Division 2B,Men,Round 9,Senior Men,HOME,---,Grange Naomh Colmcille CLG,---,Na Piarsaigh Eanach Mor,---,Grange St Colmcille's,7:45 PM,TBC,url,GFAS-25-F534,ADDED,6nu2i3o166e26r314sj0j4uuhg
+Sat 14 Jun 25,Go-Games (Group 2),Boys,Round 6,U8.5 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Keady Michael Dwyers,---,Grange St Colmcille's,11:00 AM,---,manual,GFAS-25-2A24,ADDED,ubcuq4ncn59ciig3ths93q8uq8
+Sat 14 Jun 25,Go-Games (Regional | North 2),Boys,Round 8,U12 Boys,AWAY,---,Sarsfields,---,Grange Naomh Colmcille CLG,---,Sarsfields,4:00 PM,---,manual,GFAS-25-4972,MODIFIED,6ub290gt06l6laqlkjdcgf75sg
+Sat 14 Jun 25,Senior Division 2 League,Ladies,Round 3,Senior Ladies,HOME,---,Grange Naomh Colmcille CLG,---,Tir na nÓg,---,Grange St Colmcille's,7:30 PM,TBC,url,GFAS-25-DFC2,ADDED,einarlj4sv4iv8ql1vearn32ok
+Sun 15 Jun 25,U14 Div 2 League,Girls,Round 6,U14 Girls,AWAY,---,CLG Chú Chulainn An Mullach Bán,---,Grange Naomh Colmcille CLG,---,Mullaghbawn,12:00 PM,TBC,url,GFAS-25-9E93,ADDED,abo4pnln0k4js8ub3nmk4hd0ik
+Thu 19 Jun 25,U-16 Division 2 Football League,Boys,Round 7,U16 Boys,HOME,---,Naomh Colum,---,Culloville Blues GAC,---,,7:15 PM,TBC,url,GFAS-25-3BA3,ADDED,vglla13amvmsnt0n240vj02hpg
+Fri 20 Jun 25,2025 Intermediate Football League Division 2B,Men,Round 10,Senior Men,AWAY,---,Tir na nÓg,---,Grange Naomh Colmcille CLG,---,Páirc an Athar Uí Raifeartaigh,7:45 PM,TBC,url,GFAS-25-CD2B,ADDED,s4q0n6pnpdd057p9r0tmt13vg0
+Sat 21 Jun 25,Go-Games (Group 2),Boys,Round 7,U8.5 Boys,AWAY,---,Tullysaran O'Connells,---,Grange Naomh Colmcille CLG,---,Tullysaran O'Connells,11:00 AM,---,manual,GFAS-25-7B2F,ADDED,gts78m2pbt815knfh21hapmb6c
+Sat 21 Jun 25,Go-Games (Regional | North 2),Boys,Round 9,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Ballyhegan Davitts,---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-8778,MODIFIED,h07v8mou4hqr0tj3je0aq1ta98
+Sat 21 Jun 25,Minor Div 3 League,Girls,Round 6,Minor Girls,AWAY,---,Naomh Peadar,---,Grange Naomh Colmcille CLG,---,St Peter's Lurgan,7:30 PM,TBC,url,GFAS-25-7B7A,ADDED,ni4lgehfh8vui30gcqcr4diuak
+Sun 22 Jun 25,U14 Div 2 League,Girls,Round 7,U14 Girls,HOME,---,Grange Naomh Colmcille CLG,---,Keady Michael Dwyers,---,Grange St Colmcille's,12:00 PM,TBC,url,GFAS-25-340D,ADDED,behbo8922ncmcqjrp6s3knojv4
+Mon 23 Jun 25,U-18 Division 2 League,Boys,Round 8,Minor Boys,HOME,---,Naomh Colum,---,Madden,---,,7:15 PM,TBC,url,GFAS-25-6D7D,ADDED,iqobad8l6g2dirqg1rl3sgqsec
+Tue 24 Jun 25,U-14 Division 2 Football League,Boys,Round 6,U14 Boys,HOME,---,Naomh Colum,---,An Port Mór,---,,7:15 PM,TBC,url,GFAS-25-E463,ADDED,bvo53mf6pfp2optaui1spe8jps
+Thu 26 Jun 25,U-16 Division 2 Football League,Boys,Round 8,U16 Boys,AWAY,---,Ballyhegan,---,Naomh Colum,---,Ballyhegan Park,7:15 PM,TBC,url,GFAS-25-2A29,ADDED,3552b1h3puplbc771g6lvhb89s
+Fri 27 Jun 25,2025 Intermediate Football League Division 2B,Men,Round 11,Senior Men,HOME,---,Grange Naomh Colmcille CLG,---,Collegeland,---,Grange St Colmcille's,7:45 PM,TBC,url,GFAS-25-6B1D,ADDED,vhml3tg7d041fkmi3kk3s77p2s
+Sat 28 Jun 25,Go-Games (Group 2),Boys,Round 8,U8.5 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Ballymacnab Round Towers,---,Grange St Colmcille's,11:00 AM,---,manual,GFAS-25-3585,ADDED,lcfq5af5kam1utho8ckisu8rbg
+Sat 28 Jun 25,Go-Games (Regional | North 2),Boys,Round 10,U12 Boys,AWAY,---,St Mary's Aghagallon,---,Grange Naomh Colmcille CLG,---,St Mary's Aghagallon,4:00 PM,---,manual,GFAS-25-7028,MODIFIED,09oc6h9ru0bl5vlkhle4tk7nfo
+Sat 28 Jun 25,Senior Division 2 League,Ladies,Round 7,Senior Ladies,HOME,---,Grange Naomh Colmcille CLG,---,Mullabrack,---,Grange St Colmcille's,7:30 PM,TBC,url,GFAS-25-ECEF,ADDED,htag15ut0vdtrfb7ccjepha2jk
+Mon 30 Jun 25,U-18 Division 2 League,Boys,Round 9,Minor Boys,AWAY,---,Wolfe Tones,---,Naomh Colum,---,Wolfe Tones Derrymacash,7:15 PM,TBC,url,GFAS-25-9AC0,ADDED,8ofb5i3qoompmbejren5ecbklg
+Thu 03 Jul 25,U16 Div 5 League,Girls,Round 7,U16 Girls,HOME,---,Grange Naomh Colmcille CLG,---,An Port Mór,---,Grange St Colmcille's,7:00 PM,TBC,url,GFAS-25-B1D0,ADDED,2umlgcvm88e0ocfedeh11a7v3s
+Fri 04 Jul 25,2025 Intermediate Football League Division 2B,Men,Round 12,Senior Men,HOME,---,Grange Naomh Colmcille CLG,---,Wolfe Tones,---,Grange St Colmcille's,7:45 PM,TBC,url,GFAS-25-CFEA,ADDED,9bl6mua1pcmhdhdrs0hbdisosg
+Sat 05 Jul 25,Go-Games (Regional | North 2),Boys,Round 11,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Tir na nÓg,---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-1245,MODIFIED,reoj0dgl2t06co7q4tp4ckrbjc
+Mon 07 Jul 25,Minor Div 3 League,Girls,Round 8,Minor Girls,HOME,---,Grange Naomh Colmcille CLG,---,O'Hanlons,---,Grange St Colmcille's,7:00 PM,TBC,url,GFAS-25-79BC,ADDED,oegtgl7jp9pmvjs100im842oc0
+Mon 21 Jul 25,Minor Div 3 League,Girls,Round 9,Minor Girls,AWAY,---,Silverbridge,---,Grange Naomh Colmcille CLG,---,Silverbridge,7:00 PM,TBC,url,GFAS-25-F4C9,ADDED,a1s44ia9p7hspdhdlb726qkktc
+Thu 24 Jul 25,U16 Div 5 League,Girls,Round 8,U16 Girls,AWAY,---,O'Doirnin Blues,---,Grange Naomh Colmcille CLG,---,Top Field,7:00 PM,TBC,url,GFAS-25-DC04,ADDED,7mguk52kbi7jr5t2nin0jf9qjc
+Fri 25 Jul 25,2025 Intermediate Football League Division 2B,Men,Round 13,Senior Men,AWAY,---,Derrynoose,---,Grange Naomh Colmcille CLG,---,Derrynoose,7:30 PM,TBC,url,GFAS-25-3F6D,ADDED,s01r12q1dlj31bsv6l09ri42o8
+Sat 26 Jul 25,Go-Games (Group 2),Boys,Round 9,U8.5 Boys,AWAY,---,Granemore St Mary'sG,---,Grange Naomh Colmcille CLG,---,Granemore St Mary's,11:00 AM,---,manual,GFAS-25-C350,ADDED,e3mm27tfctld7u9m6g8nfjgnk0
+Sat 26 Jul 25,Go-Games (Regional | North 2),Boys,Round 12,U12 Boys,AWAY,---,Naomh Eoin (B Team),---,Grange Naomh Colmcille CLG,---,Naomh Eoin,4:00 PM,---,manual,GFAS-25-1D4C,MODIFIED,jn0dt1t014c7084c46kd23uin8
+Mon 28 Jul 25,U-18 Division 2 League,Boys,Round 10,Minor Boys,HOME,---,Naomh Colum,---,Middletown GAA,---,,7:15 PM,TBC,url,GFAS-25-D9A6,ADDED,7o9vh7t6l0j1hj2858scl0iti4
+Thu 31 Jul 25,U16 Div 5 League,Girls,Round 9,U16 Girls,HOME,---,Grange Naomh Colmcille CLG,---,Patrick Rankin,---,Grange St Colmcille's,7:00 PM,TBC,url,GFAS-25-C27A,ADDED,fptgf7sihi03if9vm5q504inis
+Fri 01 Aug 25,2025 Intermediate Football League Division 2B,Men,Round 14,Senior Men,HOME,---,Grange Naomh Colmcille CLG,---,Peadar Ó Doirnín Foirceal,---,Grange St Colmcille's,7:30 PM,TBC,url,GFAS-25-1DBF,ADDED,k1vmt730d7h5sni5pj5ni5aplg
+Sat 02 Aug 25,Go-Games (Regional | North 2),Boys,Round 13,U12 Boys,HOME,---,Grange Naomh Colmcille CLG,---,Pearse Og,---,Grange St Colmcille's,4:00 PM,---,manual,GFAS-25-558A,MODIFIED,bai765jjt6enniih2vjio4dnck
+Mon 04 Aug 25,U-18 Division 2 League,Boys,Round 11,Minor Boys,AWAY,---,Ballyhegan,---,Naomh Colum,---,Ballyhegan Park,7:15 PM,TBC,url,GFAS-25-71E1,ADDED,gc713if1um9smbc0sc42pq8lcs
+Tue 05 Aug 25,U-14 Division 2 Football League,Boys,Round 7,U14 Boys,AWAY,---,Keady Michael Dwyers,---,Naomh Colum,---,Gerard McGleenan Park,7:15 PM,TBC,url,GFAS-25-06AC,ADDED,kbrpo39162qof1oeh7gapt4i2s
+Sat 09 Aug 25,Go-Games (Regional | North 2),Boys,Round 14,U12 Boys,AWAY,---,An Port Mór,---,Grange Naomh Colmcille CLG,---,An Port Mór,4:00 PM,---,manual,GFAS-25-0AA4,MODIFIED,aph06h477nrumo25bd0c6ff790
+Tue 12 Aug 25,U-14 Division 2 Football League,Boys,Round 8,U14 Boys,HOME,---,Naomh Colum,---,Clann Eireann,---,,7:15 PM,TBC,url,GFAS-25-93AB,ADDED,d0a3gcapttuqrj23369uucnlak
+Tue 26 Aug 25,U-14 Division 2 Football League,Boys,Round 9,U14 Boys,AWAY,---,St Patrick's,---,Naomh Colum,---,St Patrick's Cullyhanna,7:00 PM,TBC,url,GFAS-25-EF7D,ADDED,vvde8k8vumgmvag1mo2s56jeko
+Tue 09 Sep 25,U-14 Division 2 Football League,Boys,Round 11,U14 Boys,HOME,---,Naomh Colum,---,Tir na nÓg,---,,6:45 PM,TBC,url,GFAS-25-88A9,ADDED,vto769uh0hji9kpuqi6nqrqr64
+Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Colmcille CLG,---,BYE,---,BYE,11:00 AM,BYE,url,GFAS-25-9879,ADDED,uf3ktble4775n3o549e990rqa4`;
+
+        // Parse CSV data
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const headers = lines[0].split(',');
+            return lines.slice(1).map(line => {
+                const values = line.split(',');
+                const match = {};
+                headers.forEach((header, index) => {
+                    match[header.trim()] = values[index] ? values[index].trim() : '';
+                });
+                return match;
+            });
+        }
+
+        // Format date for display
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const options = { weekday: 'short', day: 'numeric', month: 'short' };
+            return date.toLocaleDateString('en-GB', options);
+        }
+
+        // Create match card HTML
+        function createMatchCard(match) {
+            // Determine badge text and class
+            let badgeText = '';
+            let badgeClass = '';
+            let cardClass = 'upcoming';
+            
+            if (match.Result === 'WIN') {
+                badgeText = 'Win';
+                badgeClass = 'win';
+                cardClass = 'win';
+            } else if (match.Result === 'LOSS') {
+                badgeText = 'Loss';
+                badgeClass = 'loss';
+                cardClass = 'loss';
+            } else if (match.Result === 'DRAW') {
+                badgeText = 'Draw';
+                badgeClass = 'draw';
+                cardClass = 'draw';
+            } else {
+                badgeText = 'Upcoming';
+                badgeClass = 'upcoming';
+                cardClass = 'upcoming';
+            }
+
+            // Format scores
+            let homeTeam = match['Home Team'];
+            let awayTeam = match['Away Team'];
+            let homeScore = match['Home Score'] !== '---' ? match['Home Score'] : '';
+            let awayScore = match['Away Score'] !== '---' ? match['Away Score'] : '';
+
+            return `
+                <div class="match-card ${cardClass}">
+                    <div class="match-header">
+                        <div class="match-header-main">
+                            <span class="team-category">${match.Team}</span>
+                            <span class="competition">${match.Competition}</span>
+                        </div>
+                        <div class="match-info">
+                            <span>${match.Round}</span>
+                            <span>${match.Sex}</span>
+                        </div>
+                    </div>
+                    <div class="match-content">
+                        <div class="teams">
+                            <div class="team">
+                                <div class="team-name">${homeTeam}</div>
+                            </div>
+                            <div class="score-container">
+                                ${homeScore && awayScore 
+                                    ? `<span class="score">${homeScore}</span><span class="score">${awayScore}</span>` 
+                                    : `<span class="vs">vs</span>`
+                                }
+                            </div>
+                            <div class="team">
+                                <div class="team-name">${awayTeam}</div>
+                            </div>
+                        </div>
+                        <div class="metadata">
+                            <span class="venue">${match.Venue}</span>
+                            <span class="time">${match.Time}</span>
+                            <span class="badge ${badgeClass}">${badgeText}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Display matches grouped by date
+        function displayMatches(matches) {
+            const container = document.getElementById('matchesContainer');
+            container.innerHTML = '';
+
+            if (matches.length === 0) {
+                container.innerHTML = '<div class="no-matches">No matches found</div>';
+                return;
+            }
+
+            // Group matches by date
+            const matchesByDate = {};
+            matches.forEach(match => {
+                if (!matchesByDate[match.Date]) {
+                    matchesByDate[match.Date] = [];
+                }
+                matchesByDate[match.Date].push(match);
+            });
+
+            // Sort dates and create sections
+            Object.keys(matchesByDate)
+                .sort((a, b) => new Date(a) - new Date(b))
+                .forEach(date => {
+                    const dateHeader = document.createElement('div');
+                    dateHeader.className = 'date-header';
+                    dateHeader.textContent = formatDate(date);
+                    container.appendChild(dateHeader);
+
+                    matchesByDate[date].forEach(match => {
+                        const matchHTML = createMatchCard(match);
+                        const div = document.createElement('div');
+                        div.innerHTML = matchHTML;
+                        container.appendChild(div.firstElementChild);
+                    });
+                });
+        }
+
+        // Filter matches
+        function filterMatches() {
+            const team = document.getElementById('teamFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const dateRange = document.getElementById('dateRange').value;
+
+            const matches = parseCSV(sampleData);
+            const filtered = matches.filter(match => {
+                if (team !== 'all' && match.Team !== team) return false;
+                
+                if (status === 'upcoming' && match.Result !== '---') return false;
+                if (status === 'completed' && match.Result === '---') return false;
+                
+                if (search) {
+                    const searchText = `${match.Team} ${match.Competition} ${match['Home Team']} ${match['Away Team']} ${match.Venue}`.toLowerCase();
+                    if (!searchText.includes(search)) return false;
+                }
+
+                // Date range filtering
+                if (dateRange) {
+                    const [startDate, endDate] = dateRange.split(' to ').map(date => new Date(date));
+                    const matchDate = new Date(match.Date);
+                    if (startDate && matchDate < startDate) return false;
+                    if (endDate && matchDate > endDate) return false;
+                }
+                
+                return true;
+            });
+
+            displayMatches(filtered);
+        }
+
+        // Autocomplete functionality
+        function setupAutocomplete() {
+            const searchInput = document.getElementById('searchInput');
+            const suggestionsDiv = document.getElementById('suggestions');
+            let matches = parseCSV(sampleData);
+            
+            // Create a set of unique searchable terms
+            const searchableTerms = new Set();
+            matches.forEach(match => {
+                searchableTerms.add(match.Team);
+                searchableTerms.add(match.Competition);
+                searchableTerms.add(match.Venue);
+                searchableTerms.add(match['Home Team']);
+                searchableTerms.add(match['Away Team']);
+            });
+
+            searchInput.addEventListener('input', function() {
+                const value = this.value.toLowerCase();
+                if (value.length < 2) {
+                    suggestionsDiv.classList.remove('show');
+                    return;
+                }
+
+                const suggestions = Array.from(searchableTerms)
+                    .filter(term => term.toLowerCase().includes(value))
+                    .slice(0, 5);
+
+                if (suggestions.length > 0) {
+                    suggestionsDiv.innerHTML = suggestions
+                        .map(term => `<div class="suggestion-item">${term}</div>`)
+                        .join('');
+                    suggestionsDiv.classList.add('show');
+                } else {
+                    suggestionsDiv.classList.remove('show');
+                }
+            });
+
+            suggestionsDiv.addEventListener('click', function(e) {
+                if (e.target.classList.contains('suggestion-item')) {
+                    searchInput.value = e.target.textContent;
+                    suggestionsDiv.classList.remove('show');
+                    filterMatches();
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                    suggestionsDiv.classList.remove('show');
+                }
+            });
+        }
+
+        // Toggle filter bar
+        function setupFilterBarToggle() {
+            const menuBtn = document.getElementById('menuBtn');
+            const filterBar = document.getElementById('filterBar');
+            
+            menuBtn.addEventListener('click', function() {
+                filterBar.classList.toggle('collapsed');
+                menuBtn.classList.toggle('expanded');
+                menuBtn.querySelector('i').classList.toggle('fa-chevron-up');
+                menuBtn.querySelector('i').classList.toggle('fa-chevron-down');
+            });
+        }
+
+        // Initialize date pickers
+        function setupDatePickers() {
+            flatpickr("#dateRange", {
+                mode: "range",
+                dateFormat: "d M Y",
+                allowInput: true,
+                altInput: true,
+                altFormat: "d M Y",
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        filterMatches();
+                    }
+                }
+            });
+        }
+
+        // Initialize
+        function init() {
+            // Set up event listeners
+            document.getElementById('teamFilter').addEventListener('change', filterMatches);
+            document.getElementById('statusFilter').addEventListener('change', filterMatches);
+            document.getElementById('searchInput').addEventListener('input', filterMatches);
+
+            // Set up autocomplete
+            setupAutocomplete();
+
+            // Set up filter bar toggle
+            setupFilterBarToggle();
+
+            // Set up date pickers
+            setupDatePickers();
+
+            // Initial display
+            filterMatches();
+        }
+
+        // Start the app
+        init();
+    </script>
+</body>
+</html> 

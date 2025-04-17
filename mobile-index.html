@@ -178,14 +178,21 @@
 
         .date-header {
             font-weight: 500;
-            color: var(--text-secondary);
-            padding: var(--spacing-md) var(--spacing-sm);
-            background: var(--surface);
-            margin-top: var(--spacing-md);
-            border-radius: var(--border-radius);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            color: #5f6368;
+            padding: 24px 20px 12px;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .today-marker {
+            background: #1a73e8;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
         }
 
         .match-card {
@@ -532,11 +539,9 @@
 
         .date-header {
             font-weight: 500;
-            color: var(--text-secondary);
-            padding: var(--spacing-md) var(--spacing-sm);
-            background: var(--surface);
-            margin-top: var(--spacing-md);
-            border-radius: var(--border-radius);
+            color: #5f6368;
+            padding: 24px 20px 12px;
+            font-size: 16px;
         }
 
         .bottom-nav {
@@ -635,6 +640,213 @@
             margin-left: 8px;
             font-size: 14px;
         }
+
+        /* Add styles for different views */
+        .view {
+            display: none;
+        }
+        
+        .view.active {
+            display: block;
+        }
+
+        .stats-view {
+            padding: var(--spacing-md);
+        }
+
+        .teams-view {
+            padding: var(--spacing-md);
+        }
+
+        .more-view {
+            padding: var(--spacing-md);
+        }
+
+        .more-option {
+            background: var(--surface);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .more-option i {
+            color: var(--primary-color);
+            font-size: 1.2em;
+        }
+
+        /* Stats View Styles */
+        .stats-container {
+            display: flex;
+            gap: var(--spacing-md);
+            height: calc(100vh - var(--header-height) - var(--bottom-nav-height));
+            overflow: hidden;
+        }
+
+        .stats-sidebar {
+            width: 240px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: var(--spacing-md);
+            overflow-y: auto;
+        }
+
+        .stats-main {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+        }
+
+        .stats-nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-xs);
+            transition: all 0.2s ease;
+        }
+
+        .stats-nav-item:hover {
+            background: var(--background);
+        }
+
+        .stats-nav-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .stats-nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .stats-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .stats-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stats-card {
+            background: var(--surface);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .stats-card h3 {
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+        }
+
+        .progress-bar {
+            background: var(--background);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: var(--spacing-sm) 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.win { background: #34a853; }
+        .progress-fill.draw { background: #fbbc05; }
+        .progress-fill.loss { background: #ea4335; }
+
+        .competition-stats {
+            margin-top: var(--spacing-lg);
+        }
+
+        .competition-card {
+            background: var(--surface);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .competition-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .competition-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .competition-record {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .team-performance {
+            margin-top: var(--spacing-md);
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-sm);
+            text-align: center;
+        }
+
+        .performance-stat {
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius);
+            background: var(--background);
+        }
+
+        .performance-value {
+            font-size: 1.2em;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .performance-label {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .stats-container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .stats-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .stats-nav-item {
+                padding: var(--spacing-md);
+            }
+        }
     </style>
 </head>
 <body>
@@ -663,62 +875,186 @@
     </nav>
 
     <main class="main-content">
-        <div class="quick-stats">
-            <div class="stat-card">
-                <div class="stat-value" id="totalMatches">0</div>
-                <div class="stat-label">Total Matches</div>
+        <!-- Fixtures View -->
+        <div id="fixtures-view" class="view active">
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalMatches">0</div>
+                    <div class="stat-label">Total Matches</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="upcomingMatches">0</div>
+                    <div class="stat-label">Upcoming</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="winCount">0</div>
+                    <div class="stat-label">Wins</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="lossCount">0</div>
+                    <div class="stat-label">Losses</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="upcomingMatches">0</div>
-                <div class="stat-label">Upcoming</div>
+
+            <div class="filters">
+                <div class="search-bar">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search matches...">
+                </div>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <div class="filter-label">Team</div>
+                        <select id="teamFilter">
+                            <option value="all">All Teams</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-label">Competition</div>
+                        <select id="competitionFilter">
+                            <option value="all">All Competitions</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <div class="filter-label">Status</div>
+                        <select id="statusFilter">
+                            <option value="all">All Matches</option>
+                            <option value="fixture">Upcoming</option>
+                            <option value="result">Results</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-label">Date Range</div>
+                        <input type="text" id="dateRange" class="search-input" placeholder="Select dates">
+                    </div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="winCount">0</div>
-                <div class="stat-label">Wins</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="lossCount">0</div>
-                <div class="stat-label">Losses</div>
+
+            <div id="matchContainer" class="match-list">
+                <!-- Matches will be populated here -->
             </div>
         </div>
 
-        <div class="filters">
-            <div class="search-bar">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" placeholder="Search matches...">
-            </div>
-            <div class="filter-row">
-                <div class="filter-group">
-                    <div class="filter-label">Team</div>
-                    <select id="teamFilter">
-                        <option value="all">All Teams</option>
-                    </select>
+        <!-- Stats View -->
+        <div id="stats-view" class="view stats-view">
+            <div class="stats-container">
+                <div class="stats-sidebar">
+                    <div class="stats-nav-item active" data-section="overview">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Overview</span>
+                    </div>
+                    <div class="stats-nav-item" data-section="competitions">
+                        <i class="fas fa-trophy"></i>
+                        <span>Competitions</span>
+                    </div>
+                    <div class="stats-nav-item" data-section="teams">
+                        <i class="fas fa-users"></i>
+                        <span>Teams</span>
+                    </div>
+                    <div class="stats-nav-item" data-section="performance">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Performance</span>
+                    </div>
                 </div>
-                <div class="filter-group">
-                    <div class="filter-label">Competition</div>
-                    <select id="competitionFilter">
-                        <option value="all">All Competitions</option>
-                    </select>
-                </div>
-            </div>
-            <div class="filter-row">
-                <div class="filter-group">
-                    <div class="filter-label">Status</div>
-                    <select id="statusFilter">
-                        <option value="all">All Matches</option>
-                        <option value="fixture">Upcoming</option>
-                        <option value="result">Results</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <div class="filter-label">Date Range</div>
-                    <input type="text" id="dateRange" class="search-input" placeholder="Select dates">
+
+                <div class="stats-main">
+                    <!-- Overview Section -->
+                    <div class="stats-section active" id="overview-section">
+                        <h2>Season Overview</h2>
+                        <div class="stats-grid">
+                            <div class="stats-card">
+                                <h3>Win Rate</h3>
+                                <div class="stat-value" id="seasonWinRate">0%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill win" id="winRateBar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="stats-card">
+                                <h3>Draw Rate</h3>
+                                <div class="stat-value" id="seasonDrawRate">0%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill draw" id="drawRateBar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="stats-card">
+                                <h3>Loss Rate</h3>
+                                <div class="stat-value" id="seasonLossRate">0%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill loss" id="lossRateBar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-card">
+                            <h3>Performance by Competition</h3>
+                            <div id="competitionStats">
+                                <!-- Competition stats will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Competitions Section -->
+                    <div class="stats-section" id="competitions-section">
+                        <h2>Competition Breakdown</h2>
+                        <div id="competitionsList">
+                            <!-- Competition details will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Teams Section -->
+                    <div class="stats-section" id="teams-section">
+                        <h2>Team Performance</h2>
+                        <div id="teamsList">
+                            <!-- Team stats will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Performance Section -->
+                    <div class="stats-section" id="performance-section">
+                        <h2>Performance Trends</h2>
+                        <div class="stats-card">
+                            <h3>Recent Form</h3>
+                            <div id="recentForm">
+                                <!-- Recent form will be populated here -->
+                            </div>
+                        </div>
+                        <div class="stats-card">
+                            <h3>Home vs Away</h3>
+                            <div id="homeAwayStats">
+                                <!-- Home/Away stats will be populated here -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="matchContainer" class="match-list">
-            <!-- Matches will be populated here -->
+        <!-- Teams View -->
+        <div id="teams-view" class="view teams-view">
+            <h2>Our Teams</h2>
+            <div id="teamsList">
+                <!-- Teams will be populated here -->
+            </div>
+        </div>
+
+        <!-- More View -->
+        <div id="more-view" class="view more-view">
+            <div class="more-option">
+                <i class="fas fa-info-circle"></i>
+                <span>About GNC CLG</span>
+            </div>
+            <div class="more-option">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Find Our Ground</span>
+            </div>
+            <div class="more-option">
+                <i class="fas fa-envelope"></i>
+                <span>Contact Us</span>
+            </div>
+            <div class="more-option">
+                <i class="fas fa-share-alt"></i>
+                <span>Share App</span>
+            </div>
         </div>
     </main>
 
@@ -989,13 +1325,30 @@
             const allDatesContainer = document.createElement('div');
             let todaySection = null;
 
+            // Get today's date string for comparison
+            const today = new Date();
+            const todayStr = today.toDateString();
+
             sortedDates.forEach(date => {
                 const dateSection = document.createElement('div');
                 dateSection.className = 'date-section';
 
                 const dateHeader = document.createElement('div');
                 dateHeader.className = 'date-header';
-                dateHeader.textContent = formatDate(date);
+                
+                // Check if this is today's section
+                const matchDate = parseDate(date);
+                const isToday = matchDate.toDateString() === todayStr;
+                
+                dateHeader.innerHTML = `
+                    <span>${formatDate(date)}</span>
+                    ${isToday ? '<span class="today-marker">TODAY</span>' : ''}
+                `;
+                
+                if (isToday) {
+                    todaySection = dateSection;
+                }
+
                 dateSection.appendChild(dateHeader);
 
                 groupedMatches[date].forEach(match => {
@@ -1044,28 +1397,21 @@
                 });
 
                 allDatesContainer.appendChild(dateSection);
-
-                // Check if this is today's section
-                const matchDate = parseDate(date);
-                const today = new Date();
-                if (matchDate.toDateString() === today.toDateString()) {
-                    todaySection = dateSection;
-                }
             });
 
             matchContainer.appendChild(allDatesContainer);
 
-            // Scroll to today's section if we're in "All Matches" mode
+            // Get current status filter
             const statusFilter = document.getElementById('statusFilter').value;
+            
+            // If it's "all" (default) and we have a today section, scroll to it
             if (statusFilter === 'all' && todaySection) {
                 setTimeout(() => {
                     todaySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
             } else if (statusFilter === 'fixture') {
-                // For fixtures, scroll to top to show earliest upcoming match
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } else if (statusFilter === 'result') {
-                // For results, scroll to bottom to show most recent results
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             }
 
@@ -1074,6 +1420,9 @@
 
         // Initialize the application
         function init() {
+            // Set default filter to "all"
+            document.getElementById('statusFilter').value = 'all';
+            
             // Initialize filters
             populateFilters();
             
@@ -1086,35 +1435,52 @@
                 }
             });
             
-            // Display initial matches
+            // Display initial matches (which will scroll to today in "all" mode)
             displayMatches();
 
             // Initialize bottom navigation
             const navItems = document.querySelectorAll('.nav-item');
+            const views = document.querySelectorAll('.view');
+            
             navItems.forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
+                    
+                    // Update active states
                     navItems.forEach(i => i.classList.remove('active'));
                     item.classList.add('active');
                     
-                    // Handle navigation
+                    // Switch views
                     const section = item.getAttribute('href').substring(1);
-                    switch(section) {
-                        case 'fixtures':
-                            document.querySelector('.main-content').style.display = 'block';
-                            break;
-                        case 'stats':
-                            // TODO: Implement stats view
-                            break;
-                        case 'teams':
-                            // TODO: Implement teams view
-                            break;
-                        case 'more':
-                            // TODO: Implement more options
-                            break;
+                    views.forEach(view => {
+                        view.classList.remove('active');
+                        if (view.id === `${section}-view`) {
+                            view.classList.add('active');
+                            
+                            // If switching to fixtures view, ensure proper date handling
+                            if (section === 'fixtures') {
+                                // Reset status filter to "all" to ensure proper date handling
+                                document.getElementById('statusFilter').value = 'all';
+                                // Redisplay matches to ensure proper scrolling to today
+                                displayMatches();
+                            }
+                        }
+                    });
+                    
+                    // Update stats if switching to stats view
+                    if (section === 'stats') {
+                        updateSeasonStats();
+                    }
+                    
+                    // Update teams if switching to teams view
+                    if (section === 'teams') {
+                        updateTeamsList();
                     }
                 });
             });
+
+            // Initialize stats navigation
+            initStatsNavigation();
 
             // Add pull-to-refresh functionality
             let touchStart = 0;
@@ -1127,6 +1493,229 @@
                 if (touchStart < touchEnd && window.scrollY === 0) {
                     location.reload();
                 }
+            });
+        }
+
+        // Function to update season statistics
+        function updateSeasonStats() {
+            const totalMatches = matches.length;
+            const wins = matches.filter(match => match.Result === 'WIN').length;
+            const draws = matches.filter(match => match.Result === 'DRAW').length;
+            const losses = matches.filter(match => match.Result === 'LOSS').length;
+            
+            // Update overview stats
+            const winRate = totalMatches ? Math.round((wins / totalMatches) * 100) : 0;
+            const drawRate = totalMatches ? Math.round((draws / totalMatches) * 100) : 0;
+            const lossRate = totalMatches ? Math.round((losses / totalMatches) * 100) : 0;
+            
+            document.getElementById('seasonWinRate').textContent = winRate + '%';
+            document.getElementById('seasonDrawRate').textContent = drawRate + '%';
+            document.getElementById('seasonLossRate').textContent = lossRate + '%';
+            
+            document.getElementById('winRateBar').style.width = winRate + '%';
+            document.getElementById('drawRateBar').style.width = drawRate + '%';
+            document.getElementById('lossRateBar').style.width = lossRate + '%';
+            
+            // Update competition stats
+            const competitionStats = {};
+            matches.forEach(match => {
+                if (!competitionStats[match.Competition]) {
+                    competitionStats[match.Competition] = { 
+                        wins: 0, 
+                        draws: 0,
+                        losses: 0,
+                        total: 0 
+                    };
+                }
+                if (match.Result === 'WIN') {
+                    competitionStats[match.Competition].wins++;
+                } else if (match.Result === 'DRAW') {
+                    competitionStats[match.Competition].draws++;
+                } else if (match.Result === 'LOSS') {
+                    competitionStats[match.Competition].losses++;
+                }
+                competitionStats[match.Competition].total++;
+            });
+            
+            // Update overview competition stats
+            const statsContainer = document.getElementById('competitionStats');
+            statsContainer.innerHTML = '';
+            
+            Object.entries(competitionStats).forEach(([competition, stats]) => {
+                const winRate = Math.round((stats.wins / stats.total) * 100);
+                statsContainer.innerHTML += `
+                    <div class="competition-card">
+                        <div class="competition-header">
+                            <span class="competition-name">${competition}</span>
+                            <span class="competition-record">${stats.wins}W ${stats.draws}D ${stats.losses}L</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill win" style="width: ${winRate}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Update competitions section
+            const competitionsList = document.getElementById('competitionsList');
+            competitionsList.innerHTML = '';
+            
+            Object.entries(competitionStats).forEach(([competition, stats]) => {
+                const winRate = Math.round((stats.wins / stats.total) * 100);
+                competitionsList.innerHTML += `
+                    <div class="competition-card">
+                        <div class="competition-header">
+                            <span class="competition-name">${competition}</span>
+                            <span class="competition-record">${stats.wins}W ${stats.draws}D ${stats.losses}L</span>
+                        </div>
+                        <div class="performance-grid">
+                            <div class="performance-stat">
+                                <div class="performance-value" style="color: #34a853;">${stats.wins}</div>
+                                <div class="performance-label">Wins</div>
+                            </div>
+                            <div class="performance-stat">
+                                <div class="performance-value" style="color: #fbbc05;">${stats.draws}</div>
+                                <div class="performance-label">Draws</div>
+                            </div>
+                            <div class="performance-stat">
+                                <div class="performance-value" style="color: #ea4335;">${stats.losses}</div>
+                                <div class="performance-label">Losses</div>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill win" style="width: ${winRate}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Update teams section
+            updateTeamsList();
+
+            // Update performance section
+            updatePerformanceStats();
+        }
+
+        // Function to update performance statistics
+        function updatePerformanceStats() {
+            // Calculate recent form (last 5 matches)
+            const recentMatches = [...matches]
+                .sort((a, b) => parseDate(b.Date) - parseDate(a.Date))
+                .slice(0, 5);
+            
+            const recentForm = document.getElementById('recentForm');
+            recentForm.innerHTML = recentMatches.map(match => {
+                const result = match.Result;
+                const color = result === 'WIN' ? '#34a853' : 
+                            result === 'DRAW' ? '#fbbc05' : '#ea4335';
+                return `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+                        <span>${match.Competition}</span>
+                        <span style="color: ${color};">${result}</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Calculate home vs away stats
+            const homeMatches = matches.filter(match => match.Where === 'HOME');
+            const awayMatches = matches.filter(match => match.Where === 'AWAY');
+            
+            const homeWins = homeMatches.filter(match => match.Result === 'WIN').length;
+            const awayWins = awayMatches.filter(match => match.Result === 'WIN').length;
+            
+            const homeWinRate = homeMatches.length ? Math.round((homeWins / homeMatches.length) * 100) : 0;
+            const awayWinRate = awayMatches.length ? Math.round((awayWins / awayMatches.length) * 100) : 0;
+            
+            const homeAwayStats = document.getElementById('homeAwayStats');
+            homeAwayStats.innerHTML = `
+                <div style="margin-bottom: var(--spacing-md);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-xs);">
+                        <span>Home</span>
+                        <span>${homeWinRate}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill win" style="width: ${homeWinRate}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-xs);">
+                        <span>Away</span>
+                        <span>${awayWinRate}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill win" style="width: ${awayWinRate}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize stats navigation
+        function initStatsNavigation() {
+            const navItems = document.querySelectorAll('.stats-nav-item');
+            const sections = document.querySelectorAll('.stats-section');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetSection = item.getAttribute('data-section');
+                    
+                    // Update active states
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // Show target section
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === `${targetSection}-section`) {
+                            section.classList.add('active');
+                        }
+                    });
+                });
+            });
+        }
+
+        // Function to update teams list
+        function updateTeamsList() {
+            const teamsList = document.getElementById('teamsList');
+            const uniqueTeams = new Set();
+            
+            matches.forEach(match => {
+                if (match['Home Team'].includes('Grange')) {
+                    uniqueTeams.add(match['Home Team']);
+                }
+                if (match['Away Team'].includes('Grange')) {
+                    uniqueTeams.add(match['Away Team']);
+                }
+            });
+            
+            teamsList.innerHTML = '';
+            Array.from(uniqueTeams).sort().forEach(team => {
+                const teamMatches = matches.filter(match => 
+                    match['Home Team'] === team || match['Away Team'] === team
+                );
+                
+                const wins = teamMatches.filter(match => match.Result === 'WIN').length;
+                const draws = teamMatches.filter(match => match.Result === 'DRAW').length;
+                const losses = teamMatches.filter(match => match.Result === 'LOSS').length;
+                
+                teamsList.innerHTML += `
+                    <div class="stat-card" style="margin-bottom: var(--spacing-sm);">
+                        <h3 style="margin-bottom: var(--spacing-sm);">${team}</h3>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-sm);">
+                            <div>
+                                <div class="stat-value" style="color: #34a853;">${wins}</div>
+                                <div class="stat-label">Wins</div>
+                            </div>
+                            <div>
+                                <div class="stat-value" style="color: #fbbc05;">${draws}</div>
+                                <div class="stat-label">Draws</div>
+                            </div>
+                            <div>
+                                <div class="stat-value" style="color: #ea4335;">${losses}</div>
+                                <div class="stat-label">Losses</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
             });
         }
 

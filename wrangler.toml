@@ -1,0 +1,9 @@
+name = "calendar-worker"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+# These will be replaced with your actual values in the Cloudflare Dashboard
+GOOGLE_CLIENT_ID = ""
+GOOGLE_CLIENT_SECRET = ""
+GOOGLE_REFRESH_TOKEN = "" 
