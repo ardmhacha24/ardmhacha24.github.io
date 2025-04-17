@@ -1959,21 +1959,24 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
         }
         
         // Initialize the application
-        function init() {
+        async function init() {
             console.log('Initializing application...');
             try {
-                // Parse the CSV data first
+                // Parse CSV data first
                 matches = parseCSV(csvData);
-                console.log('Matches loaded:', matches.length);
+                console.log('Initial matches loaded:', matches.length);
                 
-                // Wait for DOM to be fully loaded
+                // Initialize UI
                 if (document.readyState === 'loading') {
                     document.addEventListener('DOMContentLoaded', initializeUI);
                 } else {
                     initializeUI();
                 }
+                
+                // Fetch training events
+                await fetchTrainingEvents();
             } catch (error) {
-                console.error('Error initializing application:', error);
+                console.error('Error in init:', error);
                 document.getElementById('matchContainer').innerHTML = `
                     <div class="no-results">
                         <p>Error loading matches. Please try refreshing the page.</p>
@@ -1981,9 +1984,6 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                     </div>
                 `;
             }
-            
-            // Fetch training events after initial setup
-            fetchTrainingEvents();
         }
         
         // Separate UI initialization
@@ -3047,31 +3047,21 @@ END:VCALENDAR`;
 
         // Modified createMatchCard function
         createMatchCard = function(match) {
-            console.log('Creating card for match:', match);
+            console.log('Creating match card for:', match);
             if (match.isTraining) {
                 const matchCard = document.createElement('div');
                 matchCard.className = 'match-card training';
-                
-                // Extract location info if present in summary
-                const locationMatch = match.Team.match(/\(\*\*(.*?)\*\*\)/);
-                const location = locationMatch ? locationMatch[1].trim() : '';
-                const teamName = match.Team.replace(/\(\*\*(.*?)\*\*\)/, '').trim();
-                
-                // Check if it's an away game
-                const isAway = teamName.startsWith('@');
-                const cleanTeamName = teamName.replace('@', '').replace('*TEMP*', '').trim();
                 
                 matchCard.innerHTML = `
                     <div class="match-content">
                         <div class="match-header">
                             <span class="competition">${match.Competition}</span>
-                            <span class="team">${cleanTeamName}</span>
+                            <span class="team">${match.Team}</span>
                         </div>
                         <div class="metadata">
-                            ${location ? `<span class="venue">${location}</span>` : ''}
-                            ${isAway ? `<span class="venue-type">Away Game</span>` : ''}
+                            <span class="venue">${match.Venue}</span>
                             <span class="time">${match.Time} - ${match.EndTime}</span>
-                            <span class="badge training">${isAway ? 'Away Training' : 'Training'}</span>
+                            <span class="badge training">Training</span>
                         </div>
                     </div>
                 `;
@@ -3149,28 +3139,22 @@ END:VCALENDAR`;
                 }
                 
                 const events = await response.json();
-                console.log('Raw calendar events received:', events);
+                console.log('Raw calendar events:', events);
                 
                 if (!events.items) {
                     console.error('No items in events response:', events);
                     return;
                 }
 
-                // Log existing matches before processing
-                console.log('Existing matches before processing:', matches.length, matches);
-
                 // Get existing non-training matches
                 const existingMatches = matches.filter(m => !m.isTraining);
-                console.log('Filtered non-training matches:', existingMatches.length, existingMatches);
+                console.log('Existing non-training matches:', existingMatches);
                 
                 // Process training events
                 const trainingMatches = events.items.map(event => {
                     console.log('Processing event:', event);
-                    const startDate = new Date(event.start.dateTime || event.start.date);
-                    const endDate = new Date(event.end.dateTime || event.end.date);
-                    
-                    const trainingMatch = {
-                        'Date': startDate.toLocaleDateString('en-GB', {
+                    return {
+                        'Date': new Date(event.start.dateTime || event.start.date).toLocaleDateString('en-GB', {
                             weekday: 'short',
                             day: 'numeric',
                             month: 'short',
@@ -3179,52 +3163,31 @@ END:VCALENDAR`;
                         'Time': event.start.formattedTime,
                         'EndTime': event.end.formattedTime,
                         'Competition': 'Training',
-                        'Team': event.summary, // Keep full summary
+                        'Team': event.summary,
                         'Home Team': 'Training',
                         'Away Team': '',
                         'Venue': event.location || 'TBD',
                         'Result': '---',
                         'Fixture ID': `training-${event.id}`,
                         'Fixture Src': 'google-calendar',
-                        'isTraining': true,
-                        'Description': event.description || ''
+                        'isTraining': true
                     };
-                    console.log('Created training match:', trainingMatch);
-                    return trainingMatch;
                 });
-
-                console.log('All processed training matches:', trainingMatches.length, trainingMatches);
+                console.log('Processed training matches:', trainingMatches);
 
                 // Reset matches array with non-training matches
                 matches = [...existingMatches];
-                console.log('Matches after reset:', matches.length, matches);
                 
-                // Add only unique training matches
-                const processedIds = new Set(matches.map(m => m['Fixture ID']));
-                console.log('Initial processed IDs:', processedIds);
-
-                trainingMatches.forEach(match => {
-                    console.log('Checking match:', match['Fixture ID']);
-                    if (!processedIds.has(match['Fixture ID'])) {
-                        console.log('Adding new match:', match);
-                        matches.push(match);
-                        processedIds.add(match['Fixture ID']);
-                    } else {
-                        console.log('Skipping duplicate match:', match['Fixture ID']);
-                    }
-                });
-
-                console.log('Final matches array:', matches.length, matches);
+                // Add training matches
+                matches = matches.concat(trainingMatches);
+                console.log('Combined matches:', matches);
 
                 // Sort by date and time
                 matches.sort((a, b) => {
                     const dateA = parseDate(a.Date);
                     const dateB = parseDate(b.Date);
-                    
                     if (dateA.getTime() === dateB.getTime()) {
-                        const timeA = a.Time || '00:00';
-                        const timeB = b.Time || '00:00';
-                        return timeA.localeCompare(timeB);
+                        return (a.Time || '00:00').localeCompare(b.Time || '00:00');
                     }
                     return dateA - dateB;
                 });
@@ -3234,22 +3197,35 @@ END:VCALENDAR`;
                 console.log('Display updated with training events');
             } catch (error) {
                 console.error('Error in fetchTrainingEvents:', error);
-                displayMatches();
             }
         }
 
         // Initialize the application
         async function init() {
             console.log('Initializing application...');
-            
-            // Parse CSV data and load initial matches
-            await parseCSVData();
-            
-            // Fetch and integrate training events
-            await fetchTrainingEvents();
-            
-            // Initial display
-            displayMatches();
+            try {
+                // Parse CSV data first
+                matches = parseCSV(csvData);
+                console.log('Initial matches loaded:', matches.length);
+                
+                // Initialize UI
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initializeUI);
+                } else {
+                    initializeUI();
+                }
+                
+                // Fetch training events
+                await fetchTrainingEvents();
+            } catch (error) {
+                console.error('Error in init:', error);
+                document.getElementById('matchContainer').innerHTML = `
+                    <div class="no-results">
+                        <p>Error loading matches. Please try refreshing the page.</p>
+                        <p>Error details: ${error.message}</p>
+                    </div>
+                `;
+            }
         }
 
         // Remove any other DOMContentLoaded listeners and use just this one
