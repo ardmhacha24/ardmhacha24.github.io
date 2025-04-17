@@ -1498,6 +1498,13 @@
         .match-card.training .team {
             font-weight: bold;
         }
+
+        .match-card.training .description {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 8px;
+            white-space: pre-line;
+        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -2976,6 +2983,7 @@ END:VCALENDAR`;
                     'Time': event.start.dateTime ? 
                             new Date(event.start.dateTime).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}) : 
                             'All Day',
+                    'EndTime': event.end.formattedTime,
                     'Competition': 'Training',
                     'Team': event.summary.split(' ')[0],
                     'Home Team': 'Training',
@@ -2984,7 +2992,8 @@ END:VCALENDAR`;
                     'Result': '---',
                     'Fixture ID': `training-${event.id}`,
                     'Fixture Src': 'google-calendar',
-                    'isTraining': true
+                    'isTraining': true,
+                    'Description': event.description || ''
                 }));
 
                 console.log('Training events:', trainingEvents);
@@ -3025,9 +3034,10 @@ END:VCALENDAR`;
                         </div>
                         <div class="metadata">
                             <span class="venue">${match.Venue}</span>
-                            <span class="time">${match.Time}</span>
+                            <span class="time">${match.Time} - ${match.EndTime}</span>
                             <span class="badge training">Training</span>
                         </div>
+                        ${match.Description ? `<div class="description">${match.Description}</div>` : ''}
                     </div>
                 `;
                 return matchCard;
@@ -3059,6 +3069,13 @@ END:VCALENDAR`;
             .match-card.training .team {
                 font-weight: bold;
             }
+
+            .match-card.training .description {
+                font-size: 0.9em;
+                color: #666;
+                margin-top: 8px;
+                white-space: pre-line;
+            }
         `;
         document.head.appendChild(style);
 
@@ -3066,10 +3083,21 @@ END:VCALENDAR`;
         async function fetchTrainingEvents() {
             try {
                 console.log('Starting to fetch training events...');
-                const response = await fetch('https://calendar-worker.ardmhacha.workers.dev/');
+                const response = await fetch('https://calendar-worker.ardmhacha.workers.dev/', {
+                    method: 'GET',
+                    mode: 'cors', // Explicitly request CORS
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
                 console.log('Worker response status:', response.status);
                 
                 if (!response.ok) {
+                    if (response.status === 0) {
+                        console.error('CORS error detected. Please ensure the server allows requests from:', window.location.origin);
+                        // Continue with existing matches if CORS fails
+                        return;
+                    }
                     throw new Error(`Failed to fetch training events: ${response.status}`);
                 }
                 
@@ -3091,6 +3119,7 @@ END:VCALENDAR`;
                     'Time': event.start.dateTime ? 
                             new Date(event.start.dateTime).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}) : 
                             'All Day',
+                    'EndTime': event.end.formattedTime,
                     'Competition': 'Training',
                     'Team': event.summary.split(' ')[0],
                     'Home Team': 'Training',
@@ -3099,7 +3128,8 @@ END:VCALENDAR`;
                     'Result': '---',
                     'Fixture ID': `training-${event.id}`,
                     'Fixture Src': 'google-calendar',
-                    'isTraining': true
+                    'isTraining': true,
+                    'Description': event.description || ''
                 }));
                 
                 console.log('Processed training matches:', trainingMatches);
@@ -3133,6 +3163,8 @@ END:VCALENDAR`;
                 console.log('Display updated with training events');
             } catch (error) {
                 console.error('Error in fetchTrainingEvents:', error);
+                // Continue with existing matches if there's an error
+                displayMatches();
             }
         }
 
