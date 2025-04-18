@@ -2225,75 +2225,50 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
         
         // Create a match card element
         function createMatchCard(match) {
-            const matchCard = document.createElement('div');
-            matchCard.className = 'match-card';
+            const card = document.createElement('div');
+            card.className = 'match-card';
             
-            // Add result class if available
-            if (match.Result && match.Result !== '---') {
-                matchCard.classList.add(match.Result.toLowerCase());
+            // Special handling for training events
+            if (match.isTraining) {
+                card.innerHTML = `
+                    <div class="match-header">
+                        <div class="competition">${match.Competition}</div>
+                        <div class="venue">${match.Venue}</div>
+                    </div>
+                    <div class="match-teams">
+                        <div class="team grange">${match.Team}</div>
+                        <div class="score-container">TRAINING</div>
+                        <div class="team"></div>
+                    </div>
+                    <div class="match-footer">
+                        <div class="time">${match.Time || 'TBC'}</div>
+                    </div>
+                `;
             } else {
-                matchCard.classList.add('upcoming');
+                // Regular match card
+                const firstTeam = match['Home Team'] || '';
+                const secondTeam = match['Away Team'] || '';
+                const scoreDisplay = match['Home Score'] && match['Away Score'] ? 
+                    `${match['Home Score']} - ${match['Away Score']}` : 'vs';
+                
+                card.innerHTML = `
+                    <div class="match-header">
+                        <div class="competition">${match.Competition}</div>
+                        <div class="venue">${match.Venue}</div>
+                    </div>
+                    <div class="match-teams">
+                        <div class="team grange">${firstTeam}</div>
+                        <div class="score-container">${scoreDisplay}</div>
+                        <div class="team">${secondTeam}</div>
+                    </div>
+                    <div class="match-footer">
+                        <div class="time">${match.Time || 'TBC'}</div>
+                        ${match.Round ? `<div class="round">${match.Round}</div>` : ''}
+                    </div>
+                `;
             }
             
-            // Format scores
-            let homeTeam = match['Home Team'];
-            let awayTeam = match['Away Team'];
-            let homeScore = match['Home Score'] !== '---' ? match['Home Score'] : '';
-            let awayScore = match['Away Score'] !== '---' ? match['Away Score'] : '';
-            
-            // Determine badge text
-            let badgeText = '';
-            let badgeClass = '';
-            
-            if (match.Result === 'WIN') {
-                badgeText = 'Win';
-                badgeClass = 'win';
-            } else if (match.Result === 'LOSS') {
-                badgeText = 'Loss';
-                badgeClass = 'loss';
-            } else if (match.Result === 'DRAW') {
-                badgeText = 'Draw';
-                badgeClass = 'draw';
-            } else if (match.Result === '---' || !match.Result) {
-                badgeText = 'Upcoming';
-                badgeClass = 'upcoming';
-            }
-            
-            matchCard.innerHTML = `
-                <div class="match-header">
-                    <div class="match-header-main">
-                        <span class="team-category">${match.Team}</span>
-                    <span class="competition">${match.Competition}</span>
-                    </div>
-                    <div class="match-info">
-                        <span>${match.Round}</span>
-                        <span>${match.Sex}</span>
-                    </div>
-                </div>
-                <div class="match-content">
-                    <div class="teams">
-                        <div class="team">
-                            <div class="team-name">${homeTeam}</div>
-                        </div>
-                        <div class="score-container">
-                            ${homeScore && awayScore 
-                                ? `<span class="score">${homeScore}</span><span class="score">${awayScore}</span>` 
-                                : `<span class="vs">vs</span>`
-                            }
-                        </div>
-                        <div class="team">
-                            <div class="team-name">${awayTeam}</div>
-                        </div>
-                    </div>
-                    <div class="metadata">
-                        <span class="venue">${match.Venue}</span>
-                        <span class="time">${match.Time}</span>
-                        ${badgeText ? `<span class="badge ${badgeClass}">${badgeText}</span>` : ''}
-                    </div>
-                </div>
-            `;
-            
-            return matchCard;
+            return card;
         }
         
         // Calendar integration functions
@@ -3178,9 +3153,9 @@ END:VCALENDAR`;
                             minute: '2-digit',
                             hour12: false
                         }),
-                        'Competition': 'TRAINING\n',
+                        'Competition': 'TRAINING',
                         'Team': event.summary,
-                        'Home Team': '',
+                        'Home Team': 'TRAINING',
                         'Away Team': '',
                         'Venue': event.location || 'TBD',
                         'Result': '---',
