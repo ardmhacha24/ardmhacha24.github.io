@@ -2154,7 +2154,7 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                 
                 if (!processedIds.has(matchId)) {
                     processedIds.add(matchId);
-                    groupedMatches[date].push(match);
+                groupedMatches[date].push(match);
                 }
             });
             
@@ -2175,11 +2175,11 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
             // Check if the date is in the format "Mon 31 Mar 25"
             const formatOne = /^[A-Za-z]{3} \d{1,2} [A-Za-z]{3} \d{2}$/;
             if (formatOne.test(dateStr)) {
-                const parts = dateStr.split(' ');
-                const day = parseInt(parts[1]);
-                const month = getMonthNumber(parts[2]);
-                const year = 2000 + parseInt(parts[3]);
-                return new Date(year, month, day);
+            const parts = dateStr.split(' ');
+            const day = parseInt(parts[1]);
+            const month = getMonthNumber(parts[2]);
+            const year = 2000 + parseInt(parts[3]);
+            return new Date(year, month, day);
             }
             
             // Otherwise, assume it's a standard date string
@@ -2229,18 +2229,12 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                 badgeText = 'Upcoming';
                 badgeClass = 'upcoming';
             }
-
-            // Determine location based on summary for training events
-            let venue = match.Venue;
-            if (match.isTraining && match.summary) {
-                venue = match.summary.includes("** Main Pitch **") ? "Main Pitch" : "Training Pitch";
-            }
             
             matchCard.innerHTML = `
                 <div class="match-header">
                     <div class="match-header-main">
                         <span class="team-category">${match.Team}</span>
-                        <span class="competition">${match.Competition}</span>
+                    <span class="competition">${match.Competition}</span>
                     </div>
                     <div class="match-info">
                         <span>${match.Round}</span>
@@ -2263,14 +2257,13 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                         </div>
                     </div>
                     <div class="metadata">
-                        <span class="venue">${venue}</span>
+                        <span class="venue">${match.Venue}</span>
                         <span class="time">${match.Time}</span>
                         ${badgeText ? `<span class="badge ${badgeClass}">${badgeText}</span>` : ''}
-                        ${match.isTraining ? '<span class="badge training">Training</span>' : ''}
                     </div>
                 </div>
             `;
-
+            
             return matchCard;
         }
         
@@ -3229,7 +3222,7 @@ END:VCALENDAR`;
                 // Initialize UI
                 if (document.readyState === 'loading') {
                     document.addEventListener('DOMContentLoaded', initializeUI);
-                } else {
+            } else {
                     initializeUI();
                 }
                 
