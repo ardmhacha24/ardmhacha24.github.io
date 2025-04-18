@@ -1936,103 +1936,81 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
         // Enhanced display matches function
         function displayMatches() {
             console.log('Displaying matches...');
+            const filteredMatches = filterMatches();
             const matchContainer = document.getElementById('matchContainer');
+            matchContainer.innerHTML = '';
             
-            // Safely get filter values with fallbacks
-            const getFilterValue = (elementId) => {
-                const element = document.getElementById(elementId);
-                return element ? element.value : '';
-            };
-            
-            const selectedCompetition = getFilterValue('competitionFilter');
-            const selectedTeam = getFilterValue('teamFilter');
-            const selectedVenue = getFilterValue('venueFilter');
-            const selectedDate = getFilterValue('dateFilter');
-            
-            // Filter matches based on selected filters
-            let filteredMatches = matches.filter(match => {
-                const competitionMatch = !selectedCompetition || match.Competition === selectedCompetition;
-                const teamMatch = !selectedTeam || 
-                    match['Home Team'] === selectedTeam || 
-                    match['Away Team'] === selectedTeam;
-                const venueMatch = !selectedVenue || match.Venue === selectedVenue;
-                const dateMatch = !selectedDate || match.Date === selectedDate;
-                
-                return competitionMatch && teamMatch && venueMatch && dateMatch;
-            });
-            
-            // Group matches by date
-            const groupedMatches = {};
-            filteredMatches.forEach(match => {
-                if (!groupedMatches[match.Date]) {
-                    groupedMatches[match.Date] = {
-                        matches: [],
-                        training: []
-                    };
-                }
-                groupedMatches[match.Date].matches.push(match);
-            });
-            
-            // Add training events to their respective date groups
-            if (Array.isArray(trainingMatches)) {
-                trainingMatches.forEach(training => {
-                    if (!groupedMatches[training.Date]) {
-                        groupedMatches[training.Date] = {
-                            matches: [],
-                            training: []
-                        };
-                    }
-                    groupedMatches[training.Date].training.push(training);
-                });
-            }
-            
-            // Sort dates in ascending order
-            const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
-                return new Date(a) - new Date(b);
-            });
-            
-            // Generate HTML for matches
-            let matchesHTML = '';
-            sortedDates.forEach(date => {
-                const { matches, training } = groupedMatches[date];
-                
-                // Sort matches by time
-                matches.sort((a, b) => {
-                    const timeA = a.Time ? a.Time.split(':').map(Number) : [0, 0];
-                    const timeB = b.Time ? b.Time.split(':').map(Number) : [0, 0];
-                    return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
-                });
-                
-                // Sort training events by time
-                training.sort((a, b) => {
-                    const timeA = a.Time ? a.Time.split(':').map(Number) : [0, 0];
-                    const timeB = b.Time ? b.Time.split(':').map(Number) : [0, 0];
-                    return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
-                });
-                
-                matchesHTML += `
-                    <div class="date-section">
-                        <h2 class="date-header">${formatDate(date)}</h2>
-                        <div class="matches-container">
-                            ${matches.map(match => createMatchCard(match)).join('')}
-                            ${training.map(training => createMatchCard(training)).join('')}
-                        </div>
+            if (filteredMatches.length === 0) {
+                matchContainer.innerHTML = `
+                    <div class="no-results">
+                        <p>No matches found for the selected filters.</p>
+                        <p>Try changing your filter options.</p>
                     </div>
                 `;
+                return;
+            }
+            
+            // Group matches by date
+            const groupedMatches = groupMatchesByDate(filteredMatches);
+            
+            // Sort dates chronologically
+            const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
+                const dateA = parseDate(a);
+                const dateB = parseDate(b);
+                return dateA - dateB;
+            });
+                
+            // Get today's date for comparison
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+            // Create a container for today's date marker
+            const todayMarker = document.createElement('div');
+            todayMarker.className = 'today-marker';
+            todayMarker.innerHTML = '<span>Today</span>';
+            todayMarker.style.display = 'none'; // Initially hidden
+            
+            // Loop through dates and matches
+            sortedDates.forEach(date => {
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'date-header';
+                dateHeader.textContent = formatDate(date);
+                matchContainer.appendChild(dateHeader);
+                
+                // Sort matches within each date chronologically
+                const sortedMatches = groupedMatches[date].sort((a, b) => {
+                    // If both matches have times, sort by time
+                    if (a.Time && b.Time) {
+                        return a.Time.localeCompare(b.Time);
+                    }
+                    // If only one has time, put the one with time first
+                    return (b.Time ? 1 : 0) - (a.Time ? 1 : 0);
+                });
+                
+                sortedMatches.forEach(match => {
+                    const matchCard = createMatchCard(match);
+                    matchContainer.appendChild(matchCard);
+                });
+                
+                // Insert today marker after the appropriate date
+                const currentDate = parseDate(date);
+                if (currentDate <= today && 
+                    (!sortedDates[sortedDates.indexOf(date) + 1] || 
+                     parseDate(sortedDates[sortedDates.indexOf(date) + 1]) > today)) {
+                    matchContainer.appendChild(todayMarker.cloneNode(true));
+                }
             });
             
-            // Update the match container
-            matchContainer.innerHTML = matchesHTML || `
-                <div class="no-results">
-                    <p>No matches found for the selected filters.</p>
-                </div>
-            `;
+            // Scroll to today's marker after a short delay to ensure rendering
+            setTimeout(() => {
+                const todayMarker = document.querySelector('.today-marker');
+                if (todayMarker) {
+                    todayMarker.style.display = 'block';
+                    todayMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
             
-            // Update match count if element exists
-            const matchCount = document.getElementById('matchCount');
-            if (matchCount) {
-                matchCount.textContent = `${filteredMatches.length} match${filteredMatches.length !== 1 ? 'es' : ''} found`;
-            }
+            console.log('Matches displayed:', filteredMatches.length);
         }
         
         // Initialize the application
