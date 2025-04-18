@@ -24,22 +24,71 @@ async function getGoogleAccessToken() {
   return data.access_token;
 }
 
-async function fetchCalendarEvents(accessToken) {
-  const now = new Date().toISOString();
-  const response = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?timeMin=${now}&maxResults=100&singleEvents=true&orderBy=startTime`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
+async function fetchCalendarEvents(calendarId, accessToken) {
+  // Get current date for timeMin
+  const timeMin = new Date().toISOString();
+  
+  // Set timeMax to 30 days from now (or adjust as needed)
+  const timeMax = new Date();
+  timeMax.setDate(timeMax.getDate() + 210);
+  
+  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?` + 
+    new URLSearchParams({
+      timeMin: timeMin,
+      timeMax: timeMax.toISOString(),
+      maxResults: 1000,
+      orderBy: 'startTime',
+      singleEvents: true,
+      fields: 'items(id,summary,location,start,end,description)' // Explicitly request the fields we need
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch calendar events');
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(`Failed to fetch events: ${errorData.error?.message || res.statusText}`);
   }
 
-  return response.json();
+  const data = await res.json();
+  
+  // Format the response to include both start and end times
+  return {
+    items: data.items.map(event => {
+      // Parse dates with timezone consideration
+      const startDateTime = event.start.dateTime ? new Date(event.start.dateTime) : null;
+      const endDateTime = event.end.dateTime ? new Date(event.end.dateTime) : null;
+
+      return {
+        id: event.id,
+        summary: event.summary,
+        location: event.location,
+        description: event.description,
+        start: {
+          dateTime: event.start.dateTime,
+          date: event.start.date,
+          // We'll let the client handle the time formatting since it has better timezone context
+          formattedTime: startDateTime ? 
+            startDateTime.toLocaleTimeString('en-GB', {
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: 'Europe/London'
+            }) : 'All Day'
+        },
+        end: {
+          dateTime: event.end.dateTime,
+          date: event.end.date,
+          formattedTime: endDateTime ? 
+            endDateTime.toLocaleTimeString('en-GB', {
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: 'Europe/London'
+            }) : 'All Day'
+        }
+      };
+    })
+  };
 }
 
 async function handleRequest(request) {
@@ -61,7 +110,7 @@ async function handleRequest(request) {
 
   try {
     const accessToken = await getGoogleAccessToken();
-    const calendarData = await fetchCalendarEvents(accessToken);
+    const calendarData = await fetchCalendarEvents(CALENDAR_ID, accessToken);
     
     return new Response(JSON.stringify(calendarData), {
       headers: {
