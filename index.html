@@ -2021,12 +2021,15 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                 matches = parseCSV(csvData);
                 console.log('Initial matches loaded:', matches.length);
                 
-                // Initialize UI first without filters
+                // Wait for DOM to be fully loaded
                 if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => initializeUI());
-                } else {
-                    initializeUI();
+                    await new Promise(resolve => {
+                        document.addEventListener('DOMContentLoaded', resolve);
+                    });
                 }
+                
+                // Initialize UI first without filters
+                initializeUI();
                 
                 // Fetch training events
                 await fetchTrainingEvents();
@@ -2652,117 +2655,94 @@ END:VCALENDAR`;
         
         // Initialize sidebar toggle functionality
         function initSidebarToggle() {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const contentArea = document.querySelector('.content-area');
-            
-            // Create overlay element
-            const overlay = document.createElement('div');
-            overlay.className = 'sidebar-overlay';
-            document.body.appendChild(overlay);
-            
-            // Check if user has a preference stored
-            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            if (sidebarCollapsed) {
-                sidebar.classList.add('collapsed');
-                contentArea.classList.add('expanded');
-                if (window.innerWidth <= 992) {
-                    sidebarToggle.style.left = '15px';
-                    sidebarToggle.style.transform = 'none';
-                } else {
-                    sidebarToggle.style.left = '60px';
-                    sidebarToggle.style.transform = 'translateY(-50%)';
-                }
-            }
-            
-            // Check screen size and auto-collapse on small screens
-            function checkScreenSize() {
-                if (window.innerWidth <= 992) {
-                    sidebar.classList.add('collapsed');
-                    contentArea.classList.add('expanded');
-                    sidebarToggle.style.left = '15px';
-                    sidebarToggle.style.transform = 'none';
+            try {
+                console.log('Initializing sidebar toggle...');
+                
+                // Wait for a short time to ensure DOM is ready
+                setTimeout(() => {
+                    const sidebar = document.getElementById('sidebar');
+                    const sidebarToggle = document.getElementById('sidebarToggle');
+                    const contentArea = document.querySelector('.content-area');
                     
-                    // Reset any mini-sidebar specific styles
-                    contentArea.style.marginLeft = '0';
-                    contentArea.style.width = '100%';
-                } else {
-                    // Restore user preference for larger screens
+                    if (!sidebar || !sidebarToggle || !contentArea) {
+                        console.warn('Some sidebar elements not found, skipping sidebar initialization');
+                        return;
+                    }
+                    
+                    // Create overlay element
+                    const overlay = document.createElement('div');
+                    overlay.className = 'sidebar-overlay';
+                    document.body.appendChild(overlay);
+                    
+                    // Check if user has a preference stored
+                    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
                     if (sidebarCollapsed) {
                         sidebar.classList.add('collapsed');
                         contentArea.classList.add('expanded');
-                        sidebarToggle.style.left = '60px';
-                        sidebarToggle.style.transform = 'translateY(-50%)';
-                        contentArea.style.marginLeft = '60px';
-                        contentArea.style.width = 'calc(100% - 60px)';
-                    } else {
-                        sidebar.classList.remove('collapsed');
-                        contentArea.classList.remove('expanded');
-                        sidebarToggle.style.left = '300px';
-                        sidebarToggle.style.transform = 'translateY(-50%)';
-                        contentArea.style.marginLeft = '0';
-                        contentArea.style.width = 'calc(100% - 300px)';
+                        if (window.innerWidth <= 992) {
+                            sidebarToggle.style.left = '15px';
+                            sidebarToggle.style.transform = 'none';
+                        } else {
+                            sidebarToggle.style.left = '60px';
+                            sidebarToggle.style.transform = 'translateY(-50%)';
+                        }
                     }
-                }
-            }
-            
-            // Check screen size on load and resize
-            checkScreenSize();
-            window.addEventListener('resize', checkScreenSize);
-            
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('collapsed');
-                contentArea.classList.toggle('expanded');
-                
-                // Handle overlay and mini-sidebar for different screen sizes
-                if (window.innerWidth <= 992) {
-                    if (sidebar.classList.contains('collapsed')) {
+                    
+                    // Check screen size and auto-collapse on small screens
+                    function checkScreenSize() {
+                        if (window.innerWidth <= 992) {
+                            sidebar.classList.add('collapsed');
+                            contentArea.classList.add('expanded');
+                            sidebarToggle.style.left = '15px';
+                            sidebarToggle.style.transform = 'none';
+                        } else {
+                            sidebar.classList.remove('collapsed');
+                            contentArea.classList.remove('expanded');
+                            sidebarToggle.style.left = '60px';
+                            sidebarToggle.style.transform = 'translateY(-50%)';
+                        }
+                    }
+                    
+                    // Initial check
+                    checkScreenSize();
+                    
+                    // Add event listener for window resize
+                    window.addEventListener('resize', checkScreenSize);
+                    
+                    // Toggle sidebar
+                    sidebarToggle.addEventListener('click', function() {
+                        sidebar.classList.toggle('collapsed');
+                        contentArea.classList.toggle('expanded');
+                        
+                        if (sidebar.classList.contains('collapsed')) {
+                            localStorage.setItem('sidebarCollapsed', 'true');
+                            if (window.innerWidth <= 992) {
+                                sidebarToggle.style.left = '15px';
+                                sidebarToggle.style.transform = 'none';
+                            } else {
+                                sidebarToggle.style.left = '60px';
+                                sidebarToggle.style.transform = 'translateY(-50%)';
+                            }
+                        } else {
+                            localStorage.setItem('sidebarCollapsed', 'false');
+                            sidebarToggle.style.left = '15px';
+                            sidebarToggle.style.transform = 'none';
+                        }
+                    });
+                    
+                    // Handle overlay click
+                    overlay.addEventListener('click', function() {
+                        sidebar.classList.add('collapsed');
+                        contentArea.classList.add('expanded');
                         overlay.classList.remove('active');
-                        document.body.classList.remove('sidebar-open');
-                        sidebarToggle.style.left = '15px';
-                    } else {
-                        overlay.classList.add('active');
-                        document.body.classList.add('sidebar-open');
-                        sidebarToggle.style.left = '15px';
-                    }
-                } else {
-                    // Handle mini-sidebar for desktop
-                    if (sidebar.classList.contains('collapsed')) {
-                        sidebarToggle.style.left = '60px';
-                        contentArea.style.marginLeft = '60px';
-                        contentArea.style.width = 'calc(100% - 60px)';
-                    } else {
-                        sidebarToggle.style.left = '300px';
-                        contentArea.style.marginLeft = '0';
-                        contentArea.style.width = 'calc(100% - 300px)';
-                    }
-                }
+                    });
+                    
+                    console.log('Sidebar toggle initialized successfully');
+                }, 100); // Small delay to ensure DOM is ready
                 
-                // Save preference
-                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-            });
-            
-            // Close sidebar when clicking overlay (mobile only)
-            overlay.addEventListener('click', () => {
-                if (window.innerWidth <= 992) {
-                    sidebar.classList.add('collapsed');
-                    contentArea.classList.add('expanded');
-                    overlay.classList.remove('active');
-                    document.body.classList.remove('sidebar-open');
-                    sidebarToggle.style.left = '15px';
-                }
-            });
-            
-            // Close sidebar when pressing Escape key (mobile only)
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && window.innerWidth <= 992) {
-                    sidebar.classList.add('collapsed');
-                    contentArea.classList.add('expanded');
-                    overlay.classList.remove('active');
-                    document.body.classList.remove('sidebar-open');
-                    sidebarToggle.style.left = '15px';
-                }
-            });
+            } catch (error) {
+                console.error('Error initializing sidebar toggle:', error);
+            }
         }
         
         // Initialize search functionality with autocomplete
@@ -3244,12 +3224,15 @@ END:VCALENDAR`;
                 matches = parseCSV(csvData);
                 console.log('Initial matches loaded:', matches.length);
                 
-                // Initialize UI first without filters
+                // Wait for DOM to be fully loaded
                 if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => initializeUI());
-                } else {
-                    initializeUI();
+                    await new Promise(resolve => {
+                        document.addEventListener('DOMContentLoaded', resolve);
+                    });
                 }
+                
+                // Initialize UI first without filters
+                initializeUI();
                 
                 // Fetch training events
                 await fetchTrainingEvents();
