@@ -128,7 +128,7 @@ async function fetchCalendarEvents(calendarId, accessToken) {
 
       // Determine location based on summary
       let location = "Training Pitch"; // Default location
-      if (event.summary && event.summary.includes("** Main Pitch **")) {
+      if (event.summary && event.summary.includes("Main Pitch")) {
         location = "Main Pitch";
       }
 
