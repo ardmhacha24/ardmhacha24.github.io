@@ -2017,11 +2017,15 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                 matches = parseCSV(csvData);
                 console.log('Initial matches loaded:', matches.length);
                 
-                // Initialize UI
+                // Extract filter options
+                const filterOptions = extractFilterOptions();
+                console.log('Filter options extracted:', filterOptions);
+                
+                // Initialize UI with filter options
                 if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', initializeUI);
+                    document.addEventListener('DOMContentLoaded', () => initializeUI(filterOptions));
                 } else {
-                    initializeUI();
+                    initializeUI(filterOptions);
                 }
                 
                 // Fetch training events
@@ -2038,82 +2042,32 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
         }
         
         // Separate UI initialization
-        function initializeUI() {
+        function initializeUI(filterOptions) {
             try {
-                // Initialize the UI components
-                populateFilters();
-                populateSidebarTeamFilter();
-                initSidebarToggle();
-                initSearchAutocomplete();
+                console.log('Initializing UI with filter options:', filterOptions);
                 
-                // Initialize date picker with no default date
-                const dateRangePicker = flatpickr("#dateRange", {
+                // Initialize filters
+                populateFilters(filterOptions);
+                
+                // Initialize date picker
+                flatpickr("#dateRange", {
                     mode: "range",
-                    dateFormat: "d M Y",
-                    onChange: function(selectedDates, dateStr) {
+                    dateFormat: "D M d Y",
+                    onChange: function(selectedDates) {
                         displayMatches();
                     }
                 });
                 
-                // Add event listeners
-                document.getElementById('teamFilter').addEventListener('change', displayMatches);
-                document.getElementById('competitionFilter').addEventListener('change', displayMatches);
-                document.getElementById('statusFilter').addEventListener('change', displayMatches);
-                document.getElementById('sidebarTeamFilter').addEventListener('change', function() {
-                    const selectedTeam = this.value;
-                    updateTeamStats(selectedTeam);
-                });
+                // Initialize sidebar
+                initSidebarToggle();
                 
-                // Remove the debounce from search input
-                const searchInput = document.getElementById('searchInput');
-                
-                // Initialize reset buttons
-                document.getElementById('resetSearch').addEventListener('click', () => {
-                    searchInput.value = '';
-                    displayMatches();
-                });
-                
-                document.getElementById('resetDate').addEventListener('click', () => {
-                    dateRangePicker.clear();
-                    displayMatches();
-                });
-                
-                document.getElementById('resetTeam').addEventListener('click', () => {
-                    document.getElementById('teamFilter').value = 'all';
-                    displayMatches();
-                });
-                
-                document.getElementById('resetCompetition').addEventListener('click', () => {
-                    document.getElementById('competitionFilter').value = 'all';
-                    displayMatches();
-                });
-                
-                document.getElementById('resetStatus').addEventListener('click', () => {
-                    document.getElementById('statusFilter').value = 'all';
-                    displayMatches();
-                });
-                
-                // Initialize share functionality
-                document.getElementById('shareBtn').addEventListener('click', showSharePopup);
-                
-                // Initialize calendar integration
-                document.getElementById('addToCalendar').addEventListener('click', showCalendarPopup);
-                
-                // Initialize team stats with 'all' teams first
-                updateTeamStats('all');
-                
-                // Display matches after all initialization
+                // Display initial matches
                 displayMatches();
                 
-                console.log('Application initialized successfully');
+                console.log('UI initialization complete');
             } catch (error) {
                 console.error('Error initializing UI:', error);
-                document.getElementById('matchContainer').innerHTML = `
-                    <div class="no-results">
-                        <p>Error initializing the application. Please try refreshing the page.</p>
-                        <p>Error details: ${error.message}</p>
-                    </div>
-                `;
+                throw error;
             }
         }
         
@@ -3226,6 +3180,7 @@ END:VCALENDAR`;
                     const startDateTime = new Date(event.start.dateTime || event.start.date);
                     const endDateTime = new Date(event.end.dateTime || event.end.date);
                     
+                    // Use the same formatDate function for consistency
                     const formattedDate = formatDate(startDateTime);
                     console.log(`Formatted training date: ${formattedDate} from ${startDateTime}`);
                     
@@ -3287,11 +3242,15 @@ END:VCALENDAR`;
                 matches = parseCSV(csvData);
                 console.log('Initial matches loaded:', matches.length);
                 
-                // Initialize UI
+                // Extract filter options
+                const filterOptions = extractFilterOptions();
+                console.log('Filter options extracted:', filterOptions);
+                
+                // Initialize UI with filter options
                 if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', initializeUI);
-            } else {
-                    initializeUI();
+                    document.addEventListener('DOMContentLoaded', () => initializeUI(filterOptions));
+                } else {
+                    initializeUI(filterOptions);
                 }
                 
                 // Fetch training events
@@ -3304,6 +3263,36 @@ END:VCALENDAR`;
                         <p>Error details: ${error.message}</p>
                     </div>
                 `;
+            }
+        }
+
+        // Separate UI initialization
+        function initializeUI(filterOptions) {
+            try {
+                console.log('Initializing UI with filter options:', filterOptions);
+                
+                // Initialize filters
+                populateFilters(filterOptions);
+                
+                // Initialize date picker
+                flatpickr("#dateRange", {
+                    mode: "range",
+                    dateFormat: "D M d Y",
+                    onChange: function(selectedDates) {
+                        displayMatches();
+                    }
+                });
+                
+                // Initialize sidebar
+                initSidebarToggle();
+                
+                // Display initial matches
+                displayMatches();
+                
+                console.log('UI initialization complete');
+            } catch (error) {
+                console.error('Error initializing UI:', error);
+                throw error;
             }
         }
 
