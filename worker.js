@@ -91,9 +91,9 @@ async function fetchCalendarEvents(calendarId, accessToken) {
     new URLSearchParams({
       timeMin: timeMin,
       timeMax: timeMax.toISOString(),
-      maxResults: 1000,
+      maxResults: '1000',
       orderBy: 'startTime',
-      singleEvents: true,
+      singleEvents: 'true',
       fields: 'items(id,summary,location,start,end,description)' // Explicitly request the fields we need
     });
 
@@ -128,8 +128,15 @@ async function fetchCalendarEvents(calendarId, accessToken) {
 
       // Determine location based on summary
       let location = "Training Pitch"; // Default location
-      if (event.summary && event.summary.includes("Main Pitch")) {
-        location = "Main Pitch";
+      if (event.summary) {
+        const summary = event.summary.toLowerCase(); // Convert to lowercase for case-insensitive matching
+        if (summary.includes("main pitch")) {
+          location = "Main Pitch";
+        } else if (summary.includes("maghery")) {
+          location = "Maghery";
+        } else if (summary.includes("training pitch")) {
+          location = "Training Pitch";
+        }
       }
 
       return {

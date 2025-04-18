@@ -1505,6 +1505,48 @@
             margin-top: 8px;
             white-space: pre-line;
         }
+        
+        .hamburger-menu {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+            margin-left: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .hamburger-menu {
+                display: block;
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -300px;
+                height: 100vh;
+                width: 300px;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                background: white;
+                box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .content-area {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .header-logo {
+                display: none;
+            }
+        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1522,7 +1564,9 @@
         <h1>Grange Naomh Colmcille CLG</h1>
         <p>Fixtures & Results 2025</p>
         </div>
-        <img src="/assets/IMG_9120-WHITE.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
+        <button id="hamburgerMenu" class="hamburger-menu">
+            <i class="fas fa-bars"></i>
+        </button>
     </header>
     
     <div class="main-content">
@@ -1570,9 +1614,6 @@
                     <!-- Upcoming matches will be populated here -->
                 </div>
             </div>
-        </div>
-        <div class="sidebar-toggle" id="sidebarToggle">
-            <div class="arrow"></div>
         </div>
         
         <div class="content-area">
@@ -3294,6 +3335,26 @@ END:VCALENDAR`;
             }
         `;
         document.head.appendChild(calendarStyle);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            const sidebar = document.querySelector('.sidebar');
+            
+            hamburgerMenu.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!sidebar.contains(event.target) && 
+                    !hamburgerMenu.contains(event.target) && 
+                    sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                }
+            });
+            
+            // ... existing code ...
+        });
     </script>
 </body>
 </html>

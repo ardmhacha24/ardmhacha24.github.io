@@ -126,10 +126,16 @@ async function fetchCalendarEvents(calendarId, accessToken) {
         return match ? `${match[1]}:${match[2]}` : 'All Day';
       };
 
+      // Determine location based on summary
+      let location = "Training Pitch"; // Default location
+      if (event.summary && event.summary.includes("Main Pitch")) {
+        location = "Main Pitch";
+      }
+
       return {
         id: event.id,
         summary: event.summary,
-        location: event.location,
+        location: location,
         description: event.description,
         start: {
           dateTime: event.start.dateTime,
@@ -180,4 +186,4 @@ function pemToArrayBuffer(pem) {
   const view = new Uint8Array(buf);
   for (let i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
   return buf;
-}
+} 
