@@ -1,27 +1,82 @@
-// Cloudflare Worker for Google Calendar API
-const CALENDAR_ID = '93e86f000690d251948613ab5ddebf7af6199f80d71ecda06e3f0c4c7d5fb290@group.calendar.google.com';
+export default {
+  
+  async fetch(request, env) {
+    // Define allowed origins
+    const allowedOrigins = [
+      'https://grangefixtures.pages.dev',
+      'https://ardmhacha24.github.io/',
+      'http://localhost:3000' // For local development
+    ];
+    
+    // Get the request origin
+    const origin = request.headers.get('Origin');
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+      'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400',
+    };
 
-async function getGoogleAccessToken() {
-  // You'll need to set these in your Cloudflare Worker's environment variables
-  const clientId = GOOGLE_CLIENT_ID;
-  const clientSecret = GOOGLE_CLIENT_SECRET;
-  const refreshToken = GOOGLE_REFRESH_TOKEN;
+    // Handle OPTIONS request (preflight)
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        headers: corsHeaders
+      });
+    }
 
-  const response = await fetch('https://oauth2.googleapis.com/token', {
+    // Only allow GET requests
+    if (request.method !== 'GET') {
+      return new Response('Method not allowed', { status: 405 });
+    }
+
+    try {
+      const token = await getAccessToken(env.CLIENT_EMAIL, env.PRIVATE_KEY);
+      const events = await fetchCalendarEvents(env.CALENDAR_ID, token);
+      return new Response(JSON.stringify(events), {
+        headers: {
+          'Content-Type': 'application/json',
+          ...corsHeaders,
+          // Add cache control if desired
+          'Cache-Control': 'public, max-age=300' // Cache for 5 minutes
+        },
+      });
+    } catch (err) {
+      return new Response(JSON.stringify({ error: err.message }), {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          ...corsHeaders
+        }
+      });
+    }
+  },
+};
+
+async function getAccessToken(clientEmail, privateKey) {
+  const now = Math.floor(Date.now() / 1000);
+  const jwtHeader = {
+    alg: 'RS256',
+    typ: 'JWT',
+  };
+
+  const jwtClaimSet = {
+    iss: clientEmail,
+    scope: 'https://www.googleapis.com/auth/calendar.readonly',
+    aud: 'https://oauth2.googleapis.com/token',
+    exp: now + 3600,
+    iat: now,
+  };
+
+  const jwt = await createJWT(jwtHeader, jwtClaimSet, privateKey);
+  const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token',
-    }),
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
   });
 
-  const data = await response.json();
-  return data.access_token;
+  const tokenData = await tokenRes.json();
+  if (!tokenData.access_token) throw new Error('Failed to get access token');
+  return tokenData.access_token;
 }
 
 async function fetchCalendarEvents(calendarId, accessToken) {
@@ -53,12 +108,23 @@ async function fetchCalendarEvents(calendarId, accessToken) {
 
   const data = await res.json();
   
-  // Format the response to include both start and end times
   return {
     items: data.items.map(event => {
-      // Parse dates with timezone consideration
-      const startDateTime = event.start.dateTime ? new Date(event.start.dateTime) : null;
-      const endDateTime = event.end.dateTime ? new Date(event.end.dateTime) : null;
+      // For debugging
+      console.log('Processing event:', {
+        summary: event.summary,
+        start: event.start.dateTime,
+        end: event.end.dateTime
+      });
+
+      // Simply extract the hour and minute from the ISO string
+      // The time in the ISO string is already in the correct timezone (+01:00)
+      const getTimeFromDateTime = (dateTimeStr) => {
+        if (!dateTimeStr) return 'All Day';
+        // Example: 2025-04-18T18:00:00+01:00 -> extract 18:00
+        const match = dateTimeStr.match(/T(\d{2}):(\d{2})/);
+        return match ? `${match[1]}:${match[2]}` : 'All Day';
+      };
 
       return {
         id: event.id,
@@ -68,67 +134,50 @@ async function fetchCalendarEvents(calendarId, accessToken) {
         start: {
           dateTime: event.start.dateTime,
           date: event.start.date,
-          // We'll let the client handle the time formatting since it has better timezone context
-          formattedTime: startDateTime ? 
-            startDateTime.toLocaleTimeString('en-GB', {
-              hour: '2-digit',
-              minute: '2-digit',
-              timeZone: 'Europe/London'
-            }) : 'All Day'
+          formattedTime: getTimeFromDateTime(event.start.dateTime)
         },
         end: {
           dateTime: event.end.dateTime,
           date: event.end.date,
-          formattedTime: endDateTime ? 
-            endDateTime.toLocaleTimeString('en-GB', {
-              hour: '2-digit',
-              minute: '2-digit',
-              timeZone: 'Europe/London'
-            }) : 'All Day'
+          formattedTime: getTimeFromDateTime(event.end.dateTime)
         }
       };
     })
   };
 }
 
-async function handleRequest(request) {
-  // Handle CORS preflight requests
-  if (request.method === 'OPTIONS') {
-    return new Response(null, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    });
-  }
+async function createJWT(header, claimSet, privateKeyPEM) {
+  const enc = new TextEncoder();
+  const base64url = (str) =>
+    btoa(JSON.stringify(str)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 
-  // Only allow GET requests
-  if (request.method !== 'GET') {
-    return new Response('Method not allowed', { status: 405 });
-  }
+  const encodedHeader = base64url(header);
+  const encodedPayload = base64url(claimSet);
+  const toSign = `${encodedHeader}.${encodedPayload}`;
 
-  try {
-    const accessToken = await getGoogleAccessToken();
-    const calendarData = await fetchCalendarEvents(CALENDAR_ID, accessToken);
-    
-    return new Response(JSON.stringify(calendarData), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
-  }
+  const cryptoKey = await crypto.subtle.importKey(
+    'pkcs8',
+    pemToArrayBuffer(privateKeyPEM),
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', cryptoKey, enc.encode(toSign));
+  const sigBase64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
+    .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+
+  return `${toSign}.${sigBase64}`;
 }
 
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request));
-}); 
+function pemToArrayBuffer(pem) {
+  const b64 = pem
+    .replace(/-----BEGIN PRIVATE KEY-----/, '')
+    .replace(/-----END PRIVATE KEY-----/, '')
+    .replace(/\n/g, '');
+  const binary = atob(b64);
+  const buf = new ArrayBuffer(binary.length);
+  const view = new Uint8Array(buf);
+  for (let i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
+  return buf;
+}
