@@ -1831,8 +1831,18 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
         
         // Function to format date in a more readable format
         function formatDate(dateStr) {
-            const parts = dateStr.split(' ');
-            return `${parts[0]} ${parts[1]} ${parts[2]}`;
+            console.log('Formatting date:', dateStr);
+            if (typeof dateStr === 'string') {
+                dateStr = parseDate(dateStr);
+            }
+            const formatted = dateStr.toLocaleDateString('en-GB', {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+                year: '2-digit'
+            });
+            console.log('Formatted date:', formatted);
+            return formatted;
         }
         
         // Extract unique teams, competitions for filters
@@ -2180,24 +2190,36 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
         
         // Group matches by date
         function groupMatchesByDate(matches) {
+            console.log('Starting groupMatchesByDate with matches:', matches);
             const groupedMatches = {};
             const processedIds = new Set();
             
             matches.forEach(match => {
-                const date = match.Date;
+                // Format date consistently
+                const date = formatDate(match.Date);
+                console.log(`Processing match: ${match.Team} on ${date} (original date: ${match.Date})`);
+                
                 if (!groupedMatches[date]) {
                     groupedMatches[date] = [];
+                    console.log(`Created new date group for: ${date}`);
                 }
                 
                 // For training events, use the ID to check for duplicates
-                // For regular matches, use the combination of time, team, and date
-                const matchId = match.isTraining ? match['Fixture ID'] : `${match.Date}-${match.Time}-${match.Team}`;
+                // For regular matches, use the combination of date, time, and team
+                const matchId = match.isTraining ? 
+                    match['Fixture ID'] : 
+                    `${date}-${match.Time || '00:00'}-${match.Team}`;
                 
                 if (!processedIds.has(matchId)) {
                     processedIds.add(matchId);
-                groupedMatches[date].push(match);
+                    groupedMatches[date].push(match);
+                    console.log(`Added match to group ${date}: ${match.Team} at ${match.Time}`);
+                } else {
+                    console.log(`Skipped duplicate match: ${match.Team} at ${match.Time}`);
                 }
             });
+            
+            console.log('Final grouped matches:', groupedMatches);
             
             // Sort matches within each date group by time
             Object.keys(groupedMatches).forEach(date => {
@@ -2206,25 +2228,32 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                     const timeB = b.Time || '00:00';
                     return timeA.localeCompare(timeB);
                 });
+                console.log(`Sorted matches for ${date}:`, groupedMatches[date]);
             });
             
             return groupedMatches;
         }
         
-        // Helper function to parse date strings like "Mon 31 Mar 25"
+        // Helper function to parse date strings
         function parseDate(dateStr) {
+            console.log('Parsing date string:', dateStr);
+            
             // Check if the date is in the format "Mon 31 Mar 25"
             const formatOne = /^[A-Za-z]{3} \d{1,2} [A-Za-z]{3} \d{2}$/;
             if (formatOne.test(dateStr)) {
-            const parts = dateStr.split(' ');
-            const day = parseInt(parts[1]);
-            const month = getMonthNumber(parts[2]);
-            const year = 2000 + parseInt(parts[3]);
-            return new Date(year, month, day);
+                const parts = dateStr.split(' ');
+                const day = parseInt(parts[1]);
+                const month = getMonthNumber(parts[2]);
+                const year = 2000 + parseInt(parts[3]);
+                const date = new Date(year, month, day);
+                console.log('Parsed format one date:', date);
+                return date;
             }
             
             // Otherwise, assume it's a standard date string
-            return new Date(dateStr);
+            const date = new Date(dateStr);
+            console.log('Parsed standard date:', date);
+            return date;
         }
         
         function getMonthNumber(monthStr) {
@@ -3193,12 +3222,15 @@ END:VCALENDAR`;
                 
                 // Process training events
                 const trainingMatches = events.items.map(event => {
-                    console.log('Processing event:', event);
+                    console.log('Processing calendar event:', event);
                     const startDateTime = new Date(event.start.dateTime || event.start.date);
                     const endDateTime = new Date(event.end.dateTime || event.end.date);
                     
+                    const formattedDate = formatDate(startDateTime);
+                    console.log(`Formatted training date: ${formattedDate} from ${startDateTime}`);
+                    
                     return {
-                        'Date': formatDate(startDateTime),
+                        'Date': formattedDate,
                         'Time': startDateTime.toLocaleTimeString('en-GB', {
                             hour: '2-digit',
                             minute: '2-digit',
