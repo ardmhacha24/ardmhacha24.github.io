@@ -1937,10 +1937,17 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
         function displayMatches() {
             console.log('Displaying matches...');
             const matchContainer = document.getElementById('matchContainer');
-            const selectedCompetition = document.getElementById('competitionFilter').value;
-            const selectedTeam = document.getElementById('teamFilter').value;
-            const selectedVenue = document.getElementById('venueFilter').value;
-            const selectedDate = document.getElementById('dateFilter').value;
+            
+            // Safely get filter values with fallbacks
+            const getFilterValue = (elementId) => {
+                const element = document.getElementById(elementId);
+                return element ? element.value : '';
+            };
+            
+            const selectedCompetition = getFilterValue('competitionFilter');
+            const selectedTeam = getFilterValue('teamFilter');
+            const selectedVenue = getFilterValue('venueFilter');
+            const selectedDate = getFilterValue('dateFilter');
             
             // Filter matches based on selected filters
             let filteredMatches = matches.filter(match => {
@@ -1967,15 +1974,17 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
             });
             
             // Add training events to their respective date groups
-            trainingMatches.forEach(training => {
-                if (!groupedMatches[training.Date]) {
-                    groupedMatches[training.Date] = {
-                        matches: [],
-                        training: []
-                    };
-                }
-                groupedMatches[training.Date].training.push(training);
-            });
+            if (Array.isArray(trainingMatches)) {
+                trainingMatches.forEach(training => {
+                    if (!groupedMatches[training.Date]) {
+                        groupedMatches[training.Date] = {
+                            matches: [],
+                            training: []
+                        };
+                    }
+                    groupedMatches[training.Date].training.push(training);
+                });
+            }
             
             // Sort dates in ascending order
             const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
@@ -2019,9 +2028,11 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                 </div>
             `;
             
-            // Update match count
+            // Update match count if element exists
             const matchCount = document.getElementById('matchCount');
-            matchCount.textContent = `${filteredMatches.length} match${filteredMatches.length !== 1 ? 'es' : ''} found`;
+            if (matchCount) {
+                matchCount.textContent = `${filteredMatches.length} match${filteredMatches.length !== 1 ? 'es' : ''} found`;
+            }
         }
         
         // Initialize the application
