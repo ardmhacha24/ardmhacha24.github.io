@@ -1551,42 +1551,6 @@
                 display: none;
             }
         }
-
-        /* Add styles for training layout */
-        .training-layout {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-        }
-        
-        .training-section {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        
-        .training-badge {
-            background-color: #1a73e8;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 14px;
-            display: inline-block;
-        }
-        
-        .training-layout .team {
-            font-size: 16px;
-            font-weight: 500;
-        }
-        
-        .training-layout .score-container {
-            background: #f1f3f4;
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 14px;
-            color: #202124;
-        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -2103,7 +2067,7 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                 initSidebarToggle();
                 
                 // Display initial matches
-                displayMatches();
+                    displayMatches();
                 
                 console.log('UI initialization complete');
             } catch (error) {
@@ -2207,7 +2171,7 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                 
                 if (!processedIds.has(matchId)) {
                     processedIds.add(matchId);
-                    groupedMatches[date].push(match);
+                groupedMatches[date].push(match);
                     console.log(`Added match to group ${date}: ${match.Team} at ${match.Time}`);
                 } else {
                     console.log(`Skipped duplicate match: ${match.Team} at ${match.Time}`);
@@ -2236,10 +2200,10 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
             // Check if the date is in the format "Mon 31 Mar 25"
             const formatOne = /^[A-Za-z]{3} \d{1,2} [A-Za-z]{3} \d{2}$/;
             if (formatOne.test(dateStr)) {
-                const parts = dateStr.split(' ');
-                const day = parseInt(parts[1]);
-                const month = getMonthNumber(parts[2]);
-                const year = 2000 + parseInt(parts[3]);
+            const parts = dateStr.split(' ');
+            const day = parseInt(parts[1]);
+            const month = getMonthNumber(parts[2]);
+            const year = 2000 + parseInt(parts[3]);
                 const date = new Date(year, month, day);
                 console.log('Parsed date (format one):', date);
                 return date;
@@ -2266,20 +2230,19 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
             
             // Special handling for training events
             if (match.isTraining) {
-                // Option 1: Training badge above team name
                 card.innerHTML = `
-                    <div class="match-header">
+                <div class="match-header">
                         <div class="competition">${match.Competition}</div>
                         <div class="venue">${match.Venue}</div>
                     </div>
-                    <div class="match-teams training-layout">
-                        <div class="training-section">
-                            <div class="training-badge">TRAINING</div>
-                            <div class="team grange">${match.Team}</div>
-                        </div>
-                        <div class="score-container">${match.Time || 'TBC'}</div>
+                    <div class="match-teams">
+                        <div class="team grange">${match.Team}</div>
+                        <div class="score-container">TRAINING</div>
                         <div class="team"></div>
                     </div>
+                    <div class="match-footer">
+                        <div class="time">${match.Time || 'TBC'}</div>
+                </div>
                 `;
             } else {
                 // Regular match card
@@ -2292,17 +2255,17 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                     <div class="match-header">
                         <div class="competition">${match.Competition}</div>
                         <div class="venue">${match.Venue}</div>
-                    </div>
+                        </div>
                     <div class="match-teams">
                         <div class="team grange">${firstTeam}</div>
                         <div class="score-container">${scoreDisplay}</div>
                         <div class="team">${secondTeam}</div>
-                    </div>
+                        </div>
                     <div class="match-footer">
                         <div class="time">${match.Time || 'TBC'}</div>
                         ${match.Round ? `<div class="round">${match.Round}</div>` : ''}
-                    </div>
-                `;
+                </div>
+            `;
             }
             
             return card;
@@ -2672,70 +2635,70 @@ END:VCALENDAR`;
                 
                 // Wait for a short time to ensure DOM is ready
                 setTimeout(() => {
-                    const sidebar = document.getElementById('sidebar');
-                    const sidebarToggle = document.getElementById('sidebarToggle');
-                    const contentArea = document.querySelector('.content-area');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const contentArea = document.querySelector('.content-area');
                     
                     if (!sidebar || !sidebarToggle || !contentArea) {
                         console.warn('Some sidebar elements not found, skipping sidebar initialization');
                         return;
                     }
-                    
-                    // Create overlay element
-                    const overlay = document.createElement('div');
-                    overlay.className = 'sidebar-overlay';
-                    document.body.appendChild(overlay);
-                    
-                    // Check if user has a preference stored
-                    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-                    if (sidebarCollapsed) {
-                        sidebar.classList.add('collapsed');
-                        contentArea.classList.add('expanded');
-                        if (window.innerWidth <= 992) {
-                            sidebarToggle.style.left = '15px';
-                            sidebarToggle.style.transform = 'none';
-                        } else {
+            
+            // Create overlay element
+            const overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            
+            // Check if user has a preference stored
+            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                contentArea.classList.add('expanded');
+                if (window.innerWidth <= 992) {
+                    sidebarToggle.style.left = '15px';
+                    sidebarToggle.style.transform = 'none';
+                } else {
+                    sidebarToggle.style.left = '60px';
+                    sidebarToggle.style.transform = 'translateY(-50%)';
+                }
+            }
+            
+            // Check screen size and auto-collapse on small screens
+            function checkScreenSize() {
+                if (window.innerWidth <= 992) {
+                    sidebar.classList.add('collapsed');
+                    contentArea.classList.add('expanded');
+                    sidebarToggle.style.left = '15px';
+                    sidebarToggle.style.transform = 'none';
+                    } else {
+                        sidebar.classList.remove('collapsed');
+                        contentArea.classList.remove('expanded');
                             sidebarToggle.style.left = '60px';
-                            sidebarToggle.style.transform = 'translateY(-50%)';
-                        }
-                    }
-                    
-                    // Check screen size and auto-collapse on small screens
-                    function checkScreenSize() {
-                        if (window.innerWidth <= 992) {
-                            sidebar.classList.add('collapsed');
-                            contentArea.classList.add('expanded');
-                            sidebarToggle.style.left = '15px';
-                            sidebarToggle.style.transform = 'none';
-                        } else {
-                            sidebar.classList.remove('collapsed');
-                            contentArea.classList.remove('expanded');
-                            sidebarToggle.style.left = '60px';
-                            sidebarToggle.style.transform = 'translateY(-50%)';
-                        }
-                    }
-                    
+                        sidebarToggle.style.transform = 'translateY(-50%)';
+                }
+            }
+            
                     // Initial check
-                    checkScreenSize();
+            checkScreenSize();
                     
                     // Add event listener for window resize
-                    window.addEventListener('resize', checkScreenSize);
-                    
+            window.addEventListener('resize', checkScreenSize);
+            
                     // Toggle sidebar
                     sidebarToggle.addEventListener('click', function() {
-                        sidebar.classList.toggle('collapsed');
-                        contentArea.classList.toggle('expanded');
-                        
-                        if (sidebar.classList.contains('collapsed')) {
+                sidebar.classList.toggle('collapsed');
+                contentArea.classList.toggle('expanded');
+                
+                    if (sidebar.classList.contains('collapsed')) {
                             localStorage.setItem('sidebarCollapsed', 'true');
                             if (window.innerWidth <= 992) {
-                                sidebarToggle.style.left = '15px';
+                        sidebarToggle.style.left = '15px';
                                 sidebarToggle.style.transform = 'none';
-                            } else {
+                    } else {
                                 sidebarToggle.style.left = '60px';
                                 sidebarToggle.style.transform = 'translateY(-50%)';
-                            }
-                        } else {
+                    }
+                } else {
                             localStorage.setItem('sidebarCollapsed', 'false');
                             sidebarToggle.style.left = '15px';
                             sidebarToggle.style.transform = 'none';
@@ -2744,9 +2707,9 @@ END:VCALENDAR`;
                     
                     // Handle overlay click
                     overlay.addEventListener('click', function() {
-                        sidebar.classList.add('collapsed');
-                        contentArea.classList.add('expanded');
-                        overlay.classList.remove('active');
+                    sidebar.classList.add('collapsed');
+                    contentArea.classList.add('expanded');
+                    overlay.classList.remove('active');
                     });
                     
                     console.log('Sidebar toggle initialized successfully');
