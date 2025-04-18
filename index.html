@@ -2149,35 +2149,45 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
         
         // Group matches by date
         function groupMatchesByDate(matches) {
-            console.log('Grouping matches by date...');
+            console.log('Starting groupMatchesByDate with matches:', matches);
             const groupedMatches = {};
+            const processedIds = new Set();
             
-            // Sort matches by date and time
-            matches.sort((a, b) => {
-                // First compare dates
-                const dateA = new Date(a.Date);
-                const dateB = new Date(b.Date);
-                if (dateA.getTime() !== dateB.getTime()) {
-                    return dateA - dateB;
-                }
-                
-                // If same date, prioritize matches over training
-                if (a.Competition && !b.Competition) return -1;
-                if (!a.Competition && b.Competition) return 1;
-                
-                // If both are matches or both are training, compare times
-                const timeA = a.Time ? a.Time.split(':').map(Number) : [0, 0];
-                const timeB = b.Time ? b.Time.split(':').map(Number) : [0, 0];
-                return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
-            });
-            
-            // Group matches by date
             matches.forEach(match => {
-                const date = match.Date;
+                // Format date consistently
+                const date = formatDate(match.Date);
+                console.log(`Processing match: ${match.Team} on ${date} (original date: ${match.Date})`);
+                
                 if (!groupedMatches[date]) {
                     groupedMatches[date] = [];
+                    console.log(`Created new date group for: ${date}`);
                 }
+                
+                // For training events, use the ID to check for duplicates
+                // For regular matches, use the combination of date, time, and team
+                const matchId = match.isTraining ? 
+                    match['Fixture ID'] : 
+                    `${date}-${match.Time || '00:00'}-${match.Team}`;
+                
+                if (!processedIds.has(matchId)) {
+                    processedIds.add(matchId);
                 groupedMatches[date].push(match);
+                    console.log(`Added match to group ${date}: ${match.Team} at ${match.Time}`);
+                } else {
+                    console.log(`Skipped duplicate match: ${match.Team} at ${match.Time}`);
+                }
+            });
+            
+            console.log('Final grouped matches:', groupedMatches);
+            
+            // Sort matches within each date group by time
+            Object.keys(groupedMatches).forEach(date => {
+                groupedMatches[date].sort((a, b) => {
+                    const timeA = a.Time || '00:00';
+                    const timeB = b.Time || '00:00';
+                    return timeA.localeCompare(timeB);
+                });
+                console.log(`Sorted matches for ${date}:`, groupedMatches[date]);
             });
             
             return groupedMatches;
