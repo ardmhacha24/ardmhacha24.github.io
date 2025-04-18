@@ -2021,19 +2021,20 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                 matches = parseCSV(csvData);
                 console.log('Initial matches loaded:', matches.length);
                 
-                // Extract filter options
-                const filterOptions = extractFilterOptions();
-                console.log('Filter options extracted:', filterOptions);
-                
-                // Initialize UI with filter options
+                // Initialize UI first without filters
                 if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => initializeUI(filterOptions));
+                    document.addEventListener('DOMContentLoaded', () => initializeUI());
                 } else {
-                    initializeUI(filterOptions);
+                    initializeUI();
                 }
                 
                 // Fetch training events
                 await fetchTrainingEvents();
+                
+                // After training events are loaded, update filters
+                const filterOptions = extractFilterOptions();
+                populateFilters(filterOptions);
+                
             } catch (error) {
                 console.error('Error in init:', error);
                 document.getElementById('matchContainer').innerHTML = `
@@ -2046,12 +2047,9 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
         }
         
         // Separate UI initialization
-        function initializeUI(filterOptions) {
+        function initializeUI() {
             try {
-                console.log('Initializing UI with filter options:', filterOptions);
-                
-                // Initialize filters
-                populateFilters(filterOptions);
+                console.log('Initializing UI...');
                 
                 // Initialize date picker
                 flatpickr("#dateRange", {
@@ -3200,9 +3198,9 @@ END:VCALENDAR`;
                             minute: '2-digit',
                             hour12: false
                         }),
-                        'Competition': '',
+                        'Competition': 'JKJDSKFJKJKDJF',
                         'Team': event.summary,
-                        'Home Team': 'Training',
+                        'Home Team': 'Training*******',
                         'Away Team': '',
                         'Venue': event.location || 'TBD',
                         'Result': '---',
@@ -3246,19 +3244,20 @@ END:VCALENDAR`;
                 matches = parseCSV(csvData);
                 console.log('Initial matches loaded:', matches.length);
                 
-                // Extract filter options
-                const filterOptions = extractFilterOptions();
-                console.log('Filter options extracted:', filterOptions);
-                
-                // Initialize UI with filter options
+                // Initialize UI first without filters
                 if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => initializeUI(filterOptions));
+                    document.addEventListener('DOMContentLoaded', () => initializeUI());
                 } else {
-                    initializeUI(filterOptions);
+                    initializeUI();
                 }
                 
                 // Fetch training events
                 await fetchTrainingEvents();
+                
+                // After training events are loaded, update filters
+                const filterOptions = extractFilterOptions();
+                populateFilters(filterOptions);
+                
             } catch (error) {
                 console.error('Error in init:', error);
                 document.getElementById('matchContainer').innerHTML = `
@@ -3271,12 +3270,9 @@ END:VCALENDAR`;
         }
 
         // Separate UI initialization
-        function initializeUI(filterOptions) {
+        function initializeUI() {
             try {
-                console.log('Initializing UI with filter options:', filterOptions);
-                
-                // Initialize filters
-                populateFilters(filterOptions);
+                console.log('Initializing UI...');
                 
                 // Initialize date picker
                 flatpickr("#dateRange", {
