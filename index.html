@@ -2200,13 +2200,13 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                 const month = getMonthNumber(parts[2]);
                 const year = 2000 + parseInt(parts[3]);
                 const date = new Date(year, month, day);
-                console.log('Parsed format one date:', date);
+                console.log('Parsed date (format one):', date);
                 return date;
             }
             
             // Otherwise, assume it's a standard date string
             const date = new Date(dateStr);
-            console.log('Parsed standard date:', date);
+            console.log('Parsed date (standard):', date);
             return date;
         }
         
