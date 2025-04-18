@@ -1934,70 +1934,83 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
         }
         
         // Enhanced display matches function
-        function displayMatches(matches) {
+        function displayMatches() {
             console.log('Displaying matches...');
+            const filteredMatches = filterMatches();
             const matchContainer = document.getElementById('matchContainer');
             matchContainer.innerHTML = '';
             
-            if (!matches || matches.length === 0) {
+            if (filteredMatches.length === 0) {
                 matchContainer.innerHTML = `
                     <div class="no-results">
                         <p>No matches found for the selected filters.</p>
+                        <p>Try changing your filter options.</p>
                     </div>
                 `;
                 return;
             }
             
             // Group matches by date
-            const groupedMatches = groupMatchesByDate(matches);
+            const groupedMatches = groupMatchesByDate(filteredMatches);
             
-            // Sort dates in ascending order
-            const sortedDates = Object.keys(groupedMatches).sort((a, b) => new Date(a) - new Date(b));
-            
-            // Create a single container for all matches
-            const allMatchesContainer = document.createElement('div');
-            allMatchesContainer.className = 'all-matches-container';
-            
-            // Display matches for each date
-            sortedDates.forEach(date => {
-                const matchesForDate = groupedMatches[date];
+            // Sort dates chronologically
+            const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
+                const dateA = parseDate(a);
+                const dateB = parseDate(b);
+                return dateA - dateB;
+            });
                 
-                // Create date header
+            // Get today's date for comparison
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+            // Create a container for today's date marker
+            const todayMarker = document.createElement('div');
+            todayMarker.className = 'today-marker';
+            todayMarker.innerHTML = '<span>Today</span>';
+            todayMarker.style.display = 'none'; // Initially hidden
+            
+            // Loop through dates and matches
+            sortedDates.forEach(date => {
                 const dateHeader = document.createElement('div');
                 dateHeader.className = 'date-header';
-                const formattedDate = formatDate(date);
-                dateHeader.innerHTML = `
-                    <h2>${formattedDate}</h2>
-                `;
-                allMatchesContainer.appendChild(dateHeader);
+                dateHeader.textContent = formatDate(date);
+                matchContainer.appendChild(dateHeader);
                 
-                // Create container for this date's matches
-                const dateContainer = document.createElement('div');
-                dateContainer.className = 'date-matches-container';
-                
-                // Sort matches for this date (matches first, then training by time)
-                matchesForDate.sort((a, b) => {
-                    // Prioritize matches over training
-                    if (a.Competition && !b.Competition) return -1;
-                    if (!a.Competition && b.Competition) return 1;
-                    
-                    // If both are matches or both are training, sort by time
-                    const timeA = a.Time ? a.Time.split(':').map(Number) : [0, 0];
-                    const timeB = b.Time ? b.Time.split(':').map(Number) : [0, 0];
-                    return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
+                // Sort matches within each date chronologically
+                const sortedMatches = groupedMatches[date].sort((a, b) => {
+                    // If both matches have times, sort by time
+                    if (a.Time && b.Time) {
+                        return a.Time.localeCompare(b.Time);
+                    }
+                    // If only one has time, put the one with time first
+                    return (b.Time ? 1 : 0) - (a.Time ? 1 : 0);
                 });
                 
-                // Display each match for this date
-                matchesForDate.forEach(match => {
+                sortedMatches.forEach(match => {
                     const matchCard = createMatchCard(match);
-                    dateContainer.appendChild(matchCard);
+                    matchContainer.appendChild(matchCard);
                 });
                 
-                allMatchesContainer.appendChild(dateContainer);
+                // Insert today marker after the appropriate date
+                const currentDate = parseDate(date);
+                if (currentDate <= today && 
+                    (!sortedDates[sortedDates.indexOf(date) + 1] || 
+                     parseDate(sortedDates[sortedDates.indexOf(date) + 1]) > today)) {
+                    matchContainer.appendChild(todayMarker.cloneNode(true));
+                }
             });
             
-            matchContainer.appendChild(allMatchesContainer);
-            console.log('Matches display complete');
+            // Scroll to today's marker after a short delay to ensure rendering
+            setTimeout(() => {
+                const todayMarker = document.querySelector('.today-marker');
+                if (todayMarker) {
+                    todayMarker.style.display = 'block';
+                    todayMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+            
+            console.log('Matches displayed:', filteredMatches.length);
         }
         
         // Initialize the application
