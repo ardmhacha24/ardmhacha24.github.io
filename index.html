@@ -1551,6 +1551,42 @@
                 display: none;
             }
         }
+
+        /* Add styles for training layout */
+        .training-layout {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .training-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .training-badge {
+            background-color: #1a73e8;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-block;
+        }
+        
+        .training-layout .team {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .training-layout .score-container {
+            background: #f1f3f4;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+            color: #202124;
+        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -2230,18 +2266,19 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
             
             // Special handling for training events
             if (match.isTraining) {
+                // Option 1: Training badge above team name
                 card.innerHTML = `
                     <div class="match-header">
                         <div class="competition">${match.Competition}</div>
                         <div class="venue">${match.Venue}</div>
                     </div>
-                    <div class="match-teams">
-                        <div class="team grange">${match.Team}</div>
-                        <div class="score-container">TRAINING</div>
+                    <div class="match-teams training-layout">
+                        <div class="training-section">
+                            <div class="training-badge">TRAINING</div>
+                            <div class="team grange">${match.Team}</div>
+                        </div>
+                        <div class="score-container">${match.Time || 'TBC'}</div>
                         <div class="team"></div>
-                    </div>
-                    <div class="match-footer">
-                        <div class="time">${match.Time || 'TBC'}</div>
                     </div>
                 `;
             } else {
