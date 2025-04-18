@@ -3198,12 +3198,7 @@ END:VCALENDAR`;
                     const endDateTime = new Date(event.end.dateTime || event.end.date);
                     
                     return {
-                        'Date': startDateTime.toLocaleDateString('en-GB', {
-                            weekday: 'short',
-                            day: 'numeric',
-                            month: 'short',
-                            year: '2-digit'
-                        }),
+                        'Date': formatDate(startDateTime),
                         'Time': startDateTime.toLocaleTimeString('en-GB', {
                             hour: '2-digit',
                             minute: '2-digit',
