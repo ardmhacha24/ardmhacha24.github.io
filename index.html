@@ -2017,29 +2017,49 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
         async function init() {
             console.log('Initializing application...');
             try {
-                // Parse CSV data first
-                matches = parseCSV(csvData);
-                console.log('Initial matches loaded:', matches.length);
+                // Initialize empty matches array
+                matches = [];
+                console.log('Initialized empty matches array');
                 
                 // Wait for DOM to be fully loaded
                 if (document.readyState === 'loading') {
+                    console.log('DOM not fully loaded, waiting...');
                     await new Promise(resolve => {
                         document.addEventListener('DOMContentLoaded', resolve);
                     });
+                    console.log('DOM fully loaded');
                 }
                 
                 // Initialize UI first without filters
+                console.log('Initializing UI...');
                 initializeUI();
+                console.log('UI initialized');
+                
+                // Fetch matches from worker
+                console.log('Starting to fetch matches from worker...');
+                const workerMatches = await fetchMatchesFromWorker();
+                console.log('Worker matches fetched, adding to matches array...');
+                matches = matches.concat(workerMatches);
+                console.log('Total matches after worker fetch:', matches.length);
                 
                 // Fetch training events
+                console.log('Starting to fetch training events...');
                 await fetchTrainingEvents();
+                console.log('Training events fetched, total matches now:', matches.length);
                 
-                // After training events are loaded, update filters
+                // After all matches are loaded, update filters
+                console.log('Extracting filter options...');
                 const filterOptions = extractFilterOptions();
+                console.log('Filter options extracted:', filterOptions);
+                console.log('Populating filters...');
                 populateFilters(filterOptions);
+                console.log('Filters populated');
+                
+                console.log('Initialization complete. Final match count:', matches.length);
                 
             } catch (error) {
                 console.error('Error in init:', error);
+                console.error('Error stack:', error.stack);
                 document.getElementById('matchContainer').innerHTML = `
                     <div class="no-results">
                         <p>Error loading matches. Please try refreshing the page.</p>
@@ -2067,7 +2087,7 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                 initSidebarToggle();
                 
                 // Display initial matches
-                    displayMatches();
+                displayMatches();
                 
                 console.log('UI initialization complete');
             } catch (error) {
@@ -3220,29 +3240,49 @@ END:VCALENDAR`;
         async function init() {
             console.log('Initializing application...');
             try {
-                // Parse CSV data first
-                matches = parseCSV(csvData);
-                console.log('Initial matches loaded:', matches.length);
+                // Initialize empty matches array
+                matches = [];
+                console.log('Initialized empty matches array');
                 
                 // Wait for DOM to be fully loaded
                 if (document.readyState === 'loading') {
+                    console.log('DOM not fully loaded, waiting...');
                     await new Promise(resolve => {
                         document.addEventListener('DOMContentLoaded', resolve);
                     });
+                    console.log('DOM fully loaded');
                 }
                 
                 // Initialize UI first without filters
+                console.log('Initializing UI...');
                 initializeUI();
+                console.log('UI initialized');
+                
+                // Fetch matches from worker
+                console.log('Starting to fetch matches from worker...');
+                const workerMatches = await fetchMatchesFromWorker();
+                console.log('Worker matches fetched, adding to matches array...');
+                matches = matches.concat(workerMatches);
+                console.log('Total matches after worker fetch:', matches.length);
                 
                 // Fetch training events
+                console.log('Starting to fetch training events...');
                 await fetchTrainingEvents();
+                console.log('Training events fetched, total matches now:', matches.length);
                 
-                // After training events are loaded, update filters
+                // After all matches are loaded, update filters
+                console.log('Extracting filter options...');
                 const filterOptions = extractFilterOptions();
+                console.log('Filter options extracted:', filterOptions);
+                console.log('Populating filters...');
                 populateFilters(filterOptions);
+                console.log('Filters populated');
+                
+                console.log('Initialization complete. Final match count:', matches.length);
                 
             } catch (error) {
                 console.error('Error in init:', error);
+                console.error('Error stack:', error.stack);
                 document.getElementById('matchContainer').innerHTML = `
                     <div class="no-results">
                         <p>Error loading matches. Please try refreshing the page.</p>
@@ -3415,10 +3455,6 @@ END:VCALENDAR`;
         async function init() {
             console.log('Initializing application...');
             try {
-                // Comment out CSV data ingestion temporarily
-                // matches = parseCSV(csvData);
-                // console.log('Initial matches loaded from CSV:', matches.length);
-                
                 // Initialize empty matches array
                 matches = [];
                 console.log('Initialized empty matches array');
