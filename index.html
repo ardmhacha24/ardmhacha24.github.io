@@ -2157,7 +2157,7 @@
             matchCard.innerHTML = `
                 <div class="match-header">
                     <div class="match-header-main">
-                        <span class="team-category">${match.Team}</span>
+                        <span class="team-category">${homeTeam} vs ${awayTeam}</span>
                         <span class="competition">${match.Competition}</span>
                     </div>
                     <div class="match-info">
@@ -3291,6 +3291,8 @@ END:VCALENDAR`;
                         'Team': match.Team,
                         'Home Team': match['Home Team'],
                         'Away Team': match['Away Team'],
+                        'Home Score': match['Home Score'],
+                        'Away Score': match['Away Score'],
                         'Venue': match.Venue,
                         'Result': match.Result || '',
                         'Fixture ID': match['Fixture ID'],
