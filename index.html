@@ -2171,8 +2171,8 @@
                             <div class="team-name">${homeTeam}</div>
                         </div>
                         <div class="score-container">
-                            ${match.Result && match.Result !== '---'
-                                ? `<span class="score">${homeScore || '0-0'}</span><span class="score">${awayScore || '0-0'}</span>` 
+                            ${match.Result && match.Result !== '---' && homeScore && awayScore
+                                ? `<span class="score">${homeScore}</span><span class="score">${awayScore}</span>` 
                                 : `<span class="vs">vs</span>`
                             }
                         </div>
