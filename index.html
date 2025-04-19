@@ -2134,6 +2134,11 @@
             // Format scores
             let homeTeam = match['Home Team'];
             let awayTeam = match['Away Team'];
+            // Format scores and teams
+            if (match.isTraining) {
+                homeTeam = match.Team;
+                awayTeam = 'Training';
+            }
             let homeScore = match['Home Score'] !== '---' ? match['Home Score'] : '';
             let awayScore = match['Away Score'] !== '---' ? match['Away Score'] : '';
             
