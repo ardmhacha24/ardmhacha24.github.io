@@ -1844,7 +1844,7 @@ Sun 21 Sep 25,U16 Div 5 League,Girls,Round 10,U16 Girls,BYE,BYE,Grange Naomh Col
                 day: 'numeric',
                 month: 'short',
                 year: '2-digit'
-            });
+            }).replace(/,/g, '');
             console.log('Formatted date:', formatted);
             return formatted;
         }
