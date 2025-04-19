@@ -3355,6 +3355,9 @@ END:VCALENDAR`;
             // ... existing code ...
         });
 
+        // Variable to hold calendar data
+        let calendarData = '';
+
         // Fetch matches from the calendar worker
         async function fetchCalendarMatches() {
             try {
@@ -3374,7 +3377,7 @@ END:VCALENDAR`;
                 
                 if (!data.success || !data.data) {
                     console.error('Invalid response format from calendar worker:', data);
-                    return [];
+                    return;
                 }
 
                 // Convert calendar matches to CSV format
@@ -3399,8 +3402,8 @@ END:VCALENDAR`;
                 });
 
                 // Convert to CSV string
-                csvData = csvRows.map(row => row.join(',')).join('\n');
-                console.log('Updated csvData with calendar matches');
+                calendarData = csvRows.map(row => row.join(',')).join('\n');
+                console.log('Updated calendarData with calendar matches');
 
             } catch (error) {
                 console.error('Error fetching calendar matches:', error);
@@ -3412,12 +3415,15 @@ END:VCALENDAR`;
         async function init() {
             console.log('Initializing application...');
             try {
-                // Fetch matches from calendar worker and update csvData
+                // Fetch matches from calendar worker and update calendarData
                 await fetchCalendarMatches();
                 
-                // Parse the updated csvData
-                matches = parseCSV(csvData);
-                console.log('Matches loaded from calendar:', matches.length);
+                // Use calendarData if available, otherwise fall back to csvData
+                const dataToUse = calendarData || csvData;
+                
+                // Parse the data
+                matches = parseCSV(dataToUse);
+                console.log('Matches loaded:', matches.length);
                 
                 // Wait for DOM to be fully loaded
                 if (document.readyState === 'loading') {
