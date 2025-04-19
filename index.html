@@ -1962,7 +1962,7 @@
                 initSidebarToggle();
                 
                 // Display initial matches
-                displayMatches();
+                    displayMatches();
                 
                 console.log('UI initialization complete');
             } catch (error) {
@@ -2120,7 +2120,6 @@
         
         // Create a match card element
         function createMatchCard(match) {
-            console.log('Creating match card for match:', match);
             const matchCard = document.createElement('div');
             matchCard.className = 'match-card';
             
@@ -2131,31 +2130,11 @@
                 matchCard.classList.add('upcoming');
             }
             
-            // Format scores and teams
-            let homeTeam, awayTeam, homeScore, awayScore;
-            
-            if (match.isTraining) {
-                homeTeam = match.Team;
-                awayTeam = 'Training';
-                homeScore = '';
-                awayScore = '';
-            } else {
-                homeTeam = match['Home Team'];
-                awayTeam = match['Away Team'];
-                homeScore = match['Home Score'] !== '---' ? match['Home Score'] : '';
-                awayScore = match['Away Score'] !== '---' ? match['Away Score'] : '';
-            }
-            
-            console.log('Score data:', {
-                homeTeam,
-                awayTeam,
-                homeScore,
-                awayScore,
-                result: match.Result,
-                hasResult: match.Result && match.Result !== '---',
-                hasScores: homeScore && awayScore,
-                isTraining: match.isTraining
-            });
+            // Format scores
+            let homeTeam = match['Home Team'];
+            let awayTeam = match['Away Team'];
+            let homeScore = match['Home Score'] !== '---' ? match['Home Score'] : '';
+            let awayScore = match['Away Score'] !== '---' ? match['Away Score'] : '';
             
             // Determine badge text
             let badgeText = '';
@@ -2179,11 +2158,11 @@
                 <div class="match-header">
                     <div class="match-header-main">
                         <span class="team-category">${match.Team}</span>
-                        <span class="competition">${match.Competition}</span>
+                    <span class="competition">${match.Competition}</span>
                     </div>
                     <div class="match-info">
-                        <span>${match.Round || ''}</span>
-                        <span>${match.Sex || ''}</span>
+                        <span>${match.Round}</span>
+                        <span>${match.Sex}</span>
                     </div>
                 </div>
                 <div class="match-content">
@@ -2192,7 +2171,7 @@
                             <div class="team-name">${homeTeam}</div>
                         </div>
                         <div class="score-container">
-                            ${!match.isTraining && match.Result && match.Result !== '---' && homeScore && awayScore
+                            ${match.Result && match.Result !== '---' && homeScore && awayScore
                                 ? `<span class="score">${homeScore}</span><span class="score">${awayScore}</span>` 
                                 : `<span class="vs">vs</span>`
                             }
@@ -3300,11 +3279,8 @@ END:VCALENDAR`;
                 // Process worker matches to match our format
                 const processedMatches = workerMatches.map(match => {
                     console.log('Processing match:', match);
-                    console.log('Score data from worker:', {
-                        homeScore: match['Home Score'],
-                        awayScore: match['Away Score'],
-                        result: match.Result
-                    });
+                    console.log('Sex value:', match.Sex);
+                    console.log('Round value:', match.Round);
                     
                     const processedMatch = {
                         'Date': match.Date,
@@ -3315,8 +3291,6 @@ END:VCALENDAR`;
                         'Team': match.Team,
                         'Home Team': match['Home Team'],
                         'Away Team': match['Away Team'],
-                        'Home Score': match['Home Score'] || '---',
-                        'Away Score': match['Away Score'] || '---',
                         'Venue': match.Venue,
                         'Result': match.Result || '',
                         'Fixture ID': match['Fixture ID'],
