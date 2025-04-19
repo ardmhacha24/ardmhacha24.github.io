@@ -3378,21 +3378,27 @@ END:VCALENDAR`;
                 // Process worker matches to match our format
                 const processedMatches = workerMatches.map(match => {
                     console.log('Processing match:', match);
-                    return {
+                    console.log('Sex value:', match.Sex);
+                    console.log('Round value:', match.Round);
+                    
+                    const processedMatch = {
                         'Date': match.Date,
                         'Time': match.Time,
                         'Competition': match.Competition,
-                        'Sex': match.Sex,
-                        'Round': match.Round,
+                        'Sex': match.Sex || '',  // Provide default empty string if undefined
+                        'Round': match.Round || '', // Provide default empty string if undefined
                         'Team': match.Team,
                         'Home Team': match['Home Team'],
                         'Away Team': match['Away Team'],
                         'Venue': match.Venue,
-                        'Result': match.Result,
+                        'Result': match.Result || '',
                         'Fixture ID': match['Fixture ID'],
                         'Fixture Src': match['Fixture Src'],
                         'isTraining': false
                     };
+                    
+                    console.log('Processed match object:', processedMatch);
+                    return processedMatch;
                 });
 
                 console.log('Processed worker matches:', processedMatches);
