@@ -3358,32 +3358,39 @@ END:VCALENDAR`;
         async function fetchMatchesFromWorker() {
             console.log('Fetching matches from worker...');
             try {
+                console.log('Making request to worker URL: https://calendar-matches-worker.ardmhacha.workers.dev/');
                 const response = await fetch('https://calendar-matches-worker.ardmhacha.workers.dev/');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const workerMatches = await response.json();
-                console.log('Received matches from worker:', workerMatches);
+                console.log('Raw response from worker:', workerMatches);
+                console.log('Number of matches received:', workerMatches.length);
 
                 // Process worker matches to match our format
-                const processedMatches = workerMatches.map(match => ({
-                    'Date': match.Date,
-                    'Time': match.Time,
-                    'Competition': match.Competition,
-                    'Team': match.Team,
-                    'Home Team': match['Home Team'],
-                    'Away Team': match['Away Team'],
-                    'Venue': match.Venue,
-                    'Result': match.Result,
-                    'Fixture ID': match['Fixture ID'],
-                    'Fixture Src': match['Fixture Src'],
-                    'isTraining': false
-                }));
+                const processedMatches = workerMatches.map(match => {
+                    console.log('Processing match:', match);
+                    return {
+                        'Date': match.Date,
+                        'Time': match.Time,
+                        'Competition': match.Competition,
+                        'Team': match.Team,
+                        'Home Team': match['Home Team'],
+                        'Away Team': match['Away Team'],
+                        'Venue': match.Venue,
+                        'Result': match.Result,
+                        'Fixture ID': match['Fixture ID'],
+                        'Fixture Src': match['Fixture Src'],
+                        'isTraining': false
+                    };
+                });
 
                 console.log('Processed worker matches:', processedMatches);
+                console.log('Total processed matches:', processedMatches.length);
                 return processedMatches;
             } catch (error) {
                 console.error('Error in fetchMatchesFromWorker:', error);
+                console.error('Error details:', error.message);
                 return [];
             }
         }
@@ -3392,33 +3399,53 @@ END:VCALENDAR`;
         async function init() {
             console.log('Initializing application...');
             try {
-                // Parse CSV data first
-                matches = parseCSV(csvData);
-                console.log('Initial matches loaded:', matches.length);
+                // Comment out CSV data ingestion temporarily
+                // matches = parseCSV(csvData);
+                // console.log('Initial matches loaded from CSV:', matches.length);
+                
+                // Initialize empty matches array
+                matches = [];
+                console.log('Initialized empty matches array');
                 
                 // Wait for DOM to be fully loaded
                 if (document.readyState === 'loading') {
+                    console.log('DOM not fully loaded, waiting...');
                     await new Promise(resolve => {
                         document.addEventListener('DOMContentLoaded', resolve);
                     });
+                    console.log('DOM fully loaded');
                 }
                 
                 // Initialize UI first without filters
+                console.log('Initializing UI...');
                 initializeUI();
+                console.log('UI initialized');
                 
                 // Fetch matches from worker
+                console.log('Starting to fetch matches from worker...');
                 const workerMatches = await fetchMatchesFromWorker();
+                console.log('Worker matches fetched, adding to matches array...');
                 matches = matches.concat(workerMatches);
+                console.log('Total matches after worker fetch:', matches.length);
                 
                 // Fetch training events
+                console.log('Starting to fetch training events...');
                 await fetchTrainingEvents();
+                console.log('Training events fetched, total matches now:', matches.length);
                 
                 // After all matches are loaded, update filters
+                console.log('Extracting filter options...');
                 const filterOptions = extractFilterOptions();
+                console.log('Filter options extracted:', filterOptions);
+                console.log('Populating filters...');
                 populateFilters(filterOptions);
+                console.log('Filters populated');
+                
+                console.log('Initialization complete. Final match count:', matches.length);
                 
             } catch (error) {
                 console.error('Error in init:', error);
+                console.error('Error stack:', error.stack);
                 document.getElementById('matchContainer').innerHTML = `
                     <div class="no-results">
                         <p>Error loading matches. Please try refreshing the page.</p>
