@@ -2120,6 +2120,7 @@
         
         // Create a match card element
         function createMatchCard(match) {
+            console.log('Creating match card for match:', match);
             const matchCard = document.createElement('div');
             matchCard.className = 'match-card';
             
@@ -2135,6 +2136,16 @@
             let awayTeam = match['Away Team'];
             let homeScore = match['Home Score'] !== '---' ? match['Home Score'] : '';
             let awayScore = match['Away Score'] !== '---' ? match['Away Score'] : '';
+            
+            console.log('Score data:', {
+                homeTeam,
+                awayTeam,
+                homeScore,
+                awayScore,
+                result: match.Result,
+                hasResult: match.Result && match.Result !== '---',
+                hasScores: homeScore && awayScore
+            });
             
             // Determine badge text
             let badgeText = '';
@@ -3279,8 +3290,11 @@ END:VCALENDAR`;
                 // Process worker matches to match our format
                 const processedMatches = workerMatches.map(match => {
                     console.log('Processing match:', match);
-                    console.log('Sex value:', match.Sex);
-                    console.log('Round value:', match.Round);
+                    console.log('Score data from worker:', {
+                        homeScore: match['Home Score'],
+                        awayScore: match['Away Score'],
+                        result: match.Result
+                    });
                     
                     const processedMatch = {
                         'Date': match.Date,
@@ -3291,6 +3305,8 @@ END:VCALENDAR`;
                         'Team': match.Team,
                         'Home Team': match['Home Team'],
                         'Away Team': match['Away Team'],
+                        'Home Score': match['Home Score'] || '---',
+                        'Away Score': match['Away Score'] || '---',
                         'Venue': match.Venue,
                         'Result': match.Result || '',
                         'Fixture ID': match['Fixture ID'],
