@@ -2131,16 +2131,20 @@
                 matchCard.classList.add('upcoming');
             }
             
-            // Format scores
-            let homeTeam = match['Home Team'];
-            let awayTeam = match['Away Team'];
             // Format scores and teams
+            let homeTeam, awayTeam, homeScore, awayScore;
+            
             if (match.isTraining) {
                 homeTeam = match.Team;
                 awayTeam = 'Training';
+                homeScore = '';
+                awayScore = '';
+            } else {
+                homeTeam = match['Home Team'];
+                awayTeam = match['Away Team'];
+                homeScore = match['Home Score'] !== '---' ? match['Home Score'] : '';
+                awayScore = match['Away Score'] !== '---' ? match['Away Score'] : '';
             }
-            let homeScore = match['Home Score'] !== '---' ? match['Home Score'] : '';
-            let awayScore = match['Away Score'] !== '---' ? match['Away Score'] : '';
             
             console.log('Score data:', {
                 homeTeam,
@@ -2149,7 +2153,8 @@
                 awayScore,
                 result: match.Result,
                 hasResult: match.Result && match.Result !== '---',
-                hasScores: homeScore && awayScore
+                hasScores: homeScore && awayScore,
+                isTraining: match.isTraining
             });
             
             // Determine badge text
@@ -2174,11 +2179,11 @@
                 <div class="match-header">
                     <div class="match-header-main">
                         <span class="team-category">${match.Team}</span>
-                    <span class="competition">${match.Competition}</span>
+                        <span class="competition">${match.Competition}</span>
                     </div>
                     <div class="match-info">
-                        <span>${match.Round}</span>
-                        <span>${match.Sex}</span>
+                        <span>${match.Round || ''}</span>
+                        <span>${match.Sex || ''}</span>
                     </div>
                 </div>
                 <div class="match-content">
@@ -2187,7 +2192,7 @@
                             <div class="team-name">${homeTeam}</div>
                         </div>
                         <div class="score-container">
-                            ${match.Result && match.Result !== '---' && homeScore && awayScore
+                            ${!match.isTraining && match.Result && match.Result !== '---' && homeScore && awayScore
                                 ? `<span class="score">${homeScore}</span><span class="score">${awayScore}</span>` 
                                 : `<span class="vs">vs</span>`
                             }
