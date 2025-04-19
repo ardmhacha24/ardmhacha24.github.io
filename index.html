@@ -2131,10 +2131,10 @@
             }
             
             // Format scores
-            let homeTeam = match['Home Team'];
-            let awayTeam = match['Away Team'];
-            let homeScore = match['Home Score'] !== '---' ? match['Home Score'] : '';
-            let awayScore = match['Away Score'] !== '---' ? match['Away Score'] : '';
+            let homeTeam = match['Home Team'] || '';
+            let awayTeam = match['Away Team'] || '';
+            let homeScore = match['Home Score'] && match['Home Score'] !== '---' ? match['Home Score'] : '';
+            let awayScore = match['Away Score'] && match['Away Score'] !== '---' ? match['Away Score'] : '';
             
             // Determine badge text
             let badgeText = '';
@@ -2158,11 +2158,11 @@
                 <div class="match-header">
                     <div class="match-header-main">
                         <span class="team-category">${match.Team}</span>
-                    <span class="competition">${match.Competition}</span>
+                        <span class="competition">${match.Competition}</span>
                     </div>
                     <div class="match-info">
-                        <span>${match.Round}</span>
-                        <span>${match.Sex}</span>
+                        <span>${match.Round || ''}</span>
+                        <span>${match.Sex || ''}</span>
                     </div>
                 </div>
                 <div class="match-content">
@@ -2181,8 +2181,8 @@
                         </div>
                     </div>
                     <div class="metadata">
-                        <span class="venue">${match.Venue}</span>
-                        <span class="time">${match.Time}</span>
+                        <span class="venue">${match.Venue || ''}</span>
+                        <span class="time">${match.Time || ''}</span>
                         ${badgeText ? `<span class="badge ${badgeClass}">${badgeText}</span>` : ''}
                     </div>
                 </div>
