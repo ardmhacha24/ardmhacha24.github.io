@@ -3354,6 +3354,79 @@ END:VCALENDAR`;
             
             // ... existing code ...
         });
+
+        async function fetchMatchesFromWorker() {
+            console.log('Fetching matches from worker...');
+            try {
+                const response = await fetch('https://calendar-matches-worker.ardmhacha.workers.dev/');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const workerMatches = await response.json();
+                console.log('Received matches from worker:', workerMatches);
+
+                // Process worker matches to match our format
+                const processedMatches = workerMatches.map(match => ({
+                    'Date': match.Date,
+                    'Time': match.Time,
+                    'Competition': match.Competition,
+                    'Team': match.Team,
+                    'Home Team': match['Home Team'],
+                    'Away Team': match['Away Team'],
+                    'Venue': match.Venue,
+                    'Result': match.Result,
+                    'Fixture ID': match['Fixture ID'],
+                    'Fixture Src': match['Fixture Src'],
+                    'isTraining': false
+                }));
+
+                console.log('Processed worker matches:', processedMatches);
+                return processedMatches;
+            } catch (error) {
+                console.error('Error in fetchMatchesFromWorker:', error);
+                return [];
+            }
+        }
+
+        // Initialize the application
+        async function init() {
+            console.log('Initializing application...');
+            try {
+                // Parse CSV data first
+                matches = parseCSV(csvData);
+                console.log('Initial matches loaded:', matches.length);
+                
+                // Wait for DOM to be fully loaded
+                if (document.readyState === 'loading') {
+                    await new Promise(resolve => {
+                        document.addEventListener('DOMContentLoaded', resolve);
+                    });
+                }
+                
+                // Initialize UI first without filters
+                initializeUI();
+                
+                // Fetch matches from worker
+                const workerMatches = await fetchMatchesFromWorker();
+                matches = matches.concat(workerMatches);
+                
+                // Fetch training events
+                await fetchTrainingEvents();
+                
+                // After all matches are loaded, update filters
+                const filterOptions = extractFilterOptions();
+                populateFilters(filterOptions);
+                
+            } catch (error) {
+                console.error('Error in init:', error);
+                document.getElementById('matchContainer').innerHTML = `
+                    <div class="no-results">
+                        <p>Error loading matches. Please try refreshing the page.</p>
+                        <p>Error details: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
     </script>
 </body>
 </html>
