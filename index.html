@@ -3363,8 +3363,16 @@ END:VCALENDAR`;
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                const workerMatches = await response.json();
-                console.log('Raw response from worker:', workerMatches);
+                const data = await response.json();
+                console.log('Raw response from worker:', data);
+
+                // Check if we have the expected data structure
+                if (!data.success || !data.data || !Array.isArray(data.data)) {
+                    console.error('Unexpected response structure:', data);
+                    throw new Error('Invalid response format from worker');
+                }
+
+                const workerMatches = data.data;
                 console.log('Number of matches received:', workerMatches.length);
 
                 // Process worker matches to match our format
