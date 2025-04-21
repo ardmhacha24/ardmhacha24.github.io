@@ -2469,9 +2469,13 @@ END:VCALENDAR`;
                 return;
             }
             
+            // Remove existing event listeners
+            const newTeamFilter = teamFilter.cloneNode(true);
+            teamFilter.parentNode.replaceChild(newTeamFilter, teamFilter);
+            
             // Clear existing options except the first one
-            while (teamFilter.options.length > 1) {
-                teamFilter.remove(1);
+            while (newTeamFilter.options.length > 1) {
+                newTeamFilter.remove(1);
             }
             
             // Get unique teams
@@ -2487,14 +2491,14 @@ END:VCALENDAR`;
                 const option = document.createElement('option');
                 option.value = team;
                 option.textContent = team;
-                teamFilter.appendChild(option);
+                newTeamFilter.appendChild(option);
             });
             
-            // Add change event listener
-            teamFilter.addEventListener('change', function() {
+            // Add single change event listener
+            newTeamFilter.addEventListener('change', function() {
                 console.log('Team filter changed to:', this.value);
                 updateTeamStats(this.value);
-            });
+            }, { once: false });
             
             // Initialize with 'all' teams selected
             updateTeamStats('all');
@@ -3412,9 +3416,13 @@ END:VCALENDAR`;
                 return;
             }
             
+            // Remove existing event listeners
+            const newTeamFilter = teamFilter.cloneNode(true);
+            teamFilter.parentNode.replaceChild(newTeamFilter, teamFilter);
+            
             // Clear existing options except the first one
-            while (teamFilter.options.length > 1) {
-                teamFilter.remove(1);
+            while (newTeamFilter.options.length > 1) {
+                newTeamFilter.remove(1);
             }
             
             // Get unique teams
@@ -3430,14 +3438,14 @@ END:VCALENDAR`;
                 const option = document.createElement('option');
                 option.value = team;
                 option.textContent = team;
-                teamFilter.appendChild(option);
+                newTeamFilter.appendChild(option);
             });
             
-            // Add change event listener
-            teamFilter.addEventListener('change', function() {
+            // Add single change event listener
+            newTeamFilter.addEventListener('change', function() {
                 console.log('Team filter changed to:', this.value);
                 updateTeamStats(this.value);
-            });
+            }, { once: false });
             
             // Initialize with 'all' teams selected
             updateTeamStats('all');
