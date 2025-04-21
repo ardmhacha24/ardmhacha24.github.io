@@ -2520,12 +2520,8 @@ END:VCALENDAR`;
                     return;
                 }
                 
-                // Check if this match involves the selected team
-                const isHomeTeam = match['Home Team'].includes(teamName);
-                const isAwayTeam = match['Away Team'].includes(teamName);
-                
-                // For 'all' teams or if this match involves the selected team
-                if (teamName === 'all' || isHomeTeam || isAwayTeam) {
+                // For 'all' teams, process every match
+                if (teamName === 'all') {
                     processedMatches.add(matchId);
                     stats.total++;
                     
@@ -2533,25 +2529,35 @@ END:VCALENDAR`;
                         stats.upcoming++;
                         console.log('Counted as UPCOMING:', matchId);
                     } else {
-                        // For specific team selection, we need to determine if it's a win/loss from their perspective
-                        if (teamName === 'all') {
-                            // For 'all' teams view, count results as recorded
-                            if (match.Result === 'WIN') stats.wins++;
-                            else if (match.Result === 'LOSS') stats.losses++;
-                            else if (match.Result === 'DRAW') stats.draws++;
-                        } else {
-                            // For specific team, interpret result from their perspective
-                            if (match.Result === 'WIN' && isHomeTeam) stats.wins++;
-                            else if (match.Result === 'LOSS' && isAwayTeam) stats.wins++;
-                            else if (match.Result === 'LOSS' && isHomeTeam) stats.losses++;
-                            else if (match.Result === 'WIN' && isAwayTeam) stats.losses++;
-                            else if (match.Result === 'DRAW') stats.draws++;
-                        }
+                        if (match.Result === 'WIN') stats.wins++;
+                        else if (match.Result === 'LOSS') stats.losses++;
+                        else if (match.Result === 'DRAW') stats.draws++;
+                        console.log('Counted match result:', { id: matchId, result: match.Result });
+                    }
+                } 
+                // For specific team, check exact match in home or away team
+                else if (teamName && (match['Home Team'] === teamName || match['Away Team'] === teamName)) {
+                    processedMatches.add(matchId);
+                    stats.total++;
+                    
+                    if (!match.Result || match.Result === '---') {
+                        stats.upcoming++;
+                        console.log('Counted as UPCOMING:', matchId);
+                    } else {
+                        const isHomeTeam = match['Home Team'] === teamName;
+                        
+                        // Interpret result from team's perspective
+                        if (match.Result === 'WIN' && isHomeTeam) stats.wins++;
+                        else if (match.Result === 'LOSS' && !isHomeTeam) stats.wins++;
+                        else if (match.Result === 'LOSS' && isHomeTeam) stats.losses++;
+                        else if (match.Result === 'WIN' && !isHomeTeam) stats.losses++;
+                        else if (match.Result === 'DRAW') stats.draws++;
+                        
                         console.log('Processed result for match:', {
                             id: matchId,
                             result: match.Result,
                             isHomeTeam,
-                            isAwayTeam,
+                            teamName,
                             stats
                         });
                     }
