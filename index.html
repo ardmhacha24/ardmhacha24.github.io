@@ -2804,65 +2804,62 @@ END:VCALENDAR`;
         
         // Initialize sidebar toggle functionality
         function initSidebarToggle() {
-            console.log('Initializing sidebar toggle...');
             const sidebar = document.querySelector('.sidebar');
-            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
             const overlay = document.querySelector('.sidebar-overlay');
             
             if (!sidebar || !hamburgerMenu || !overlay) {
-                console.error('Required sidebar elements not found:', { 
-                    sidebar: !!sidebar, 
-                    hamburgerMenu: !!hamburgerMenu, 
-                    overlay: !!overlay 
-                });
+                console.error('Required sidebar elements not found');
                 return;
             }
             
-            // Initialize sidebar state based on screen size
+            // Initialize sidebar state
             const isMobile = window.innerWidth <= 992;
-            console.log('Initial screen size check:', { isMobile, width: window.innerWidth });
-            
             if (isMobile) {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-            } else {
-                sidebar.classList.add('active');
+                sidebar.classList.add('collapsed');
+                hamburgerMenu.classList.add('active');
             }
             
             // Hamburger menu click handler
-            hamburgerMenu.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
+            hamburgerMenu.addEventListener('click', () => {
                 console.log('Hamburger menu clicked');
-                sidebar.classList.toggle('active');
+                sidebar.classList.toggle('collapsed');
+                hamburgerMenu.classList.toggle('active');
                 overlay.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open');
             });
             
             // Overlay click handler
             overlay.addEventListener('click', () => {
                 console.log('Overlay clicked');
-                sidebar.classList.remove('active');
+                sidebar.classList.add('collapsed');
+                hamburgerMenu.classList.remove('active');
                 overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
             });
             
             // Window resize handler
             window.addEventListener('resize', () => {
                 const isMobile = window.innerWidth <= 992;
-                console.log('Window resized:', { isMobile, width: window.innerWidth });
-                
                 if (isMobile) {
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                } else {
-                    sidebar.classList.add('active');
+                    sidebar.classList.add('collapsed');
+                    hamburgerMenu.classList.add('active');
                 }
             });
-            
-            // Initialize team filter and stats
-            populateSidebarTeamFilter();
-            updateTeamStats('all');
         }
-        
+
+        function populateSidebarTeamFilter() {
+            // ... existing code ...
+        }
+
+        // Initialize everything when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing components');
+            datePickerInstance = initializeDatePicker();
+            initSidebarToggle();
+            populateSidebarTeamFilter();
+        });
+
         // Initialize search functionality with autocomplete
         function initSearchAutocomplete() {
             console.log('=== initSearchAutocomplete START ===');
@@ -3637,11 +3634,6 @@ END:VCALENDAR`;
                 if (isMobile) {
                     sidebar.classList.add('collapsed');
                     hamburgerMenu.classList.add('active');
-                } else {
-                    sidebar.classList.remove('collapsed');
-                    hamburgerMenu.classList.remove('active');
-                    overlay.classList.remove('active');
-                    document.body.classList.remove('sidebar-open');
                 }
             });
         }
@@ -3780,15 +3772,6 @@ END:VCALENDAR`;
             // Initialize with 'all' teams selected
             updateTeamStats('all');
         }
-
-        // Initialize everything when the DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, initializing components');
-            datePickerInstance = initializeDatePicker();
-            initSidebarToggle();
-            populateSidebarTeamFilter();
-            // ... existing initialization code ...
-        });
 
         // Enhanced date handling functions
         function parseDate(dateStr) {
