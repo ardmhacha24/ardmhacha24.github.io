@@ -1551,6 +1551,37 @@
                 display: none;
             }
         }
+
+        .toggle-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .toggle-text {
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .filter-row {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1637,6 +1668,21 @@
                         <button class="reset-btn" id="resetDate" title="Reset date range">
                             <i class="fas fa-times"></i>
                         </button>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Show:</label>
+                        <div class="toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="showMatches" checked>
+                                <span class="toggle-text">Matches</span>
+                            </label>
+                            <label class="toggle-label">
+                                <input type="checkbox" id="showTraining" checked>
+                                <span class="toggle-text">Training</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <button class="share-btn" id="shareBtn">
@@ -2014,7 +2060,10 @@
         function filterMatches() {
             console.log('=== filterMatches START ===');
             const searchInput = document.getElementById('searchInput');
-            console.log('Search input element:', searchInput);
+            const showMatches = document.getElementById('showMatches').checked;
+            const showTraining = document.getElementById('showTraining').checked;
+            
+            console.log('Filter settings:', { showMatches, showTraining });
             
             if (!searchInput) {
                 console.error('Search input element not found!');
@@ -2037,6 +2086,10 @@
             console.log('Total matches before filtering:', matches.length);
             
             const filteredMatches = matches.filter(match => {
+                // Type filter (matches/training)
+                if (!showMatches && !match.isTraining) return false;
+                if (!showTraining && match.isTraining) return false;
+                
                 // Search filter
                 if (searchQuery) {
                     const searchableText = [
@@ -3497,3 +3550,4 @@ END:VCALENDAR`;
     </script>
 </body>
 </html>
+
