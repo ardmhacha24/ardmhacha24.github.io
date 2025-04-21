@@ -1604,198 +1604,9 @@
     </div>
     
     <script>
-        // Global variables
+        // Parse the CSV data and store it in a global variable
         let matches = [];
-        let datePickerInstance = null;
-        let trainingEvents = [];
         
-        // Utility functions
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-        
-        // Enhanced filter matches function
-        function filterMatches() {
-            console.log('=== filterMatches START ===');
-            const searchInput = document.getElementById('searchInput');
-            const showMatchesToggle = document.getElementById('showMatchesToggle');
-            const showTrainingToggle = document.getElementById('showTrainingToggle');
-            
-            // Default to showing both if toggles aren't found
-            const showMatches = showMatchesToggle ? showMatchesToggle.checked : true;
-            const showTraining = showTrainingToggle ? showTrainingToggle.checked : true;
-            
-            console.log('Filter states:', { showMatches, showTraining });
-            
-            let filteredMatches = matches;
-            
-            // Apply type filters first
-            filteredMatches = filteredMatches.filter(match => {
-                if (!showMatches && !match.isTraining) return false;
-                if (!showTraining && match.isTraining) return false;
-                return true;
-            });
-            
-            // Apply search filter if there's a query
-            if (searchInput && searchInput.value) {
-                const searchQuery = searchInput.value.toLowerCase().trim();
-                filteredMatches = filteredMatches.filter(match => {
-                    const searchableText = [
-                        match.Competition || '',
-                        match.Team || '',
-                        match['Home Team'] || '',
-                        match['Away Team'] || '',
-                        match.Venue || '',
-                        match.Round || '',
-                        formatDate(match.Date) || '',
-                        match.Time || ''
-                    ].join(' ').toLowerCase();
-                    
-                    return searchableText.includes(searchQuery);
-                });
-            }
-            
-            // Apply date range filter if selected
-            if (datePickerInstance && datePickerInstance.selectedDates && datePickerInstance.selectedDates.length === 2) {
-                const [startDate, endDate] = datePickerInstance.selectedDates;
-                console.log('Filtering by date range:', { startDate, endDate });
-                
-                filteredMatches = filteredMatches.filter(match => {
-                    const matchDate = parseDate(match.Date);
-                    if (!matchDate) return false;
-                    
-                    // Set the match date to the start of day for comparison
-                    matchDate.setHours(0, 0, 0, 0);
-                    
-                    // Create comparison dates at start and end of day
-                    const compareStart = new Date(startDate);
-                    compareStart.setHours(0, 0, 0, 0);
-                    const compareEnd = new Date(endDate);
-                    compareEnd.setHours(23, 59, 59, 999);
-                    
-                    return matchDate >= compareStart && matchDate <= compareEnd;
-                });
-            }
-            
-            console.log('Filtered matches count:', filteredMatches.length);
-            return filteredMatches;
-        }
-        
-        // Initialize UI components
-        function initializeUI() {
-            console.log('Initializing UI components');
-            
-            // Ensure toggle elements exist in DOM
-            const toggleContainer = document.querySelector('.filter-container');
-            if (toggleContainer) {
-                if (!document.getElementById('showMatchesToggle')) {
-                    const matchesToggle = document.createElement('div');
-                    matchesToggle.className = 'filter-toggle';
-                    matchesToggle.innerHTML = `
-                        <input type="checkbox" id="showMatchesToggle" checked>
-                        <label for="showMatchesToggle">Show Matches</label>
-                    `;
-                    toggleContainer.appendChild(matchesToggle);
-                }
-                
-                if (!document.getElementById('showTrainingToggle')) {
-                    const trainingToggle = document.createElement('div');
-                    trainingToggle.className = 'filter-toggle';
-                    trainingToggle.innerHTML = `
-                        <input type="checkbox" id="showTrainingToggle" checked>
-                        <label for="showTrainingToggle">Show Training</label>
-                    `;
-                    toggleContainer.appendChild(trainingToggle);
-                }
-            }
-            
-            // Ensure stats elements exist in DOM
-            const statsElements = [
-                'totalMatches',
-                'wins',
-                'losses',
-                'draws',
-                'upcomingMatches'
-            ];
-            
-            const missingElements = statsElements.filter(id => !document.getElementById(id));
-            if (missingElements.length > 0) {
-                console.error('Missing stats elements:', missingElements);
-                // Create the missing elements in the sidebar
-                const statsContainer = document.querySelector('.stats-container');
-                if (statsContainer) {
-                    const statsHTML = `
-                        <div class="stats-row">
-                            <div class="stat-label">Total Matches:</div>
-                            <div class="stat-value" id="totalMatches">0</div>
-                        </div>
-                        <div class="stats-row">
-                            <div class="stat-label">Wins:</div>
-                            <div class="stat-value" id="wins">0</div>
-                        </div>
-                        <div class="stats-row">
-                            <div class="stat-label">Losses:</div>
-                            <div class="stat-value" id="losses">0</div>
-                        </div>
-                        <div class="stats-row">
-                            <div class="stat-label">Draws:</div>
-                            <div class="stat-value" id="draws">0</div>
-                        </div>
-                        <div class="stats-row">
-                            <div class="stat-label">Upcoming:</div>
-                            <div class="stat-value" id="upcomingMatches">0</div>
-                        </div>
-                    `;
-                    statsContainer.innerHTML = statsHTML;
-                }
-            }
-            
-            // Initialize team filter in sidebar
-            const teamFilter = document.getElementById('sidebarTeamFilter');
-            if (teamFilter) {
-                teamFilter.addEventListener('change', function() {
-                    console.log('Team filter changed to:', this.value);
-                    updateTeamStats(this.value);
-                });
-            }
-            
-            // Initialize match/training toggles
-            const showMatchesToggle = document.getElementById('showMatchesToggle');
-            const showTrainingToggle = document.getElementById('showTrainingToggle');
-            
-            if (showMatchesToggle) {
-                showMatchesToggle.addEventListener('change', function() {
-                        displayMatches();
-                });
-            }
-            
-            if (showTrainingToggle) {
-                showTrainingToggle.addEventListener('change', function() {
-                    displayMatches();
-                });
-            }
-            
-            // Initialize search autocomplete
-            initSearchAutocomplete();
-            
-            // Initialize team filter
-            populateSidebarTeamFilter();
-        }
-        
-        // Remove any other DOMContentLoaded listeners and use just this one
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, initializing...');
-            init().catch(error => console.error('Initialization error:', error));
-        });
-
         // Function to format date in a more readable format
         function formatDate(dateStr) {
             console.log('Formatting date:', dateStr);
@@ -2052,6 +1863,187 @@
             });
             
             console.log('Matches displayed:', filteredMatches.length);
+        }
+        
+        // Initialize the application
+        async function init() {
+            console.log('Initializing application...');
+            try {
+                // Initialize empty matches array
+                matches = [];
+                console.log('Initialized empty matches array');
+                
+                // Wait for DOM to be fully loaded
+                if (document.readyState === 'loading') {
+                    console.log('DOM not fully loaded, waiting...');
+                    await new Promise(resolve => {
+                        document.addEventListener('DOMContentLoaded', resolve);
+                    });
+                    console.log('DOM fully loaded');
+                }
+                
+                // Initialize UI first without filters
+                console.log('Initializing UI...');
+                initializeUI();
+                console.log('UI initialized');
+                
+                // Add toggle event listeners
+                const showMatchesToggle = document.getElementById('showMatches');
+                const showTrainingToggle = document.getElementById('showTraining');
+                
+                showMatchesToggle.addEventListener('change', () => {
+                    console.log('Matches toggle changed:', showMatchesToggle.checked);
+                    displayMatches();
+                });
+                
+                showTrainingToggle.addEventListener('change', () => {
+                    console.log('Training toggle changed:', showTrainingToggle.checked);
+                    displayMatches();
+                });
+                
+                // Fetch matches from worker
+                console.log('Starting to fetch matches from worker...');
+                const workerMatches = await fetchMatchesFromWorker();
+                console.log('Worker matches fetched, adding to matches array...');
+                matches = matches.concat(workerMatches);
+                console.log('Total matches after worker fetch:', matches.length);
+                
+                // Fetch training events
+                console.log('Starting to fetch training events...');
+                await fetchTrainingEvents();
+                console.log('Training events fetched, total matches now:', matches.length);
+                
+                // Initialize search functionality
+                console.log('Initializing search functionality...');
+                initSearchAutocomplete();
+                
+                // Display matches
+                displayMatches();
+                console.log('Initialization complete. Final match count:', matches.length);
+                
+            } catch (error) {
+                console.error('Error in init:', error);
+                console.error('Error stack:', error.stack);
+                document.getElementById('matchContainer').innerHTML = `
+                    <div class="no-results">
+                        <p>Error loading matches. Please try refreshing the page.</p>
+                        <p>Error details: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Separate UI initialization
+        function initializeUI() {
+            console.log('Initializing UI components');
+            
+            // Initialize team filter in sidebar
+            const teamFilter = document.getElementById('sidebarTeamFilter');
+            if (teamFilter) {
+                teamFilter.addEventListener('change', function() {
+                    console.log('Team filter changed to:', this.value);
+                    updateTeamStats(this.value);
+                });
+            }
+            
+            // Initialize match/training toggles
+            const showMatchesToggle = document.getElementById('showMatchesToggle');
+            const showTrainingToggle = document.getElementById('showTrainingToggle');
+            
+            if (showMatchesToggle) {
+                showMatchesToggle.addEventListener('change', function() {
+                        displayMatches();
+                });
+            }
+            
+            if (showTrainingToggle) {
+                showTrainingToggle.addEventListener('change', function() {
+                    displayMatches();
+                });
+            }
+            
+            // Initialize date picker
+            initializeDatePicker();
+            
+            // Initialize search autocomplete
+            initSearchAutocomplete();
+            
+            // Initialize team filter
+            populateSidebarTeamFilter();
+        }
+        
+        // Debounce function to limit search input processing
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // Enhanced filter matches function to include search and date range
+        function filterMatches() {
+            console.log('=== filterMatches START ===');
+            const searchInput = document.getElementById('searchInput');
+            const showMatches = document.getElementById('showMatches').checked;
+            const showTraining = document.getElementById('showTraining').checked;
+            
+            let filteredMatches = matches;
+            
+            // Apply type filters first
+            filteredMatches = filteredMatches.filter(match => {
+                if (!showMatches && !match.isTraining) return false;
+                if (!showTraining && match.isTraining) return false;
+                return true;
+            });
+            
+            // Apply search filter if there's a query
+            if (searchInput && searchInput.value) {
+                const searchQuery = searchInput.value.toLowerCase().trim();
+                filteredMatches = filteredMatches.filter(match => {
+                    const searchableText = [
+                        match.Competition || '',
+                        match.Team || '',
+                        match['Home Team'] || '',
+                        match['Away Team'] || '',
+                        match.Venue || '',
+                        match.Round || '',
+                        formatDate(match.Date) || '',
+                        match.Time || ''
+                    ].join(' ').toLowerCase();
+                    
+                    return searchableText.includes(searchQuery);
+                });
+            }
+            
+            // Apply date range filter if selected
+            if (datePickerInstance && datePickerInstance.selectedDates.length === 2) {
+                const [startDate, endDate] = datePickerInstance.selectedDates;
+                console.log('Filtering by date range:', { startDate, endDate });
+                
+                filteredMatches = filteredMatches.filter(match => {
+                    const matchDate = parseDate(match.Date);
+                    if (!matchDate) return false;
+                    
+                    // Set the match date to the start of day for comparison
+                    matchDate.setHours(0, 0, 0, 0);
+                    
+                    // Create comparison dates at start and end of day
+                    const compareStart = new Date(startDate);
+                    compareStart.setHours(0, 0, 0, 0);
+                    const compareEnd = new Date(endDate);
+                    compareEnd.setHours(23, 59, 59, 999);
+                    
+                    return matchDate >= compareStart && matchDate <= compareEnd;
+                });
+            }
+            
+            console.log('Filtered matches count:', filteredMatches.length);
+            return filteredMatches;
         }
         
         // Helper function to parse date strings
@@ -2728,50 +2720,89 @@ END:VCALENDAR`;
         
         // Populate sidebar team filter
         function populateSidebarTeamFilter() {
-            console.log('Populating sidebar team filter...');
+            console.log('Populating sidebar team filter');
             const teamFilter = document.getElementById('sidebarTeamFilter');
             
             if (!teamFilter) {
-                console.error('Team filter element not found!');
+                console.error('Team filter element not found');
                 return;
             }
             
-            // Clear existing options except the 'All Teams' option
+            // Clear existing options except the first one
             while (teamFilter.options.length > 1) {
                 teamFilter.remove(1);
             }
             
-            // Get unique teams from matches
-            const uniqueTeams = new Set();
+            // Get unique teams and normalize them
+            const teamsMap = new Map(); // Use a map to store normalized team name -> original team name
             matches.forEach(match => {
                 if (match.Team) {
-                    // Normalize team name by removing venue annotations and cleaning up
-                    const normalizedTeam = match.Team
-                        .replace(/^@[^-]+-\s*/, '')  // Remove venue prefix
-                        .replace(/\s*\(\*\*.*\*\*\)\s*$/, '')  // Remove any trailing annotations
-                        .trim();
-                    uniqueTeams.add(normalizedTeam);
+                    // Remove venue annotations like "(** Main Pitch **)"
+                    let normalizedName = match.Team.replace(/\s*\(\*\*.*\*\*\)\s*$/, '');
+                    // Remove location prefixes like "@MAGHERY - "
+                    normalizedName = normalizedName.replace(/^@[^-]+-\s*/, '');
+                    // Trim any extra whitespace
+                    normalizedName = normalizedName.trim();
+                    
+                    // If we haven't seen this normalized name before, or if the current name is shorter
+                    // (prefer "Minor Boys" over "@MAGHERY - Minor Boys")
+                    if (!teamsMap.has(normalizedName) || match.Team.length < teamsMap.get(normalizedName).length) {
+                        teamsMap.set(normalizedName, match.Team);
+                    }
                 }
             });
             
+            console.log('Normalized teams map:', teamsMap);
+            
             // Convert to array and sort
-            const sortedTeams = Array.from(uniqueTeams).sort();
-            console.log('Unique sorted teams:', sortedTeams);
+            const uniqueTeams = Array.from(teamsMap.values()).sort((a, b) => {
+                // Custom sort function to group by age group
+                const ageGroupOrder = {
+                    'Senior': 1,
+                    'Minor': 2,
+                    'U16': 3,
+                    'U14': 4,
+                    'U12': 5,
+                    'U10': 6,
+                    'U8': 7,
+                    'U6': 8,
+                    'Tots': 9
+                };
+                
+                // Extract age group from team name
+                const getAgeGroup = (name) => {
+                    for (const [group, order] of Object.entries(ageGroupOrder)) {
+                        if (name.includes(group)) return order;
+                    }
+                    return 999; // Default order for unknown age groups
+                };
+                
+                const orderA = getAgeGroup(a);
+                const orderB = getAgeGroup(b);
+                
+                // First sort by age group
+                if (orderA !== orderB) return orderA - orderB;
+                
+                // Then sort alphabetically within same age group
+                return a.localeCompare(b);
+            });
+            
+            console.log('Unique sorted teams:', uniqueTeams);
             
             // Add team options
-            sortedTeams.forEach(team => {
+            uniqueTeams.forEach(team => {
                 const option = document.createElement('option');
                 option.value = team;
-                option.textContent = team;
+                // Display the normalized version of the team name
+                option.textContent = team.replace(/^@[^-]+-\s*/, '').replace(/\s*\(\*\*.*\*\*\)\s*$/, '').trim();
                 teamFilter.appendChild(option);
             });
             
-            // Initialize with 'all' teams selected - only call updateTeamStats once
-            if (teamFilter.value === 'all') {
-                updateTeamStats('all');
-            }
+            // Initialize with 'all' teams selected
+            updateTeamStats('all');
         }
-
+        
+        // Initialize sidebar toggle functionality
         function initSidebarToggle() {
             console.log('Initializing sidebar toggle...');
             const sidebar = document.querySelector('.sidebar');
@@ -2779,12 +2810,18 @@ END:VCALENDAR`;
             const overlay = document.querySelector('.sidebar-overlay');
             
             if (!sidebar || !hamburgerMenu || !overlay) {
-                console.error('Required sidebar elements not found');
+                console.error('Required sidebar elements not found:', { 
+                    sidebar: !!sidebar, 
+                    hamburgerMenu: !!hamburgerMenu, 
+                    overlay: !!overlay 
+                });
                 return;
             }
             
             // Initialize sidebar state based on screen size
             const isMobile = window.innerWidth <= 992;
+            console.log('Initial screen size check:', { isMobile, width: window.innerWidth });
+            
             if (isMobile) {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
@@ -2796,101 +2833,176 @@ END:VCALENDAR`;
             hamburgerMenu.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Hamburger menu clicked');
-                sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
-            });
-            
+                        console.log('Hamburger menu clicked');
+                        sidebar.classList.toggle('active');
+                        overlay.classList.toggle('active');
+                    });
+                
             // Overlay click handler
             overlay.addEventListener('click', () => {
-                console.log('Overlay clicked');
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
+                    console.log('Overlay clicked');
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
             });
             
             // Window resize handler
             window.addEventListener('resize', () => {
                 const isMobile = window.innerWidth <= 992;
+                console.log('Window resized:', { isMobile, width: window.innerWidth });
+                
                 if (isMobile) {
                     sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                } else {
+                        overlay.classList.remove('active');
+                    } else {
                     sidebar.classList.add('active');
                 }
             });
             
-            // Initialize team filter only
-            populateSidebarTeamFilter();
+            // Initialize team filter and stats
+                populateSidebarTeamFilter();
+                updateTeamStats('all');
         }
-
-        function updateTeamStats(teamName) {
-            console.log('Updating team stats for:', teamName);
+        
+        // Initialize search functionality with autocomplete
+        function initSearchAutocomplete() {
+            console.log('=== initSearchAutocomplete START ===');
+            const searchInput = document.getElementById('searchInput');
+            console.log('Search input element:', searchInput);
             
-            // Get stats elements
-            const totalMatches = document.getElementById('totalMatches');
-            const wins = document.getElementById('wins');
-            const losses = document.getElementById('losses');
-            const draws = document.getElementById('draws');
-            const upcomingMatches = document.getElementById('upcomingMatches');
-            
-            if (!totalMatches || !wins || !losses || !draws || !upcomingMatches) {
-                console.error('Stats elements not found!');
+            if (!searchInput) {
+                console.error('Search input element not found!');
                 return;
             }
             
-            // Initialize stats
-            let stats = {
-                total: 0,
-                wins: 0,
-                losses: 0,
-                draws: 0,
-                upcoming: 0
-            };
+            // Remove any existing suggestions container
+            const existingSuggestions = document.querySelector('.autocomplete-suggestions');
+            if (existingSuggestions) {
+                console.log('Removing existing suggestions container');
+                existingSuggestions.remove();
+            }
             
-            // Track processed matches to prevent double counting
-            const processedMatches = new Set();
+            const suggestionsContainer = document.createElement('div');
+            suggestionsContainer.className = 'autocomplete-suggestions';
+            searchInput.parentNode.appendChild(suggestionsContainer);
+            console.log('Created new suggestions container');
             
-            // Filter and count matches
+            let currentFocus = -1;
+            
+            // Create a list of all searchable terms
+            const searchableTerms = new Set();
+            console.log('Building searchable terms from matches...');
+            
             matches.forEach(match => {
-                // Skip if already processed or if it's a training session
-                if (match.isTraining || processedMatches.has(match['Fixture ID'])) {
+                if (match.Team) searchableTerms.add(match.Team);
+                if (match['Home Team']) searchableTerms.add(match['Home Team']);
+                if (match['Away Team']) searchableTerms.add(match['Away Team']);
+                if (match.Competition) searchableTerms.add(match.Competition);
+                if (match.Venue) searchableTerms.add(match.Venue);
+                if (match.Round) searchableTerms.add(match.Round);
+            });
+            
+            console.log('Total searchable terms:', searchableTerms.size);
+            
+            // Add input event listener with debounce for suggestions
+            searchInput.addEventListener('input', debounce(function() {
+                console.log('=== Search Input Event ===');
+                const val = (this.value || '').toLowerCase().trim();
+                console.log('Current input value:', val);
+                
+                suggestionsContainer.innerHTML = '';
+                
+                if (val.length < 2) {
+                    console.log('Input too short, hiding suggestions');
+                    suggestionsContainer.style.display = 'none';
+                    displayMatches(); // Update display when search is cleared
                     return;
                 }
                 
-                // Add to processed set
-                processedMatches.add(match['Fixture ID']);
+                const matchingTerms = Array.from(searchableTerms)
+                    .filter(term => term && term.toLowerCase().includes(val))
+                    .slice(0, 5);
                 
-                // Check if match involves selected team
-                const matchInvolvesTeam = teamName === 'all' || 
-                    (match.Team && match.Team.includes(teamName));
+                console.log('Matching suggestions:', matchingTerms);
                 
-                if (matchInvolvesTeam) {
-                    if (!match.Result || match.Result === '---') {
-                        stats.upcoming++;
-                    } else {
-                        stats.total++;
-                        switch(match.Result.toLowerCase()) {
-                            case 'win':
-                                stats.wins++;
-                                break;
-                            case 'loss':
-                                stats.losses++;
-                                break;
-                            case 'draw':
-                                stats.draws++;
-                                break;
-                        }
+                if (matchingTerms.length > 0) {
+                    matchingTerms.forEach(term => {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-suggestion';
+                        div.innerHTML = term;
+                        div.addEventListener('click', function() {
+                            console.log('Suggestion clicked:', term);
+                            searchInput.value = term;
+                            suggestionsContainer.style.display = 'none';
+                            displayMatches();
+                        });
+                        suggestionsContainer.appendChild(div);
+                    });
+                    suggestionsContainer.style.display = 'block';
+                } else {
+                    console.log('No matching suggestions found');
+                    suggestionsContainer.style.display = 'none';
+                }
+                
+                displayMatches(); // Update display with search results
+                currentFocus = -1;
+            }, 300));
+            
+            // Add keyboard navigation
+            searchInput.addEventListener('keydown', function(e) {
+                console.log('=== Keyboard Event ===');
+                console.log('Key pressed:', e.key);
+                
+                const suggestions = suggestionsContainer.getElementsByClassName('autocomplete-suggestion');
+                console.log('Current suggestions count:', suggestions.length);
+                
+                if (suggestions.length > 0) {
+                    if (e.key === 'ArrowDown') {
+                        currentFocus++;
+                        if (currentFocus >= suggestions.length) currentFocus = 0;
+                        setActiveSuggestion(suggestions);
+                    } else if (e.key === 'ArrowUp') {
+                        currentFocus--;
+                        if (currentFocus < 0) currentFocus = suggestions.length - 1;
+                        setActiveSuggestion(suggestions);
+                    } else if (e.key === 'Enter' && currentFocus > -1) {
+                        e.preventDefault();
+                        const selectedTerm = suggestions[currentFocus].textContent;
+                        console.log('Selected suggestion:', selectedTerm);
+                        searchInput.value = selectedTerm;
+                        suggestionsContainer.style.display = 'none';
+                        displayMatches();
                     }
                 }
             });
             
-            // Update DOM
-            console.log('Final stats:', stats);
-            totalMatches.textContent = stats.total;
-            wins.textContent = stats.wins;
-            losses.textContent = stats.losses;
-            draws.textContent = stats.draws;
-            upcomingMatches.textContent = stats.upcoming;
+            function setActiveSuggestion(suggestions) {
+                console.log('Setting active suggestion, current focus:', currentFocus);
+                Array.from(suggestions).forEach((s, i) => {
+                    s.classList.remove('active');
+                    if (i === currentFocus) s.classList.add('active');
+                });
+            }
+            
+            // Close suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                    console.log('Click outside search area, hiding suggestions');
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
+            
+            // Add reset search button handler
+            const resetSearchBtn = document.getElementById('resetSearch');
+            if (resetSearchBtn) {
+                resetSearchBtn.addEventListener('click', () => {
+                    console.log('Reset search clicked');
+                    searchInput.value = '';
+                    suggestionsContainer.style.display = 'none';
+                    displayMatches();
+                });
+            }
+            
+            console.log('=== initSearchAutocomplete END ===');
         }
 
         // Start the app when the DOM is loaded
@@ -3363,6 +3475,12 @@ END:VCALENDAR`;
             populateSidebarTeamFilter();
         }
 
+        // Remove any other DOMContentLoaded listeners and use just this one
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing...');
+            init().catch(error => console.error('Initialization error:', error));
+        });
+
         // Function to create Google Calendar URL
         function createCalendarUrl(match, title, location) {
             const params = new URLSearchParams({
@@ -3528,147 +3646,149 @@ END:VCALENDAR`;
             });
         }
 
-        // Initialize search functionality with autocomplete
-        function initSearchAutocomplete() {
-            console.log('=== initSearchAutocomplete START ===');
-            const searchInput = document.getElementById('searchInput');
-            console.log('Search input element:', searchInput);
+        function updateTeamStats(teamName) {
+            console.log('Updating team stats for:', teamName);
+            const stats = {
+                total: 0,
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                upcoming: 0
+            };
             
-            if (!searchInput) {
-                console.error('Search input element not found!');
+            // Get all matches for the selected team (excluding training events)
+            const teamMatches = teamName === 'all' 
+                ? matches.filter(match => !match.isTraining)
+                : matches.filter(match => match.Team === teamName && !match.isTraining);
+            
+            console.log('Filtered matches for stats:', teamMatches);
+            
+            // Count each match only once
+            teamMatches.forEach(match => {
+                stats.total++;
+                
+                if (match.Result === 'WIN') {
+                    stats.wins++;
+                } else if (match.Result === 'LOSS') {
+                    stats.losses++;
+                } else if (match.Result === 'DRAW') {
+                    stats.draws++;
+                } else if (match.Result === '---' || !match.Result) {
+                    stats.upcoming++;
+                }
+            });
+            
+            console.log('Calculated stats:', stats);
+            
+            // Update sidebar stats
+            const totalCount = document.getElementById('sidebarTotalCount');
+            const winCount = document.getElementById('sidebarWinCount');
+            const lossCount = document.getElementById('sidebarLossCount');
+            const drawCount = document.getElementById('sidebarDrawCount');
+            const upcomingCount = document.getElementById('sidebarUpcomingCount');
+            
+            if (totalCount) totalCount.textContent = stats.total;
+            if (winCount) winCount.textContent = stats.wins;
+            if (lossCount) lossCount.textContent = stats.losses;
+            if (drawCount) drawCount.textContent = stats.draws;
+            if (upcomingCount) upcomingCount.textContent = stats.upcoming;
+            
+            // Update upcoming matches and training sessions in the sidebar
+            updateUpcomingMatches(teamName);
+            updateUpcomingTraining(teamName);
+        }
+
+        function populateSidebarTeamFilter() {
+            console.log('Populating sidebar team filter');
+            const teamFilter = document.getElementById('sidebarTeamFilter');
+            
+            if (!teamFilter) {
+                console.error('Team filter element not found');
                 return;
             }
             
-            // Remove any existing suggestions container
-            const existingSuggestions = document.querySelector('.autocomplete-suggestions');
-            if (existingSuggestions) {
-                console.log('Removing existing suggestions container');
-                existingSuggestions.remove();
+            // Clear existing options except the first one
+            while (teamFilter.options.length > 1) {
+                teamFilter.remove(1);
             }
             
-            const suggestionsContainer = document.createElement('div');
-            suggestionsContainer.className = 'autocomplete-suggestions';
-            searchInput.parentNode.appendChild(suggestionsContainer);
-            console.log('Created new suggestions container');
-            
-            let currentFocus = -1;
-            
-            // Create a list of all searchable terms
-            const searchableTerms = new Set();
-            console.log('Building searchable terms from matches...');
-            
+            // Get unique teams and normalize them
+            const teamsMap = new Map(); // Use a map to store normalized team name -> original team name
             matches.forEach(match => {
-                if (match.Team) searchableTerms.add(match.Team);
-                if (match['Home Team']) searchableTerms.add(match['Home Team']);
-                if (match['Away Team']) searchableTerms.add(match['Away Team']);
-                if (match.Competition) searchableTerms.add(match.Competition);
-                if (match.Venue) searchableTerms.add(match.Venue);
-                if (match.Round) searchableTerms.add(match.Round);
-            });
-            
-            console.log('Total searchable terms:', searchableTerms.size);
-            
-            // Add input event listener with debounce for suggestions
-            searchInput.addEventListener('input', debounce(function() {
-                console.log('=== Search Input Event ===');
-                const val = (this.value || '').toLowerCase().trim();
-                console.log('Current input value:', val);
-                
-                suggestionsContainer.innerHTML = '';
-                
-                if (val.length < 2) {
-                    console.log('Input too short, hiding suggestions');
-                    suggestionsContainer.style.display = 'none';
-                    displayMatches(); // Update display when search is cleared
-                    return;
-                }
-                
-                const matchingTerms = Array.from(searchableTerms)
-                    .filter(term => term && term.toLowerCase().includes(val))
-                    .slice(0, 5);
-                
-                console.log('Matching suggestions:', matchingTerms);
-                
-                if (matchingTerms.length > 0) {
-                    matchingTerms.forEach(term => {
-                        const div = document.createElement('div');
-                        div.className = 'autocomplete-suggestion';
-                        div.innerHTML = term;
-                        div.addEventListener('click', function() {
-                            console.log('Suggestion clicked:', term);
-                            searchInput.value = term;
-                            suggestionsContainer.style.display = 'none';
-                            displayMatches();
-                        });
-                        suggestionsContainer.appendChild(div);
-                    });
-                    suggestionsContainer.style.display = 'block';
-                } else {
-                    console.log('No matching suggestions found');
-                    suggestionsContainer.style.display = 'none';
-                }
-                
-                displayMatches(); // Update display with search results
-                currentFocus = -1;
-            }, 300));
-            
-            // Add keyboard navigation
-            searchInput.addEventListener('keydown', function(e) {
-                console.log('=== Keyboard Event ===');
-                console.log('Key pressed:', e.key);
-                
-                const suggestions = suggestionsContainer.getElementsByClassName('autocomplete-suggestion');
-                console.log('Current suggestions count:', suggestions.length);
-                
-                if (suggestions.length > 0) {
-                    if (e.key === 'ArrowDown') {
-                        currentFocus++;
-                        if (currentFocus >= suggestions.length) currentFocus = 0;
-                        setActiveSuggestion(suggestions);
-                    } else if (e.key === 'ArrowUp') {
-                        currentFocus--;
-                        if (currentFocus < 0) currentFocus = suggestions.length - 1;
-                        setActiveSuggestion(suggestions);
-                    } else if (e.key === 'Enter' && currentFocus > -1) {
-                        e.preventDefault();
-                        const selectedTerm = suggestions[currentFocus].textContent;
-                        console.log('Selected suggestion:', selectedTerm);
-                        searchInput.value = selectedTerm;
-                        suggestionsContainer.style.display = 'none';
-                        displayMatches();
+                if (match.Team) {
+                    // Remove venue annotations like "(** Main Pitch **)"
+                    let normalizedName = match.Team.replace(/\s*\(\*\*.*\*\*\)\s*$/, '');
+                    // Remove location prefixes like "@MAGHERY - "
+                    normalizedName = normalizedName.replace(/^@[^-]+-\s*/, '');
+                    // Trim any extra whitespace
+                    normalizedName = normalizedName.trim();
+                    
+                    // If we haven't seen this normalized name before, or if the current name is shorter
+                    // (prefer "Minor Boys" over "@MAGHERY - Minor Boys")
+                    if (!teamsMap.has(normalizedName) || match.Team.length < teamsMap.get(normalizedName).length) {
+                        teamsMap.set(normalizedName, match.Team);
                     }
                 }
             });
             
-            function setActiveSuggestion(suggestions) {
-                console.log('Setting active suggestion, current focus:', currentFocus);
-                Array.from(suggestions).forEach((s, i) => {
-                    s.classList.remove('active');
-                    if (i === currentFocus) s.classList.add('active');
-                });
-            }
+            console.log('Normalized teams map:', teamsMap);
             
-            // Close suggestions when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
-                    console.log('Click outside search area, hiding suggestions');
-                    suggestionsContainer.style.display = 'none';
-                }
+            // Convert to array and sort
+            const uniqueTeams = Array.from(teamsMap.values()).sort((a, b) => {
+                // Custom sort function to group by age group
+                const ageGroupOrder = {
+                    'Senior': 1,
+                    'Minor': 2,
+                    'U16': 3,
+                    'U14': 4,
+                    'U12': 5,
+                    'U10': 6,
+                    'U8': 7,
+                    'U6': 8,
+                    'Tots': 9
+                };
+                
+                // Extract age group from team name
+                const getAgeGroup = (name) => {
+                    for (const [group, order] of Object.entries(ageGroupOrder)) {
+                        if (name.includes(group)) return order;
+                    }
+                    return 999; // Default order for unknown age groups
+                };
+                
+                const orderA = getAgeGroup(a);
+                const orderB = getAgeGroup(b);
+                
+                // First sort by age group
+                if (orderA !== orderB) return orderA - orderB;
+                
+                // Then sort alphabetically within same age group
+                return a.localeCompare(b);
             });
             
-            // Add reset search button handler
-            const resetSearchBtn = document.getElementById('resetSearch');
-            if (resetSearchBtn) {
-                resetSearchBtn.addEventListener('click', () => {
-                    console.log('Reset search clicked');
-                    searchInput.value = '';
-                    suggestionsContainer.style.display = 'none';
-                    displayMatches();
-                });
-            }
+            console.log('Unique sorted teams:', uniqueTeams);
             
-            console.log('=== initSearchAutocomplete END ===');
+            // Add team options
+            uniqueTeams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                // Display the normalized version of the team name
+                option.textContent = team.replace(/^@[^-]+-\s*/, '').replace(/\s*\(\*\*.*\*\*\)\s*$/, '').trim();
+                teamFilter.appendChild(option);
+            });
+            
+            // Initialize with 'all' teams selected
+            updateTeamStats('all');
         }
+
+        // Initialize everything when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing components');
+            datePickerInstance = initializeDatePicker();
+            initSidebarToggle();
+            populateSidebarTeamFilter();
+            // ... existing initialization code ...
+        });
 
         // Enhanced date handling functions
         function parseDate(dateStr) {
@@ -3766,19 +3886,13 @@ END:VCALENDAR`;
                 return;
             }
             
-            // Create Date objects for min and max dates
-            const minDate = new Date('2024-01-01T00:00:00');
-            const maxDate = new Date('2025-12-31T23:59:59');
-            
-            console.log('Date range limits:', { minDate, maxDate });
-            
             // Configure flatpickr
             datePickerInstance = flatpickr(dateRange, {
                 mode: "range",
                 dateFormat: "D M d Y",
                 allowInput: true,
-                minDate: minDate,
-                maxDate: maxDate,
+                minDate: "2024-01-01",
+                maxDate: "2025-12-31",
                 defaultHour: 0,
                 enableTime: false,
                 disableMobile: false,
