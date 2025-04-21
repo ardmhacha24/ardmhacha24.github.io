@@ -93,11 +93,11 @@
             transition: transform 0.3s ease-in-out;
             overflow-y: auto;
             padding: 20px;
-            transform: translateX(-100%); /* Start hidden by default */
+            transform: translateX(-100%);
         }
         
         .sidebar.active {
-            transform: translateX(0); /* Show when active */
+            transform: translateX(0);
         }
         
         .sidebar-overlay {
@@ -120,36 +120,36 @@
         
         /* Hamburger Menu Styles */
         .hamburger-menu {
-            display: block;
-            cursor: pointer;
-            padding: 10px;
-            z-index: 1001;
             background: none;
             border: none;
             color: white;
-        }
-        
-        .hamburger-menu i {
             font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+            z-index: 1001;
         }
         
         @media (min-width: 993px) {
             .sidebar {
-                transform: translateX(0); /* Always visible on desktop */
+                transform: translateX(0);
             }
             
             .hamburger-menu {
-                display: none; /* Hide hamburger on desktop */
+                display: none;
+            }
+            
+            .content-area {
+                margin-left: 300px;
             }
         }
         
         @media (max-width: 992px) {
             .sidebar {
-                transform: translateX(-100%); /* Hidden by default on mobile */
+                transform: translateX(-100%);
             }
             
-            .hamburger-menu {
-                display: block; /* Show hamburger on mobile */
+            .sidebar.active {
+                transform: translateX(0);
             }
             
             .main-content {
