@@ -1867,7 +1867,7 @@
         
         // Initialize the application
         async function init() {
-            console.log('Initializing application...');
+            console.log('=== init START ===');
             try {
                 // Initialize empty matches array
                 matches = [];
@@ -1882,25 +1882,6 @@
                     console.log('DOM fully loaded');
                 }
                 
-                // Initialize UI first without filters
-                console.log('Initializing UI...');
-                initializeUI();
-                console.log('UI initialized');
-                
-                // Add toggle event listeners
-                const showMatchesToggle = document.getElementById('showMatches');
-                const showTrainingToggle = document.getElementById('showTraining');
-                
-                showMatchesToggle.addEventListener('change', () => {
-                    console.log('Matches toggle changed:', showMatchesToggle.checked);
-                    displayMatches();
-                });
-                
-                showTrainingToggle.addEventListener('change', () => {
-                    console.log('Training toggle changed:', showTrainingToggle.checked);
-                    displayMatches();
-                });
-                
                 // Fetch matches from worker
                 console.log('Starting to fetch matches from worker...');
                 const workerMatches = await fetchMatchesFromWorker();
@@ -1913,12 +1894,14 @@
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
                 
+                // Initialize UI after data is loaded
+                console.log('Initializing UI...');
+                initializeUI();
+                
                 // Initialize search functionality
                 console.log('Initializing search functionality...');
                 initSearchAutocomplete();
                 
-                // Display matches
-                displayMatches();
                 console.log('Initialization complete. Final match count:', matches.length);
                 
             } catch (error) {
@@ -1931,6 +1914,7 @@
                     </div>
                 `;
             }
+            console.log('=== init END ===');
         }
         
         // Separate UI initialization
@@ -1947,19 +1931,25 @@
             }
             
             // Initialize match/training toggles
-            const showMatchesToggle = document.getElementById('showMatchesToggle');
-            const showTrainingToggle = document.getElementById('showTrainingToggle');
+            const showMatchesToggle = document.getElementById('showMatches');
+            const showTrainingToggle = document.getElementById('showTraining');
             
             if (showMatchesToggle) {
                 showMatchesToggle.addEventListener('change', function() {
-                        displayMatches();
+                    console.log('Matches toggle changed:', this.checked);
+                    displayMatches();
                 });
+            } else {
+                console.error('Matches toggle element not found');
             }
             
             if (showTrainingToggle) {
                 showTrainingToggle.addEventListener('change', function() {
+                    console.log('Training toggle changed:', this.checked);
                     displayMatches();
                 });
+            } else {
+                console.error('Training toggle element not found');
             }
             
             // Initialize date picker
@@ -1989,17 +1979,24 @@
         function filterMatches() {
             console.log('=== filterMatches START ===');
             const searchInput = document.getElementById('searchInput');
-            const showMatches = document.getElementById('showMatches').checked;
-            const showTraining = document.getElementById('showTraining').checked;
+            const showMatches = document.getElementById('showMatches');
+            const showTraining = document.getElementById('showTraining');
+            
+            if (!showMatches || !showTraining) {
+                console.error('Toggle elements not found:', { showMatches, showTraining });
+                return matches;
+            }
             
             let filteredMatches = matches;
             
             // Apply type filters first
             filteredMatches = filteredMatches.filter(match => {
-                if (!showMatches && !match.isTraining) return false;
-                if (!showTraining && match.isTraining) return false;
+                if (!showMatches.checked && !match.isTraining) return false;
+                if (!showTraining.checked && match.isTraining) return false;
                 return true;
             });
+            
+            console.log('After type filters:', filteredMatches.length);
             
             // Apply search filter if there's a query
             if (searchInput && searchInput.value) {
@@ -2018,31 +2015,29 @@
                     
                     return searchableText.includes(searchQuery);
                 });
+                console.log('After search filter:', filteredMatches.length);
+            }
+            
+            // Get date range safely
+            let dateRange = null;
+            const dateRangeInput = document.getElementById('dateRange');
+            if (dateRangeInput && dateRangeInput._flatpickr && dateRangeInput._flatpickr.selectedDates.length > 0) {
+                dateRange = dateRangeInput._flatpickr.selectedDates;
             }
             
             // Apply date range filter if selected
-            if (datePickerInstance && datePickerInstance.selectedDates.length === 2) {
-                const [startDate, endDate] = datePickerInstance.selectedDates;
-                console.log('Filtering by date range:', { startDate, endDate });
+            if (dateRange && dateRange.length === 2) {
+                const startDate = dateRange[0];
+                const endDate = dateRange[1];
                 
                 filteredMatches = filteredMatches.filter(match => {
                     const matchDate = parseDate(match.Date);
-                    if (!matchDate) return false;
-                    
-                    // Set the match date to the start of day for comparison
-                    matchDate.setHours(0, 0, 0, 0);
-                    
-                    // Create comparison dates at start and end of day
-                    const compareStart = new Date(startDate);
-                    compareStart.setHours(0, 0, 0, 0);
-                    const compareEnd = new Date(endDate);
-                    compareEnd.setHours(23, 59, 59, 999);
-                    
-                    return matchDate >= compareStart && matchDate <= compareEnd;
+                    return matchDate >= startDate && matchDate <= endDate;
                 });
+                console.log('After date filter:', filteredMatches.length);
             }
             
-            console.log('Filtered matches count:', filteredMatches.length);
+            console.log('=== filterMatches END ===');
             return filteredMatches;
         }
         
@@ -3450,19 +3445,25 @@ END:VCALENDAR`;
             }
             
             // Initialize match/training toggles
-            const showMatchesToggle = document.getElementById('showMatchesToggle');
-            const showTrainingToggle = document.getElementById('showTrainingToggle');
+            const showMatchesToggle = document.getElementById('showMatches');
+            const showTrainingToggle = document.getElementById('showTraining');
             
             if (showMatchesToggle) {
                 showMatchesToggle.addEventListener('change', function() {
-                        displayMatches();
+                    console.log('Matches toggle changed:', this.checked);
+                    displayMatches();
                 });
+            } else {
+                console.error('Matches toggle element not found');
             }
             
             if (showTrainingToggle) {
                 showTrainingToggle.addEventListener('change', function() {
+                    console.log('Training toggle changed:', this.checked);
                     displayMatches();
                 });
+            } else {
+                console.error('Training toggle element not found');
             }
             
             // Initialize date picker
