@@ -2474,7 +2474,10 @@ END:VCALENDAR`;
         
         // Function to update team statistics in the sidebar
         function updateTeamStats(teamName) {
-            console.log('Updating team stats for:', teamName);
+            console.log('==========================================');
+            console.log(`Calculating stats for team: ${teamName}`);
+            console.log('==========================================');
+            
             const stats = {
                 total: 0,
                 wins: 0,
@@ -2491,13 +2494,25 @@ END:VCALENDAR`;
                 ? matches.filter(match => !match.isTraining)
                 : matches.filter(match => {
                     // Only include actual matches (not training)
-                    if (match.isTraining) return false;
+                    if (match.isTraining) {
+                        console.log('Skipping training event:', match);
+                        return false;
+                    }
                     
                     // Check if this team is either home or away team
-                    return match['Home Team'].includes(teamName) || match['Away Team'].includes(teamName);
+                    const isInvolved = match['Home Team'].includes(teamName) || match['Away Team'].includes(teamName);
+                    if (isInvolved) {
+                        console.log('Found match for team:', {
+                            date: match.Date,
+                            home: match['Home Team'],
+                            away: match['Away Team'],
+                            result: match.Result
+                        });
+                    }
+                    return isInvolved;
                 });
             
-            console.log('Filtered matches for stats:', teamMatches.length);
+            console.log(`Found ${teamMatches.length} total matches for team`);
             
             // Process each match only once
             teamMatches.forEach(match => {
@@ -2506,7 +2521,7 @@ END:VCALENDAR`;
                 
                 // Skip if we've already counted this match
                 if (processedMatches.has(matchId)) {
-                    console.log('Skipping duplicate match:', matchId);
+                    console.log('DUPLICATE - Skipping match:', matchId);
                     return;
                 }
                 
@@ -2518,27 +2533,47 @@ END:VCALENDAR`;
                 
                 if (!match.Result || match.Result === '---') {
                     stats.upcoming++;
+                    console.log('Counted as UPCOMING:', {
+                        date: match.Date,
+                        home: match['Home Team'],
+                        away: match['Away Team']
+                    });
                 } else {
                     // Check if this team won the match
                     const isHomeTeam = match['Home Team'].includes(teamName);
                     
+                    console.log('Processing result for match:', {
+                        date: match.Date,
+                        home: match['Home Team'],
+                        away: match['Away Team'],
+                        result: match.Result,
+                        isHomeTeam: isHomeTeam
+                    });
+                    
                     if (match.Result === 'WIN' && isHomeTeam) {
                         stats.wins++;
+                        console.log('Counted as WIN (home team won)');
                     } else if (match.Result === 'LOSS' && !isHomeTeam) {
                         stats.wins++;
+                        console.log('Counted as WIN (away team won)');
                     } else if (match.Result === 'LOSS' && isHomeTeam) {
                         stats.losses++;
+                        console.log('Counted as LOSS (home team lost)');
                     } else if (match.Result === 'WIN' && !isHomeTeam) {
                         stats.losses++;
+                        console.log('Counted as LOSS (away team lost)');
                     } else if (match.Result === 'DRAW') {
                         stats.draws++;
+                        console.log('Counted as DRAW');
                     } else {
                         console.warn('Unknown match result:', match.Result);
                     }
                 }
             });
             
-            console.log('Calculated stats:', stats);
+            console.log('==========================================');
+            console.log('Final stats:', stats);
+            console.log('==========================================');
             
             // Update sidebar stats
             const totalCount = document.getElementById('sidebarTotalCount');
