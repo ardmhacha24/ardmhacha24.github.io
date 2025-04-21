@@ -2382,10 +2382,21 @@ END:VCALENDAR`;
                 : matches.filter(match => match.Team === teamName);
             
             // Filter upcoming training sessions
+            // Add a Set to track unique training sessions
+            const seenTraining = new Set();
             const upcomingTraining = teamMatches
-                .filter(match => match.isTraining)
+                .filter(match => {
+                    if (!match.isTraining) return false;
+                    // Create a unique identifier for each training session
+                    const trainingId = `${match.Date}-${match.Time}-${match.Team}-${match.Venue}`;
+                    if (seenTraining.has(trainingId)) {
+                        return false;
+                    }
+                    seenTraining.add(trainingId);
+                    return true;
+                })
                 .sort((a, b) => parseDate(a.Date) - parseDate(b.Date))
-                .slice(0, 3);
+                .slice(0, 5); // Increased from 3 to 5
             
             const upcomingTrainingList = document.getElementById('upcomingTrainingList');
             upcomingTrainingList.innerHTML = '';
@@ -2414,8 +2425,22 @@ END:VCALENDAR`;
                 : matches.filter(match => match.Team === teamName);
             
             // Filter upcoming matches (excluding training events)
+            // Add a Set to track unique match identifiers
+            const seenMatches = new Set();
             const upcomingMatches = teamMatches
-                .filter(match => !match.isTraining && (!match.Result || match.Result === '---'))
+                .filter(match => {
+                    if (match.isTraining) return false;
+                    if (!match.Result || match.Result === '---') {
+                        // Create a unique identifier for each match
+                        const matchId = `${match.Date}-${match.Time}-${match['Home Team']}-${match['Away Team']}`;
+                        if (seenMatches.has(matchId)) {
+                            return false;
+                        }
+                        seenMatches.add(matchId);
+                        return true;
+                    }
+                    return false;
+                })
                 .sort((a, b) => parseDate(a.Date) - parseDate(b.Date))
                 .slice(0, 3);
             
