@@ -117,12 +117,6 @@ async function fetchCalendarEvents(calendarId, accessToken) {
         end: event.end.dateTime
       });
 
-      // Extract team name and clean it up
-      const teamName = event.summary
-        .split('@')[0]  // Split on @ and take first part
-        .split('(')[0]  // Split on ( and take first part
-        .trim();        // Remove any extra whitespace
-
       // Simply extract the hour and minute from the ISO string
       // The time in the ISO string is already in the correct timezone (+01:00)
       const getTimeFromDateTime = (dateTimeStr) => {
@@ -134,13 +128,13 @@ async function fetchCalendarEvents(calendarId, accessToken) {
 
       // Determine location based on summary
       let location = "Training Pitch"; // Default location
-      if (event.summary && event.summary.toLowerCase().includes("main pitch")) {
+      if (event.summary && event.summary.includes("Main Pitch")) {
         location = "Main Pitch";
       }
 
       return {
         id: event.id,
-        summary: teamName,  // Use cleaned team name
+        summary: event.summary,
         location: location,
         description: event.description,
         start: {

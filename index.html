@@ -320,150 +320,16 @@
         
         .controls {
             background: white;
-            padding: 0.25rem;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            margin-bottom: 0.25rem;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
             position: sticky;
             top: 0;
             z-index: 10;
             transition: all 0.3s ease;
-        }
-
-        .filter-container {
             display: flex;
             flex-direction: column;
-            gap: 0.15rem;
-        }
-
-        .search-row {
-            display: flex;
-            gap: 0.15rem;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 0;
-        }
-
-        .search-group {
-            flex: 2;
-            min-width: 200px;
-            display: flex;
-            gap: 0.25rem;
-            align-items: center;
-        }
-
-        .search-input-wrapper {
-            position: relative;
-            flex: 1;
-        }
-
-        .search-input-wrapper input {
-            width: 100%;
-            padding: 0.15rem 0.25rem 0.15rem 1.4rem;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 0.85rem;
-            height: 26px;
-        }
-
-        .search-input-wrapper i {
-            position: absolute;
-            left: 0.5rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--light-text);
-            font-size: 0.85rem;
-        }
-
-        .date-range-group {
-            flex: 1;
-            min-width: 150px;
-            display: flex;
-            gap: 0.25rem;
-            align-items: center;
-        }
-
-        .date-range-input {
-            height: 26px;
-            padding: 0.15rem 0.25rem;
-        }
-
-        .reset-btn {
-            background-color: var(--light-bg);
-            color: var(--text);
-            border: 1px solid var(--border);
-            padding: 0;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 26px;
-            height: 26px;
-            transition: all 0.2s ease;
-        }
-
-        .reset-btn:hover {
-            background-color: var(--border);
-        }
-
-        .filter-row {
-            display: flex;
-            align-items: center;
-            padding: 0;
-            margin: 0;
-        }
-
-        .toggle-group {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .toggle-label {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .toggle-label input[type="checkbox"] {
-            width: 13px;
-            height: 13px;
-            cursor: pointer;
-            margin: 0;
-        }
-
-        .toggle-text {
-            font-size: 0.8rem;
-            color: var(--text);
-        }
-
-        .controls.collapsed {
-            padding: 0.5rem;
-        }
-
-        .controls.collapsed .filter-row {
-            display: none;
-        }
-
-        .controls.collapsed .search-row {
-            margin-bottom: 0;
-        }
-
-        @media (max-width: 768px) {
-            .search-row {
-                flex-direction: column;
-            }
-
-            .search-group, .date-range-group {
-                width: 100%;
-            }
-
-            .filter-row {
-                justify-content: flex-start;
-            }
         }
 
         .controls-toggle {
@@ -496,6 +362,12 @@
 
         .controls.collapsed .controls-toggle i {
             transform: rotate(180deg);
+        }
+
+        .controls.collapsed {
+            padding: 0.5rem;
+            max-height: 60px;
+            overflow: hidden;
         }
 
         .controls.collapsed .filter-row {
@@ -1504,7 +1376,6 @@
             </div>
             
             <div class="team-stats">
-                <h3>Match Statistics</h3>
                 <div class="team-stat-item">
                     <i class="fas fa-trophy stat-icon"></i>
                     <span class="team-stat-label">Total Matches</span>
@@ -1538,23 +1409,15 @@
                     <!-- Upcoming matches will be populated here -->
                 </div>
             </div>
-
-            <div class="team-upcoming">
-                <h3>Next 5 Training Sessions</h3>
-                <div id="upcomingTrainingList">
-                    <!-- Upcoming training sessions will be populated here -->
-                </div>
-            </div>
         </div>
         
         <div class="content-area">
         <div class="controls">
-            <div class="filter-container">
                 <div class="search-row">
                     <div class="search-group">
                         <div class="search-input-wrapper">
                             <i class="fas fa-search"></i>
-                            <input type="text" id="searchInput" placeholder="Search matches, teams or competitions...">
+                        <input type="text" id="searchInput" placeholder="Search matches, teams or competitions...">
                         </div>
                         <button class="reset-btn" id="resetSearch" title="Reset search">
                             <i class="fas fa-times"></i>
@@ -1568,6 +1431,8 @@
                     </div>
                 </div>
                 <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Show:</label>
                         <div class="toggle-group">
                             <label class="toggle-label">
                                 <input type="checkbox" id="showMatches" checked>
@@ -1580,9 +1445,6 @@
                         </div>
                     </div>
                 </div>
-            <button class="controls-toggle">
-                <i class="fas fa-chevron-up"></i>
-                </button>
         </div>
         
         <div id="matchContainer" class="match-list">
@@ -1610,33 +1472,17 @@
         // Function to format date in a more readable format
         function formatDate(dateStr) {
             console.log('Formatting date:', dateStr);
-            
-            try {
-                let date;
-                if (dateStr instanceof Date) {
-                    date = dateStr;
-                } else {
-                    date = parseDate(dateStr);
-                }
-                
-                if (!date) {
-                    console.error('Could not parse date:', dateStr);
-                    return '';
-                }
-                
-                const formatted = date.toLocaleDateString('en-GB', {
+            if (typeof dateStr === 'string') {
+                dateStr = parseDate(dateStr);
+            }
+            const formatted = dateStr.toLocaleDateString('en-GB', {
                 weekday: 'short',
                 day: 'numeric',
                 month: 'short',
                 year: '2-digit'
             }).replace(/,/g, '');
-                
             console.log('Formatted date:', formatted);
             return formatted;
-            } catch (error) {
-                console.error('Error formatting date:', error);
-                return '';
-            }
         }
         
         // Extract unique teams, competitions for filters
@@ -1867,7 +1713,7 @@
         
         // Initialize the application
         async function init() {
-            console.log('=== init START ===');
+            console.log('Initializing application...');
             try {
                 // Initialize empty matches array
                 matches = [];
@@ -1882,6 +1728,25 @@
                     console.log('DOM fully loaded');
                 }
                 
+                // Initialize UI first without filters
+                console.log('Initializing UI...');
+                initializeUI();
+                console.log('UI initialized');
+                
+                // Add toggle event listeners
+                const showMatchesToggle = document.getElementById('showMatches');
+                const showTrainingToggle = document.getElementById('showTraining');
+                
+                showMatchesToggle.addEventListener('change', () => {
+                    console.log('Matches toggle changed:', showMatchesToggle.checked);
+                    displayMatches();
+                });
+                
+                showTrainingToggle.addEventListener('change', () => {
+                    console.log('Training toggle changed:', showTrainingToggle.checked);
+                    displayMatches();
+                });
+                
                 // Fetch matches from worker
                 console.log('Starting to fetch matches from worker...');
                 const workerMatches = await fetchMatchesFromWorker();
@@ -1894,14 +1759,12 @@
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
                 
-                // Initialize UI after data is loaded
-                console.log('Initializing UI...');
-                initializeUI();
-                
                 // Initialize search functionality
                 console.log('Initializing search functionality...');
                 initSearchAutocomplete();
                 
+                // Display matches
+                displayMatches();
                 console.log('Initialization complete. Final match count:', matches.length);
                 
             } catch (error) {
@@ -1914,52 +1777,33 @@
                     </div>
                 `;
             }
-            console.log('=== init END ===');
         }
         
         // Separate UI initialization
         function initializeUI() {
-            console.log('Initializing UI components');
-            
-            // Initialize team filter in sidebar
-            const teamFilter = document.getElementById('sidebarTeamFilter');
-            if (teamFilter) {
-                teamFilter.addEventListener('change', function() {
-                    console.log('Team filter changed to:', this.value);
-                    updateTeamStats(this.value);
+            try {
+                console.log('Initializing UI...');
+                
+                // Initialize date picker
+                flatpickr("#dateRange", {
+                    mode: "range",
+                    dateFormat: "D M d Y",
+                    onChange: function(selectedDates) {
+                        displayMatches();
+                    }
                 });
+                
+                // Initialize sidebar
+                initSidebarToggle();
+                
+                // Display initial matches
+                displayMatches();
+                
+                console.log('UI initialization complete');
+            } catch (error) {
+                console.error('Error initializing UI:', error);
+                throw error;
             }
-            
-            // Initialize match/training toggles
-            const showMatchesToggle = document.getElementById('showMatches');
-            const showTrainingToggle = document.getElementById('showTraining');
-            
-            if (showMatchesToggle) {
-                showMatchesToggle.addEventListener('change', function() {
-                    console.log('Matches toggle changed:', this.checked);
-                    displayMatches();
-                });
-            } else {
-                console.error('Matches toggle element not found');
-            }
-            
-            if (showTrainingToggle) {
-                showTrainingToggle.addEventListener('change', function() {
-                    console.log('Training toggle changed:', this.checked);
-                    displayMatches();
-                });
-            } else {
-                console.error('Training toggle element not found');
-            }
-            
-            // Initialize date picker
-            initializeDatePicker();
-            
-            // Initialize search autocomplete
-            initSearchAutocomplete();
-            
-            // Initialize team filter
-            populateSidebarTeamFilter();
         }
         
         // Debounce function to limit search input processing
@@ -1979,28 +1823,42 @@
         function filterMatches() {
             console.log('=== filterMatches START ===');
             const searchInput = document.getElementById('searchInput');
-            const showMatches = document.getElementById('showMatches');
-            const showTraining = document.getElementById('showTraining');
+            const showMatches = document.getElementById('showMatches').checked;
+            const showTraining = document.getElementById('showTraining').checked;
             
-            if (!showMatches || !showTraining) {
-                console.error('Toggle elements not found:', { showMatches, showTraining });
+            console.log('Filter settings:', { showMatches, showTraining });
+            
+            if (!searchInput) {
+                console.error('Search input element not found!');
                 return matches;
             }
             
-            let filteredMatches = matches;
+            const searchQuery = (searchInput.value || '').toLowerCase().trim();
+            console.log('Current search query:', searchQuery);
             
-            // Apply type filters first
-            filteredMatches = filteredMatches.filter(match => {
-                if (!showMatches.checked && !match.isTraining) return false;
-                if (!showTraining.checked && match.isTraining) return false;
+            // Get date range safely
+            let dateRange = null;
+            const dateRangeInput = document.getElementById('dateRange');
+            console.log('Date range input element:', dateRangeInput);
+            
+            if (dateRangeInput && dateRangeInput._flatpickr && dateRangeInput._flatpickr.selectedDates.length > 0) {
+                dateRange = dateRangeInput._flatpickr.selectedDates;
+                console.log('Selected date range:', dateRange);
+            }
+            
+            console.log('Total matches before filtering:', matches.length);
+            
+            // First apply type filters (matches/training)
+            let filteredMatches = matches.filter(match => {
+                if (!showMatches && !match.isTraining) return false;
+                if (!showTraining && match.isTraining) return false;
                 return true;
             });
+                
+            console.log('Matches after type filtering:', filteredMatches.length);
             
-            console.log('After type filters:', filteredMatches.length);
-            
-            // Apply search filter if there's a query
-            if (searchInput && searchInput.value) {
-                const searchQuery = searchInput.value.toLowerCase().trim();
+            // Then apply search filter if there's a search query
+                if (searchQuery) {
                 filteredMatches = filteredMatches.filter(match => {
                     const searchableText = [
                         match.Competition || '',
@@ -2009,34 +1867,28 @@
                         match['Away Team'] || '',
                         match.Venue || '',
                         match.Round || '',
-                        formatDate(match.Date) || '',
+                        match.Date || '',
                         match.Time || ''
                     ].join(' ').toLowerCase();
                     
                     return searchableText.includes(searchQuery);
-                });
-                console.log('After search filter:', filteredMatches.length);
-            }
-            
-            // Get date range safely
-            let dateRange = null;
-            const dateRangeInput = document.getElementById('dateRange');
-            if (dateRangeInput && dateRangeInput._flatpickr && dateRangeInput._flatpickr.selectedDates.length > 0) {
-                dateRange = dateRangeInput._flatpickr.selectedDates;
-            }
-            
-            // Apply date range filter if selected
-            if (dateRange && dateRange.length === 2) {
-                const startDate = dateRange[0];
-                const endDate = dateRange[1];
+                    });
+                console.log('Matches after search filtering:', filteredMatches.length);
+                }
                 
+            // Finally apply date range filter if selected
+                if (dateRange && dateRange.length === 2) {
                 filteredMatches = filteredMatches.filter(match => {
                     const matchDate = parseDate(match.Date);
+                    const startDate = dateRange[0];
+                    const endDate = dateRange[1];
+                    
                     return matchDate >= startDate && matchDate <= endDate;
                 });
-                console.log('After date filter:', filteredMatches.length);
+                console.log('Matches after date range filtering:', filteredMatches.length);
             }
             
+            console.log('Total matches after all filtering:', filteredMatches.length);
             console.log('=== filterMatches END ===');
             return filteredMatches;
         }
@@ -2045,45 +1897,22 @@
         function parseDate(dateStr) {
             console.log('Parsing date string:', dateStr);
             
-            // Handle empty or invalid input
-            if (!dateStr) {
-                console.warn('Empty date string provided');
-                return null;
-            }
-            
-            try {
             // Check if the date is in the format "Mon 31 Mar 25"
-                const formatOne = /^[A-Za-z]{3}\s+\d{1,2}\s+[A-Za-z]{3}\s+\d{2}$/;
+            const formatOne = /^[A-Za-z]{3} \d{1,2} [A-Za-z]{3} \d{2}$/;
             if (formatOne.test(dateStr)) {
             const parts = dateStr.split(' ');
-                    const day = parseInt(parts[1], 10);
+            const day = parseInt(parts[1]);
             const month = getMonthNumber(parts[2]);
-                    const year = 2000 + parseInt(parts[3], 10);
+            const year = 2000 + parseInt(parts[3]);
                 const date = new Date(year, month, day);
-                    
-                    // Validate the parsed date
-                    if (isNaN(date.getTime())) {
-                        console.error('Invalid date created from parts:', { day, month, year });
-                        return null;
-                    }
-                    
                 console.log('Parsed date (format one):', date);
                 return date;
             }
             
-                // Handle ISO format or other standard date strings
+            // Otherwise, assume it's a standard date string
             const date = new Date(dateStr);
-                if (isNaN(date.getTime())) {
-                    console.error('Invalid date string:', dateStr);
-                    return null;
-                }
-                
             console.log('Parsed date (standard):', date);
             return date;
-            } catch (error) {
-                console.error('Error parsing date:', error);
-                return null;
-            }
         }
         
         function getMonthNumber(monthStr) {
@@ -2487,10 +2316,7 @@ END:VCALENDAR`;
         
         // Function to update team statistics in the sidebar
         function updateTeamStats(teamName) {
-            console.log('==========================================');
-            console.log(`Calculating stats for team: ${teamName}`);
-            console.log('==========================================');
-            
+            console.log('Updating team stats for:', teamName);
             const stats = {
                 total: 0,
                 wins: 0,
@@ -2499,102 +2325,29 @@ END:VCALENDAR`;
                 upcoming: 0
             };
             
-            // Create a Set to track unique match IDs to prevent double counting
-            const processedFixtureIds = new Set();
-            
-            // Get all matches for the selected team (excluding training events)
+            // Get all matches for the selected team
             const teamMatches = teamName === 'all' 
-                ? matches.filter(match => !match.isTraining)
-                : matches.filter(match => {
-                    // Only include actual matches (not training)
-                    if (match.isTraining) {
-                        console.log('Skipping training event:', match);
-                        return false;
-                    }
-                    
-                    // Check if this team is either home or away team
-                    const isInvolved = match['Home Team'].includes(teamName) || match['Away Team'].includes(teamName);
-                    if (isInvolved) {
-                        console.log('Found match for team:', {
-                            date: match.Date,
-                            home: match['Home Team'],
-                            away: match['Away Team'],
-                            result: match.Result,
-                            fixtureId: match['Fixture ID']
-                        });
-                    }
-                    return isInvolved;
-                });
+                ? matches 
+                : matches.filter(match => match.Team === teamName);
             
-            console.log(`Found ${teamMatches.length} total matches for team`);
+            console.log('Filtered matches for stats:', teamMatches);
             
-            // Process each match only once
+            // Count each match only once
             teamMatches.forEach(match => {
-                // Use Fixture ID as the unique identifier
-                const fixtureId = match['Fixture ID'];
-                
-                // Skip if we've already counted this match
-                if (processedFixtureIds.has(fixtureId)) {
-                    console.log('DUPLICATE - Skipping match:', {
-                        fixtureId: fixtureId,
-                        date: match.Date,
-                        home: match['Home Team'],
-                        away: match['Away Team']
-                    });
-                    return;
-                }
-                
-                // Mark this match as processed
-                processedFixtureIds.add(fixtureId);
-                
-                // Count the match
                 stats.total++;
                 
-                if (!match.Result || match.Result === '---') {
-                    stats.upcoming++;
-                    console.log('Counted as UPCOMING:', {
-                        fixtureId: fixtureId,
-                        date: match.Date,
-                        home: match['Home Team'],
-                        away: match['Away Team']
-                    });
-                } else {
-                    // Check if this team won the match
-                    const isHomeTeam = match['Home Team'].includes(teamName);
-                    
-                    console.log('Processing result for match:', {
-                        fixtureId: fixtureId,
-                        date: match.Date,
-                        home: match['Home Team'],
-                        away: match['Away Team'],
-                        result: match.Result,
-                        isHomeTeam: isHomeTeam
-                    });
-                    
-                    if (match.Result === 'WIN' && isHomeTeam) {
+                if (match.Result === 'WIN') {
                     stats.wins++;
-                        console.log('Counted as WIN (home team won)');
-                    } else if (match.Result === 'LOSS' && !isHomeTeam) {
-                        stats.wins++;
-                        console.log('Counted as WIN (away team won)');
-                    } else if (match.Result === 'LOSS' && isHomeTeam) {
+                } else if (match.Result === 'LOSS') {
                     stats.losses++;
-                        console.log('Counted as LOSS (home team lost)');
-                    } else if (match.Result === 'WIN' && !isHomeTeam) {
-                        stats.losses++;
-                        console.log('Counted as LOSS (away team lost)');
                 } else if (match.Result === 'DRAW') {
                     stats.draws++;
-                        console.log('Counted as DRAW');
-                    } else {
-                        console.warn('Unknown match result:', match.Result);
-                    }
+                } else if (match.Result === '---' || !match.Result) {
+                    stats.upcoming++;
                 }
             });
             
-            console.log('==========================================');
-            console.log('Final stats:', stats);
-            console.log('==========================================');
+            console.log('Calculated stats:', stats);
             
             // Update sidebar stats
             const totalCount = document.getElementById('sidebarTotalCount');
@@ -2609,87 +2362,19 @@ END:VCALENDAR`;
             if (drawCount) drawCount.textContent = stats.draws;
             if (upcomingCount) upcomingCount.textContent = stats.upcoming;
             
-            // Update upcoming matches and training sessions in the sidebar
+            // Update upcoming matches in the sidebar
             updateUpcomingMatches(teamName);
-            updateUpcomingTraining(teamName);
         }
         
-        // Function to update upcoming training sessions
-        function updateUpcomingTraining(teamName) {
-            console.log('Updating training sessions for:', teamName);
-            
-            const teamMatches = teamName === 'all' 
-                ? matches.filter(match => match.isTraining)
-                : matches.filter(match => match.Team === teamName && match.isTraining);
-            
-            // Filter upcoming training sessions
-            const seenTraining = new Set();
-            const upcomingTraining = teamMatches
-                .filter(match => {
-                    // Create a unique identifier for each training session
-                    const trainingId = `${match.Date}-${match.Time}-${match.Team}-${match.Venue}`;
-                    if (seenTraining.has(trainingId)) {
-                        return false;
-                    }
-                    seenTraining.add(trainingId);
-                    return true;
-                })
-                .sort((a, b) => parseDate(a.Date) - parseDate(b.Date))
-                .slice(0, 5);
-            
-            const upcomingTrainingList = document.getElementById('upcomingTrainingList');
-            if (!upcomingTrainingList) {
-                console.error('Training list element not found');
-                return;
-            }
-            
-            upcomingTrainingList.innerHTML = '';
-            
-            if (upcomingTraining.length === 0) {
-                upcomingTrainingList.innerHTML = '<p>No upcoming training sessions</p>';
-                return;
-            }
-            
-            console.log('Found training sessions:', upcomingTraining.length);
-            
-            upcomingTraining.forEach(session => {
-                const sessionElement = document.createElement('div');
-                sessionElement.className = 'upcoming-match training';
-                sessionElement.innerHTML = `
-                    <div class="upcoming-match-date">${formatDate(session.Date)}</div>
-                    <div class="upcoming-match-teams">${session.Team}</div>
-                    <div class="upcoming-match-venue">${session.Venue} - ${session.Time}</div>
-                `;
-                upcomingTrainingList.appendChild(sessionElement);
-            });
-        }
-        
-        // Update the updateUpcomingMatches function to also use unique match tracking
+        // Function to update upcoming matches in the sidebar
         function updateUpcomingMatches(teamName) {
-            const processedMatches = new Set();
-            
             const teamMatches = teamName === 'all' 
                 ? matches 
                 : matches.filter(match => match.Team === teamName);
             
-            // Filter upcoming matches (excluding training events and duplicates)
+            // Filter upcoming matches
             const upcomingMatches = teamMatches
-                .filter(match => {
-                    if (match.isTraining) return false;
-                    if (match.Result && match.Result !== '---') return false;
-                    
-                    // Create a unique identifier for the match
-                    const matchId = `${match.Date}-${match.Time}-${match['Home Team']}-${match['Away Team']}`;
-                    
-                    // Skip if we've already seen this match
-                    if (processedMatches.has(matchId)) {
-                        return false;
-                    }
-                    
-                    // Mark this match as processed
-                    processedMatches.add(matchId);
-                    return true;
-                })
+                .filter(match => !match.Result || match.Result === '---')
                 .sort((a, b) => parseDate(a.Date) - parseDate(b.Date))
                 .slice(0, 3);
             
@@ -2728,69 +2413,26 @@ END:VCALENDAR`;
                 teamFilter.remove(1);
             }
             
-            // Get unique teams and normalize them
-            const teamsMap = new Map(); // Use a map to store normalized team name -> original team name
+            // Get unique teams
+            const teams = new Set();
             matches.forEach(match => {
-                if (match.Team) {
-                    // Remove venue annotations like "(** Main Pitch **)"
-                    let normalizedName = match.Team.replace(/\s*\(\*\*.*\*\*\)\s*$/, '');
-                    // Remove location prefixes like "@MAGHERY - "
-                    normalizedName = normalizedName.replace(/^@[^-]+-\s*/, '');
-                    // Trim any extra whitespace
-                    normalizedName = normalizedName.trim();
-                    
-                    // If we haven't seen this normalized name before, or if the current name is shorter
-                    // (prefer "Minor Boys" over "@MAGHERY - Minor Boys")
-                    if (!teamsMap.has(normalizedName) || match.Team.length < teamsMap.get(normalizedName).length) {
-                        teamsMap.set(normalizedName, match.Team);
-                    }
-                }
+                if (match.Team) teams.add(match.Team);
             });
             
-            console.log('Normalized teams map:', teamsMap);
-            
-            // Convert to array and sort
-            const uniqueTeams = Array.from(teamsMap.values()).sort((a, b) => {
-                // Custom sort function to group by age group
-                const ageGroupOrder = {
-                    'Senior': 1,
-                    'Minor': 2,
-                    'U16': 3,
-                    'U14': 4,
-                    'U12': 5,
-                    'U10': 6,
-                    'U8': 7,
-                    'U6': 8,
-                    'Tots': 9
-                };
-                
-                // Extract age group from team name
-                const getAgeGroup = (name) => {
-                    for (const [group, order] of Object.entries(ageGroupOrder)) {
-                        if (name.includes(group)) return order;
-                    }
-                    return 999; // Default order for unknown age groups
-                };
-                
-                const orderA = getAgeGroup(a);
-                const orderB = getAgeGroup(b);
-                
-                // First sort by age group
-                if (orderA !== orderB) return orderA - orderB;
-                
-                // Then sort alphabetically within same age group
-                return a.localeCompare(b);
-            });
-            
-            console.log('Unique sorted teams:', uniqueTeams);
+            console.log('Found teams:', Array.from(teams));
             
             // Add team options
-            uniqueTeams.forEach(team => {
+            Array.from(teams).sort().forEach(team => {
                 const option = document.createElement('option');
                 option.value = team;
-                // Display the normalized version of the team name
-                option.textContent = team.replace(/^@[^-]+-\s*/, '').replace(/\s*\(\*\*.*\*\*\)\s*$/, '').trim();
+                option.textContent = team;
                 teamFilter.appendChild(option);
+            });
+            
+            // Add change event listener
+            teamFilter.addEventListener('change', function() {
+                console.log('Team filter changed to:', this.value);
+                updateTeamStats(this.value);
             });
             
             // Initialize with 'all' teams selected
@@ -3433,47 +3075,48 @@ END:VCALENDAR`;
 
         // Separate UI initialization
         function initializeUI() {
-            console.log('Initializing UI components');
-            
-            // Initialize team filter in sidebar
-            const teamFilter = document.getElementById('sidebarTeamFilter');
-            if (teamFilter) {
-                teamFilter.addEventListener('change', function() {
-                    console.log('Team filter changed to:', this.value);
-                    updateTeamStats(this.value);
+            try {
+                console.log('Initializing UI...');
+                
+                // Initialize date picker
+                flatpickr("#dateRange", {
+                    mode: "range",
+                    dateFormat: "D M d Y",
+                    onChange: function(selectedDates) {
+                        displayMatches();
+                    }
                 });
+                
+                // Initialize sidebar
+                initSidebarToggle();
+                
+                // Add toggle event listeners
+                const showMatchesToggle = document.getElementById('showMatches');
+                const showTrainingToggle = document.getElementById('showTraining');
+                
+                if (showMatchesToggle && showTrainingToggle) {
+                    showMatchesToggle.addEventListener('change', () => {
+                        console.log('Matches toggle changed:', showMatchesToggle.checked);
+                        displayMatches();
+                    });
+                    
+                    showTrainingToggle.addEventListener('change', () => {
+                        console.log('Training toggle changed:', showTrainingToggle.checked);
+                        displayMatches();
+                    });
+                }
+                
+                // Populate team filter and initialize stats
+                populateSidebarTeamFilter();
+                
+                // Display initial matches
+                displayMatches();
+                
+                console.log('UI initialization complete');
+            } catch (error) {
+                console.error('Error initializing UI:', error);
+                throw error;
             }
-            
-            // Initialize match/training toggles
-            const showMatchesToggle = document.getElementById('showMatches');
-            const showTrainingToggle = document.getElementById('showTraining');
-            
-            if (showMatchesToggle) {
-                showMatchesToggle.addEventListener('change', function() {
-                    console.log('Matches toggle changed:', this.checked);
-                    displayMatches();
-                });
-            } else {
-                console.error('Matches toggle element not found');
-            }
-            
-            if (showTrainingToggle) {
-                showTrainingToggle.addEventListener('change', function() {
-                    console.log('Training toggle changed:', this.checked);
-                    displayMatches();
-                });
-            } else {
-                console.error('Training toggle element not found');
-            }
-            
-            // Initialize date picker
-            initializeDatePicker();
-            
-            // Initialize search autocomplete
-            initSearchAutocomplete();
-            
-            // Initialize team filter
-            populateSidebarTeamFilter();
         }
 
         // Remove any other DOMContentLoaded listeners and use just this one
@@ -3657,10 +3300,10 @@ END:VCALENDAR`;
                 upcoming: 0
             };
             
-            // Get all matches for the selected team (excluding training events)
+            // Get all matches for the selected team
             const teamMatches = teamName === 'all' 
-                ? matches.filter(match => !match.isTraining)
-                : matches.filter(match => match.Team === teamName && !match.isTraining);
+                ? matches 
+                : matches.filter(match => match.Team === teamName);
             
             console.log('Filtered matches for stats:', teamMatches);
             
@@ -3694,9 +3337,8 @@ END:VCALENDAR`;
             if (drawCount) drawCount.textContent = stats.draws;
             if (upcomingCount) upcomingCount.textContent = stats.upcoming;
             
-            // Update upcoming matches and training sessions in the sidebar
+            // Update upcoming matches in the sidebar
             updateUpcomingMatches(teamName);
-            updateUpcomingTraining(teamName);
         }
 
         function populateSidebarTeamFilter() {
@@ -3713,69 +3355,26 @@ END:VCALENDAR`;
                 teamFilter.remove(1);
             }
             
-            // Get unique teams and normalize them
-            const teamsMap = new Map(); // Use a map to store normalized team name -> original team name
+            // Get unique teams
+            const teams = new Set();
             matches.forEach(match => {
-                if (match.Team) {
-                    // Remove venue annotations like "(** Main Pitch **)"
-                    let normalizedName = match.Team.replace(/\s*\(\*\*.*\*\*\)\s*$/, '');
-                    // Remove location prefixes like "@MAGHERY - "
-                    normalizedName = normalizedName.replace(/^@[^-]+-\s*/, '');
-                    // Trim any extra whitespace
-                    normalizedName = normalizedName.trim();
-                    
-                    // If we haven't seen this normalized name before, or if the current name is shorter
-                    // (prefer "Minor Boys" over "@MAGHERY - Minor Boys")
-                    if (!teamsMap.has(normalizedName) || match.Team.length < teamsMap.get(normalizedName).length) {
-                        teamsMap.set(normalizedName, match.Team);
-                    }
-                }
+                if (match.Team) teams.add(match.Team);
             });
             
-            console.log('Normalized teams map:', teamsMap);
-            
-            // Convert to array and sort
-            const uniqueTeams = Array.from(teamsMap.values()).sort((a, b) => {
-                // Custom sort function to group by age group
-                const ageGroupOrder = {
-                    'Senior': 1,
-                    'Minor': 2,
-                    'U16': 3,
-                    'U14': 4,
-                    'U12': 5,
-                    'U10': 6,
-                    'U8': 7,
-                    'U6': 8,
-                    'Tots': 9
-                };
-                
-                // Extract age group from team name
-                const getAgeGroup = (name) => {
-                    for (const [group, order] of Object.entries(ageGroupOrder)) {
-                        if (name.includes(group)) return order;
-                    }
-                    return 999; // Default order for unknown age groups
-                };
-                
-                const orderA = getAgeGroup(a);
-                const orderB = getAgeGroup(b);
-                
-                // First sort by age group
-                if (orderA !== orderB) return orderA - orderB;
-                
-                // Then sort alphabetically within same age group
-                return a.localeCompare(b);
-            });
-            
-            console.log('Unique sorted teams:', uniqueTeams);
+            console.log('Found teams:', Array.from(teams));
             
             // Add team options
-            uniqueTeams.forEach(team => {
+            Array.from(teams).sort().forEach(team => {
                 const option = document.createElement('option');
                 option.value = team;
-                // Display the normalized version of the team name
-                option.textContent = team.replace(/^@[^-]+-\s*/, '').replace(/\s*\(\*\*.*\*\*\)\s*$/, '').trim();
+                option.textContent = team;
                 teamFilter.appendChild(option);
+            });
+            
+            // Add change event listener
+            teamFilter.addEventListener('change', function() {
+                console.log('Team filter changed to:', this.value);
+                updateTeamStats(this.value);
             });
             
             // Initialize with 'all' teams selected
@@ -3785,235 +3384,10 @@ END:VCALENDAR`;
         // Initialize everything when the DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM loaded, initializing components');
-            datePickerInstance = initializeDatePicker();
             initSidebarToggle();
             populateSidebarTeamFilter();
             // ... existing initialization code ...
         });
-
-        // Enhanced date handling functions
-        function parseDate(dateStr) {
-            console.log('Parsing date string:', dateStr);
-            
-            // Handle empty or invalid input
-            if (!dateStr) {
-                console.warn('Empty date string provided');
-                return null;
-            }
-            
-            try {
-                // Check if the date is in the format "Mon 31 Mar 25"
-                const formatOne = /^[A-Za-z]{3}\s+\d{1,2}\s+[A-Za-z]{3}\s+\d{2}$/;
-                if (formatOne.test(dateStr)) {
-                    const parts = dateStr.split(' ');
-                    const day = parseInt(parts[1], 10);
-                    const month = getMonthNumber(parts[2]);
-                    const year = 2000 + parseInt(parts[3], 10);
-                    const date = new Date(year, month, day);
-                    
-                    // Validate the parsed date
-                    if (isNaN(date.getTime())) {
-                        console.error('Invalid date created from parts:', { day, month, year });
-                        return null;
-                    }
-                    
-                    console.log('Parsed date (format one):', date);
-                    return date;
-                }
-                
-                // Handle ISO format or other standard date strings
-                const date = new Date(dateStr);
-                if (isNaN(date.getTime())) {
-                    console.error('Invalid date string:', dateStr);
-                    return null;
-                }
-                
-                console.log('Parsed date (standard):', date);
-                return date;
-            } catch (error) {
-                console.error('Error parsing date:', error);
-                return null;
-            }
-        }
-
-        function formatDate(dateStr) {
-            console.log('Formatting date:', dateStr);
-            
-            try {
-                let date;
-                if (dateStr instanceof Date) {
-                    date = dateStr;
-                } else {
-                    date = parseDate(dateStr);
-                }
-                
-                if (!date) {
-                    console.error('Could not parse date:', dateStr);
-                    return '';
-                }
-                
-                const formatted = date.toLocaleDateString('en-GB', {
-                    weekday: 'short',
-                    day: 'numeric',
-                    month: 'short',
-                    year: '2-digit'
-                }).replace(/,/g, '');
-                
-                console.log('Formatted date:', formatted);
-                return formatted;
-            } catch (error) {
-                console.error('Error formatting date:', error);
-                return '';
-            }
-        }
-
-        function getMonthNumber(monthStr) {
-            const months = {
-                'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
-                'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
-            };
-            return months[monthStr];
-        }
-
-        // Initialize date picker with enhanced functionality
-        function initializeDatePicker() {
-            console.log('Initializing date picker...');
-            
-            const dateRange = document.getElementById('dateRange');
-            const resetDateBtn = document.getElementById('resetDate');
-            
-            if (!dateRange || !resetDateBtn) {
-                console.error('Date picker elements not found');
-                return;
-            }
-            
-            // Configure flatpickr
-            datePickerInstance = flatpickr(dateRange, {
-                mode: "range",
-                dateFormat: "D M d Y",
-                allowInput: true,
-                minDate: "Mon Jan 1 2025",
-                maxDate: "Wed Dec 31 2025",
-                defaultHour: 0,
-                enableTime: false,
-                disableMobile: false,
-                locale: {
-                    firstDayOfWeek: 1
-                },
-                // Don't update on individual date selections
-                onChange: function(selectedDates, dateStr, instance) {
-                    console.log('Date selection changed:', { selectedDates, dateStr });
-                    // Don't do anything here - wait for onClose
-                },
-                onOpen: function(selectedDates, dateStr, instance) {
-                    // Store the current dates before opening
-                    instance.previousDates = selectedDates.length ? [...selectedDates] : [];
-                    console.log('Stored previous dates:', instance.previousDates);
-                },
-                onClose: function(selectedDates, dateStr, instance) {
-                    console.log('Date picker closed with dates:', selectedDates);
-                    
-                    // If no dates are selected, keep previous selection or clear
-                    if (selectedDates.length === 0) {
-                        if (instance.previousDates && instance.previousDates.length) {
-                            instance.setDate(instance.previousDates, false);
-                            selectedDates = instance.previousDates;
-                        }
-                    }
-                    
-                    // Handle single date selection
-                    if (selectedDates.length === 1) {
-                        // Set the same date as both start and end
-                        const selectedDate = new Date(selectedDates[0]);
-                        const endDate = new Date(selectedDates[0]);
-                        endDate.setHours(23, 59, 59, 999);
-                        instance.setDate([selectedDate, endDate], false);
-                        selectedDates = [selectedDate, endDate];
-                    }
-                    
-                    // Handle complete range selection
-                    if (selectedDates.length === 2) {
-                        // Ensure end date is set to end of day
-                        selectedDates[1].setHours(23, 59, 59, 999);
-                        instance.setDate(selectedDates, false);
-                        
-                        console.log('Final date range:', {
-                            start: selectedDates[0],
-                            end: selectedDates[1]
-                        });
-                    }
-                    
-                    // Only update display if we have a valid selection
-                    if (selectedDates.length === 2) {
-                        // Store the dates in the instance
-                        instance.selectedStartDate = selectedDates[0];
-                        instance.selectedEndDate = selectedDates[1];
-                        
-                        // Update the display
-                        displayMatches();
-                        
-                        // Scroll to the first match in range
-                        scrollToFirstMatchInRange(selectedDates);
-                    }
-                }
-            });
-            
-            // Reset date range handler
-            resetDateBtn.addEventListener('click', () => {
-                console.log('Resetting date range');
-                if (datePickerInstance) {
-                    datePickerInstance.clear();
-                    datePickerInstance.setDate([], false);
-                    datePickerInstance.selectedStartDate = null;
-                    datePickerInstance.selectedEndDate = null;
-                }
-                displayMatches();
-                scrollToTodayMarker();
-            });
-            
-            console.log('Date picker initialized');
-            return datePickerInstance;
-        }
-
-        // Function to scroll to the first match within selected date range
-        function scrollToFirstMatchInRange(selectedDates) {
-            if (!selectedDates || selectedDates.length !== 2) return;
-            
-            console.log('Scrolling to first match in range');
-            
-            // Add a small delay to ensure the DOM has updated
-            setTimeout(() => {
-                const startDate = selectedDates[0];
-                const endDate = selectedDates[1];
-                
-                // Find the first date header within the range
-                const dateHeaders = document.querySelectorAll('.date-header');
-                let firstMatchHeader = null;
-                
-                dateHeaders.forEach(header => {
-                    if (firstMatchHeader) return;
-                    
-                    const headerDate = parseDate(header.textContent);
-                    if (headerDate && headerDate >= startDate && headerDate <= endDate) {
-                        firstMatchHeader = header;
-                    }
-                });
-                
-                if (firstMatchHeader) {
-                    console.log('Scrolling to date header:', firstMatchHeader.textContent);
-                    firstMatchHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }, 100);
-        }
-
-        // Function to scroll to today's marker
-        function scrollToTodayMarker() {
-            console.log('Scrolling to today marker');
-            const todayMarker = document.querySelector('.today-marker');
-            if (todayMarker) {
-                todayMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
     </script>
 </body>
 </html>
