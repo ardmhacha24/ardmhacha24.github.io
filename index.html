@@ -2772,6 +2772,12 @@ END:VCALENDAR`;
                 return;
             }
             
+            // Add direct event listener for search input
+            searchInput.addEventListener('input', debounce(function() {
+                console.log('Search input changed:', this.value);
+                displayMatches();
+            }, 300));
+            
             // Remove any existing suggestions container
             const existingSuggestions = document.querySelector('.autocomplete-suggestions');
             if (existingSuggestions) {
@@ -2802,7 +2808,7 @@ END:VCALENDAR`;
             console.log('Total searchable terms:', searchableTerms.size);
             console.log('Searchable terms:', Array.from(searchableTerms));
             
-            // Add input event listener with debounce
+            // Add input event listener with debounce for suggestions
             searchInput.addEventListener('input', debounce(function() {
                 console.log('=== Search Input Event ===');
                 const val = this.value.toLowerCase().trim();
@@ -2813,7 +2819,6 @@ END:VCALENDAR`;
                 if (val.length < 2) {
                     console.log('Input too short, hiding suggestions');
                     suggestionsContainer.style.display = 'none';
-                    displayMatches(); // Update display even with short input
                     return;
                 }
                 
@@ -2843,7 +2848,6 @@ END:VCALENDAR`;
                 }
                 
                 currentFocus = -1;
-                displayMatches(); // Update display with current search
             }, 300));
             
             // Add keyboard navigation
