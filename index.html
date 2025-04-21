@@ -1636,75 +1636,81 @@
             console.log('Displaying matches...');
             const filteredMatches = filterMatches();
             const matchContainer = document.getElementById('matchContainer');
-            matchContainer.innerHTML = '';
+            
+            // Create a document fragment to batch DOM operations
+            const fragment = document.createDocumentFragment();
             
             if (filteredMatches.length === 0) {
-                matchContainer.innerHTML = `
-                    <div class="no-results">
-                        <p><b>LOADING......</b></p>
-                        <p>No matches found for the selected filters.</p>
-                        <p>Try changing your filter options.</p>
-                    </div>
+                const noResults = document.createElement('div');
+                noResults.className = 'no-results';
+                noResults.innerHTML = `
+                    <p><b>LOADING......</b></p>
+                    <p>No matches found for the selected filters.</p>
+                    <p>Try changing your filter options.</p>
                 `;
-                return;
+                fragment.appendChild(noResults);
+            } else {
+                // Group matches by date
+                const groupedMatches = groupMatchesByDate(filteredMatches);
+                
+                // Sort dates chronologically
+                const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
+                    const dateA = parseDate(a);
+                    const dateB = parseDate(b);
+                    return dateA - dateB;
+                });
+                
+                // Get today's date for comparison
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                // Create a container for today's date marker
+                const todayMarker = document.createElement('div');
+                todayMarker.className = 'today-marker';
+                todayMarker.innerHTML = '<span>Today</span>';
+                todayMarker.style.display = 'none';
+                
+                // Loop through dates and matches
+                sortedDates.forEach(date => {
+                    const dateHeader = document.createElement('div');
+                    dateHeader.className = 'date-header';
+                    dateHeader.textContent = formatDate(date);
+                    fragment.appendChild(dateHeader);
+                    
+                    // First display matches
+                    groupedMatches[date].matches.forEach(match => {
+                        const matchCard = createMatchCard(match);
+                        fragment.appendChild(matchCard);
+                    });
+                    
+                    // Then display training events
+                    groupedMatches[date].training.forEach(match => {
+                        const matchCard = createMatchCard(match);
+                        fragment.appendChild(matchCard);
+                    });
+                    
+                    // Insert today marker after the appropriate date
+                    const currentDate = parseDate(date);
+                    if (currentDate <= today && 
+                        (!sortedDates[sortedDates.indexOf(date) + 1] || 
+                         parseDate(sortedDates[sortedDates.indexOf(date) + 1]) > today)) {
+                        fragment.appendChild(todayMarker.cloneNode(true));
+                    }
+                });
             }
             
-            // Group matches by date
-            const groupedMatches = groupMatchesByDate(filteredMatches);
+            // Clear the container and append the fragment in one operation
+            matchContainer.innerHTML = '';
+            matchContainer.appendChild(fragment);
             
-            // Sort dates chronologically
-            const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
-                const dateA = parseDate(a);
-                const dateB = parseDate(b);
-                return dateA - dateB;
-            });
-                
-            // Get today's date for comparison
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-                
-            // Create a container for today's date marker
-            const todayMarker = document.createElement('div');
-            todayMarker.className = 'today-marker';
-            todayMarker.innerHTML = '<span>Today</span>';
-            todayMarker.style.display = 'none'; // Initially hidden
-            
-            // Loop through dates and matches
-            sortedDates.forEach(date => {
-                const dateHeader = document.createElement('div');
-                dateHeader.className = 'date-header';
-                dateHeader.textContent = formatDate(date);
-                matchContainer.appendChild(dateHeader);
-                
-                // First display matches
-                groupedMatches[date].matches.forEach(match => {
-                    const matchCard = createMatchCard(match);
-                    matchContainer.appendChild(matchCard);
-                });
-                
-                // Then display training events
-                groupedMatches[date].training.forEach(match => {
-                    const matchCard = createMatchCard(match);
-                    matchContainer.appendChild(matchCard);
-                });
-                
-                // Insert today marker after the appropriate date
-                const currentDate = parseDate(date);
-                if (currentDate <= today && 
-                    (!sortedDates[sortedDates.indexOf(date) + 1] || 
-                     parseDate(sortedDates[sortedDates.indexOf(date) + 1]) > today)) {
-                    matchContainer.appendChild(todayMarker.cloneNode(true));
-                }
-            });
-            
-            // Scroll to today's marker after a short delay to ensure rendering
-            setTimeout(() => {
+            // Use requestAnimationFrame for smooth scrolling
+            requestAnimationFrame(() => {
                 const todayMarker = document.querySelector('.today-marker');
                 if (todayMarker) {
                     todayMarker.style.display = 'block';
                     todayMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-            }, 100);
+            });
             
             console.log('Matches displayed:', filteredMatches.length);
         }
@@ -1930,77 +1936,115 @@
                 matchCard.classList.add('upcoming');
             }
             
-            // Format scores
-            let homeTeam = match['Home Team'] || '';
-            let awayTeam = match['Away Team'] || '';
-            let homeScore = match['Home Score'] && match['Home Score'] !== '---' ? match['Home Score'] : '';
-            let awayScore = match['Away Score'] && match['Away Score'] !== '---' ? match['Away Score'] : '';
+            // Create all elements first
+            const matchHeader = document.createElement('div');
+            matchHeader.className = 'match-header';
             
-            // Determine badge text
-            let badgeText = '';
-            let badgeClass = '';
+            const matchHeaderMain = document.createElement('div');
+            matchHeaderMain.className = 'match-header-main';
             
-            if (match.Result === 'WIN') {
-                badgeText = 'Win';
-                badgeClass = 'win';
-            } else if (match.Result === 'LOSS') {
-                badgeText = 'Loss';
-                badgeClass = 'loss';
-            } else if (match.Result === 'DRAW') {
-                badgeText = 'Draw';
-                badgeClass = 'draw';
-            } else if (match.Result === '---' || !match.Result) {
-                badgeText = 'Upcoming';
-                badgeClass = 'upcoming';
+            const teamCategory = document.createElement('span');
+            teamCategory.className = 'team-category';
+            teamCategory.textContent = match.Team || '';
+            
+            const competition = document.createElement('span');
+            competition.className = 'competition';
+            competition.textContent = match.Competition || '';
+            
+            const matchInfo = document.createElement('div');
+            matchInfo.className = 'match-info';
+            
+            const round = document.createElement('span');
+            round.textContent = match.Round || '';
+            
+            const sex = document.createElement('span');
+            sex.textContent = match.Sex || '';
+            
+            const matchContent = document.createElement('div');
+            matchContent.className = 'match-content';
+            
+            const teams = document.createElement('div');
+            teams.className = 'teams';
+            
+            const homeTeam = document.createElement('div');
+            homeTeam.className = 'team';
+            
+            const homeTeamName = document.createElement('div');
+            homeTeamName.className = 'team-name';
+            homeTeamName.textContent = match['Home Team'] || '';
+            
+            const scoreContainer = document.createElement('div');
+            scoreContainer.className = 'score-container';
+            
+            const awayTeam = document.createElement('div');
+            awayTeam.className = 'team';
+            
+            const awayTeamName = document.createElement('div');
+            awayTeamName.className = 'team-name';
+            awayTeamName.textContent = match['Away Team'] || '';
+            
+            const metadata = document.createElement('div');
+            metadata.className = 'metadata';
+            
+            const venue = document.createElement('span');
+            venue.className = 'venue';
+            venue.textContent = match.Venue || '';
+            
+            const time = document.createElement('span');
+            time.className = 'time';
+            time.textContent = match.Time || '';
+            
+            // Assemble the elements
+            matchHeaderMain.appendChild(teamCategory);
+            matchHeaderMain.appendChild(competition);
+            matchInfo.appendChild(round);
+            matchInfo.appendChild(sex);
+            matchHeader.appendChild(matchHeaderMain);
+            matchHeader.appendChild(matchInfo);
+            
+            homeTeam.appendChild(homeTeamName);
+            awayTeam.appendChild(awayTeamName);
+            
+            // Add scores or vs text
+            if (match.Result && match.Result !== '---' && 
+                match['Home Score'] && match['Home Score'] !== '---' && 
+                match['Away Score'] && match['Away Score'] !== '---') {
+                const homeScore = document.createElement('span');
+                homeScore.className = 'score';
+                homeScore.textContent = match['Home Score'];
+                
+                const awayScore = document.createElement('span');
+                awayScore.className = 'score';
+                awayScore.textContent = match['Away Score'];
+                
+                scoreContainer.appendChild(homeScore);
+                scoreContainer.appendChild(awayScore);
+            } else {
+                const vs = document.createElement('span');
+                vs.className = 'vs';
+                vs.textContent = 'vs';
+                scoreContainer.appendChild(vs);
             }
             
-            matchCard.innerHTML = `
-                <div class="match-header">
-                    <div class="match-header-main">
-                        <span class="team-category">${match.Team || ''}</span>
-                        <span class="competition">${match.Competition}</span>
-                    </div>
-                    <div class="match-info">
-                        <span>${match.Round || ''}</span>
-                        <span>${match.Sex || ''}</span>
-                    </div>
-                </div>
-                <div class="match-content">
-                    <div class="teams">
-                        <div class="team">
-                            <div class="team-name">${homeTeam}</div>
-                        </div>
-                        <div class="score-container">
-                            ${(() => {
-                                const hasResult = match.Result && match.Result !== '---';
-                                const hasHomeScore = match['Home Score'] && match['Home Score'] !== '---';
-                                const hasAwayScore = match['Away Score'] && match['Away Score'] !== '---';
-                                
-                                console.log('Match data for score display:', {
-                                    result: match.Result,
-                                    homeScore: match['Home Score'],
-                                    awayScore: match['Away Score'],
-                                    hasResult,
-                                    hasHomeScore,
-                                    hasAwayScore
-                                });
-                                
-                                return hasResult && hasHomeScore && hasAwayScore
-                                    ? `<span class="score">${match['Home Score']}</span><span class="score">${match['Away Score']}</span>` 
-                                    : `<span class="vs">vs</span>`;
-                            })()}
-                        </div>
-                        <div class="team">
-                            <div class="team-name">${awayTeam}</div>
-                        </div>
-                    </div>
-                    <div class="metadata">
-                        <span class="venue">${match.Venue || ''}</span>
-                        <span class="time">${match.Time || ''}</span>
-                        ${badgeText ? `<span class="badge ${badgeClass}">${badgeText}</span>` : ''}
-                    </div>
-                </div>
-            `;
+            teams.appendChild(homeTeam);
+            teams.appendChild(scoreContainer);
+            teams.appendChild(awayTeam);
+            
+            metadata.appendChild(venue);
+            metadata.appendChild(time);
+            
+            if (match.Result && match.Result !== '---') {
+                const badge = document.createElement('span');
+                badge.className = `badge ${match.Result.toLowerCase()}`;
+                badge.textContent = match.Result;
+                metadata.appendChild(badge);
+            }
+            
+            matchContent.appendChild(teams);
+            matchContent.appendChild(metadata);
+            
+            matchCard.appendChild(matchHeader);
+            matchCard.appendChild(matchContent);
             
             return matchCard;
         }
