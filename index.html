@@ -3357,6 +3357,17 @@ END:VCALENDAR`;
 
         function updateTeamStats(teamName) {
             console.log('******Updating team stats for:', teamName);
+            
+            console.log('First 30 matches in dataset:', matches.slice(0, 30).map(m => ({
+                Date: m.Date,
+                Team: m.Team,
+                Competition: m.Competition,
+                'Home Team': m['Home Team'],
+                'Away Team': m['Away Team'],
+                isTraining: m.isTraining,
+                Result: m.Result
+            })));
+            
             const stats = {
                 total: 0,
                 wins: 0,
