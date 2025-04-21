@@ -3764,13 +3764,19 @@ END:VCALENDAR`;
                 return;
             }
             
+            // Create Date objects for min and max dates
+            const minDate = new Date('2024-01-01T00:00:00');
+            const maxDate = new Date('2025-12-31T23:59:59');
+            
+            console.log('Date range limits:', { minDate, maxDate });
+            
             // Configure flatpickr
             datePickerInstance = flatpickr(dateRange, {
                 mode: "range",
                 dateFormat: "D M d Y",
                 allowInput: true,
-                minDate: "2024-01-01",
-                maxDate: "2025-12-31",
+                minDate: minDate,
+                maxDate: maxDate,
                 defaultHour: 0,
                 enableTime: false,
                 disableMobile: false,
