@@ -1936,6 +1936,24 @@
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
                 
+                // Initialize search functionality
+                console.log('Initializing search functionality...');
+                initSearchAutocomplete();
+                
+                // Add search input handler with debounce
+                const searchInput = document.getElementById('searchInput');
+                searchInput.addEventListener('input', debounce(() => {
+                    console.log('Search input changed:', searchInput.value);
+                    displayMatches();
+                }, 300));
+                
+                // Add reset search button handler
+                const resetSearchBtn = document.getElementById('resetSearch');
+                resetSearchBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    displayMatches();
+                });
+                
                 // Display matches
                 displayMatches();
                 console.log('Initialization complete. Final match count:', matches.length);
@@ -1962,31 +1980,6 @@
                     mode: "range",
                     dateFormat: "D M d Y",
                     onChange: function(selectedDates) {
-                        displayMatches();
-                    }
-                });
-                
-                // Initialize search input
-                const searchInput = document.getElementById('searchInput');
-                const resetSearchBtn = document.getElementById('resetSearch');
-                const resetDateBtn = document.getElementById('resetDate');
-                
-                // Add search input handler
-                searchInput.addEventListener('input', debounce(() => {
-                    displayMatches();
-                }, 300));
-                
-                // Add reset search button handler
-                resetSearchBtn.addEventListener('click', () => {
-                    searchInput.value = '';
-                    displayMatches();
-                });
-                
-                // Add reset date button handler
-                resetDateBtn.addEventListener('click', () => {
-                    const dateRangeInput = document.getElementById('dateRange');
-                    if (dateRangeInput._flatpickr) {
-                        dateRangeInput._flatpickr.clear();
                         displayMatches();
                     }
                 });
@@ -2019,7 +2012,9 @@
         
         // Enhanced filter matches function to include search and date range
         function filterMatches() {
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            console.log('Filtering matches...');
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            console.log('Search query:', searchQuery);
             
             // Get date range safely
             let dateRange = null;
@@ -2032,17 +2027,21 @@
                 // Search filter
                 if (searchQuery) {
                     const searchableText = [
-                        match.Competition,
-                        match.Team,
-                        match['Home Team'],
-                        match['Away Team'],
-                        match.Venue,
-                        match.Round,
-                        match.Date,
-                        match.Time
+                        match.Competition || '',
+                        match.Team || '',
+                        match['Home Team'] || '',
+                        match['Away Team'] || '',
+                        match.Venue || '',
+                        match.Round || '',
+                        match.Date || '',
+                        match.Time || ''
                     ].join(' ').toLowerCase();
                     
-                    if (!searchableText.includes(searchQuery)) return false;
+                    console.log('Searchable text for match:', searchableText);
+                    
+                    if (!searchableText.includes(searchQuery)) {
+                        return false;
+                    }
                 }
                 
                 // Date range filter - only apply if dates are selected
@@ -2626,7 +2625,15 @@ END:VCALENDAR`;
         
         // Initialize search functionality with autocomplete
         function initSearchAutocomplete() {
+            console.log('Initializing search autocomplete...');
             const searchInput = document.getElementById('searchInput');
+            
+            // Remove any existing suggestions container
+            const existingSuggestions = document.querySelector('.autocomplete-suggestions');
+            if (existingSuggestions) {
+                existingSuggestions.remove();
+            }
+            
             const suggestionsContainer = document.createElement('div');
             suggestionsContainer.className = 'autocomplete-suggestions';
             searchInput.parentNode.appendChild(suggestionsContainer);
@@ -2646,20 +2653,12 @@ END:VCALENDAR`;
                 if (match.Venue) searchableTerms.add(match.Venue);
                 // Add rounds
                 if (match.Round) searchableTerms.add(match.Round);
-                // Add dates in a searchable format
-                if (match.Date) {
-                    const date = new Date(match.Date);
-                    searchableTerms.add(date.toLocaleDateString('en-GB', {
-                        weekday: 'long',
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                    }));
-                }
             });
             
+            console.log('Searchable terms:', Array.from(searchableTerms));
+            
             searchInput.addEventListener('input', function() {
-                const val = this.value.toLowerCase();
+                const val = this.value.toLowerCase().trim();
                 suggestionsContainer.innerHTML = '';
                 
                 if (val.length < 2) {
@@ -2670,6 +2669,8 @@ END:VCALENDAR`;
                 const matches = Array.from(searchableTerms)
                     .filter(term => term.toLowerCase().includes(val))
                     .slice(0, 5); // Limit to 5 suggestions
+                
+                console.log('Matching suggestions:', matches);
                 
                 if (matches.length > 0) {
                     matches.forEach(match => {
@@ -2696,33 +2697,29 @@ END:VCALENDAR`;
                 const suggestions = suggestionsContainer.getElementsByClassName('autocomplete-suggestion');
                 
                 if (suggestions.length > 0) {
-                    // Remove active class from all suggestions
-                    Array.from(suggestions).forEach(s => s.classList.remove('active'));
-                    
                     if (e.key === 'ArrowDown') {
-                        e.preventDefault();
                         currentFocus++;
                         if (currentFocus >= suggestions.length) currentFocus = 0;
-                        suggestions[currentFocus].classList.add('active');
-                        suggestions[currentFocus].scrollIntoView({ block: 'nearest' });
+                        setActiveSuggestion(suggestions);
                     } else if (e.key === 'ArrowUp') {
-                        e.preventDefault();
                         currentFocus--;
                         if (currentFocus < 0) currentFocus = suggestions.length - 1;
-                        suggestions[currentFocus].classList.add('active');
-                        suggestions[currentFocus].scrollIntoView({ block: 'nearest' });
+                        setActiveSuggestion(suggestions);
                     } else if (e.key === 'Enter' && currentFocus > -1) {
                         e.preventDefault();
-                        suggestions[currentFocus].click();
-                    } else if (e.key === 'Escape') {
-                        e.preventDefault();
+                        searchInput.value = suggestions[currentFocus].textContent;
                         suggestionsContainer.style.display = 'none';
+                        displayMatches();
                     }
-                } else if (e.key === 'Enter') {
-                    // Only trigger search on Enter if no suggestions are shown
-                    displayMatches();
                 }
             });
+            
+            function setActiveSuggestion(suggestions) {
+                Array.from(suggestions).forEach((s, i) => {
+                    s.classList.remove('active');
+                    if (i === currentFocus) s.classList.add('active');
+                });
+            }
             
             // Close suggestions when clicking outside
             document.addEventListener('click', function(e) {
@@ -2730,6 +2727,8 @@ END:VCALENDAR`;
                     suggestionsContainer.style.display = 'none';
                 }
             });
+            
+            console.log('Search autocomplete initialized');
         }
 
         // Start the app when the DOM is loaded
@@ -3145,8 +3144,23 @@ END:VCALENDAR`;
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
                 
-                // Initialize search autocomplete
+                // Initialize search functionality
+                console.log('Initializing search functionality...');
                 initSearchAutocomplete();
+                
+                // Add search input handler with debounce
+                const searchInput = document.getElementById('searchInput');
+                searchInput.addEventListener('input', debounce(() => {
+                    console.log('Search input changed:', searchInput.value);
+                    displayMatches();
+                }, 300));
+                
+                // Add reset search button handler
+                const resetSearchBtn = document.getElementById('resetSearch');
+                resetSearchBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    displayMatches();
+                });
                 
                 // Display matches
                 displayMatches();
