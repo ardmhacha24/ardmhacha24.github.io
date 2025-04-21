@@ -2780,12 +2780,6 @@ END:VCALENDAR`;
                 teamFilter.appendChild(option);
             });
             
-            // Add change event listener
-            teamFilter.addEventListener('change', function() {
-                console.log('Team filter changed to:', this.value);
-                updateTeamStats(this.value);
-            });
-            
             // Initialize with 'all' teams selected
             updateTeamStats('all');
         }
@@ -3764,12 +3758,6 @@ END:VCALENDAR`;
                 // Display the normalized version of the team name
                 option.textContent = team.replace(/^@[^-]+-\s*/, '').replace(/\s*\(\*\*.*\*\*\)\s*$/, '').trim();
                 teamFilter.appendChild(option);
-            });
-            
-            // Add change event listener
-            teamFilter.addEventListener('change', function() {
-                console.log('Team filter changed to:', this.value);
-                updateTeamStats(this.value);
             });
             
             // Initialize with 'all' teams selected
