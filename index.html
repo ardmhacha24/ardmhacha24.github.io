@@ -2012,7 +2012,9 @@
                         match['Home Team'],
                         match['Away Team'],
                         match.Venue,
-                        match.Round
+                        match.Round,
+                        match.Date,
+                        match.Time
                     ].join(' ').toLowerCase();
                     
                     if (!searchableText.includes(searchQuery)) return false;
@@ -2609,10 +2611,26 @@ END:VCALENDAR`;
             // Create a list of all searchable terms
             const searchableTerms = new Set();
             matches.forEach(match => {
-                searchableTerms.add(match.Team);
-                searchableTerms.add(match.Competition);
-                searchableTerms.add(match.Venue);
-                searchableTerms.add(match.Round);
+                // Add team names
+                if (match.Team) searchableTerms.add(match.Team);
+                if (match['Home Team']) searchableTerms.add(match['Home Team']);
+                if (match['Away Team']) searchableTerms.add(match['Away Team']);
+                // Add competition names
+                if (match.Competition) searchableTerms.add(match.Competition);
+                // Add venues
+                if (match.Venue) searchableTerms.add(match.Venue);
+                // Add rounds
+                if (match.Round) searchableTerms.add(match.Round);
+                // Add dates in a searchable format
+                if (match.Date) {
+                    const date = new Date(match.Date);
+                    searchableTerms.add(date.toLocaleDateString('en-GB', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    }));
+                }
             });
             
             searchInput.addEventListener('input', function() {
@@ -2636,7 +2654,7 @@ END:VCALENDAR`;
                         div.addEventListener('click', function() {
                             searchInput.value = match;
                             suggestionsContainer.style.display = 'none';
-            displayMatches();
+                            displayMatches();
                         });
                         suggestionsContainer.appendChild(div);
                     });
@@ -2688,7 +2706,7 @@ END:VCALENDAR`;
                 }
             });
         }
-        
+
         // Start the app when the DOM is loaded
         document.addEventListener('DOMContentLoaded', init);
 
@@ -3101,6 +3119,9 @@ END:VCALENDAR`;
                 console.log('Starting to fetch training events...');
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
+                
+                // Initialize search autocomplete
+                initSearchAutocomplete();
                 
                 // Display matches
                 displayMatches();
