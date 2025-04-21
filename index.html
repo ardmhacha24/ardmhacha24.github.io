@@ -2762,8 +2762,8 @@ END:VCALENDAR`;
             console.log('Total searchable terms:', searchableTerms.size);
             console.log('Searchable terms:', Array.from(searchableTerms));
             
-            // Add input event listener
-            searchInput.addEventListener('input', function() {
+            // Add input event listener with debounce
+            searchInput.addEventListener('input', debounce(function() {
                 console.log('=== Search Input Event ===');
                 const val = this.value.toLowerCase().trim();
                 console.log('Current input value:', val);
@@ -2773,6 +2773,7 @@ END:VCALENDAR`;
                 if (val.length < 2) {
                     console.log('Input too short, hiding suggestions');
                     suggestionsContainer.style.display = 'none';
+                    displayMatches(); // Update display even with short input
                     return;
                 }
                 
@@ -2802,7 +2803,8 @@ END:VCALENDAR`;
                 }
                 
                 currentFocus = -1;
-            });
+                displayMatches(); // Update display with current search
+            }, 300));
             
             // Add keyboard navigation
             searchInput.addEventListener('keydown', function(e) {
@@ -2847,6 +2849,17 @@ END:VCALENDAR`;
                     suggestionsContainer.style.display = 'none';
                 }
             });
+            
+            // Add reset search button handler
+            const resetSearchBtn = document.getElementById('resetSearch');
+            if (resetSearchBtn) {
+                resetSearchBtn.addEventListener('click', () => {
+                    console.log('Reset search clicked');
+                    searchInput.value = '';
+                    suggestionsContainer.style.display = 'none';
+                    displayMatches();
+                });
+            }
             
             console.log('=== initSearchAutocomplete END ===');
         }
@@ -3264,34 +3277,9 @@ END:VCALENDAR`;
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
                 
-                // Initialize search functionality
+                // Initialize search functionality after matches are loaded
                 console.log('Initializing search functionality...');
                 initSearchAutocomplete();
-                
-                // Add search input handler with debounce
-                const searchInput = document.getElementById('searchInput');
-                console.log('Search input element for event listener:', searchInput);
-                
-                if (searchInput) {
-                    searchInput.addEventListener('input', debounce(() => {
-                        console.log('Search input changed:', searchInput.value);
-                        displayMatches();
-                    }, 300));
-                    
-                    // Add reset search button handler
-                    const resetSearchBtn = document.getElementById('resetSearch');
-                    console.log('Reset search button element:', resetSearchBtn);
-                    
-                    if (resetSearchBtn) {
-                        resetSearchBtn.addEventListener('click', () => {
-                            console.log('Reset search clicked');
-                            searchInput.value = '';
-                            displayMatches();
-                        });
-                    }
-                } else {
-                    console.error('Search input element not found for event listener!');
-                }
                 
                 // Display matches
                 displayMatches();
