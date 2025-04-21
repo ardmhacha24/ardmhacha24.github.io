@@ -1626,7 +1626,7 @@
                     <div class="search-group">
                         <div class="search-input-wrapper">
                             <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search matches...">
+                            <input type="text" id="searchInput" placeholder="Search matches...">
                         </div>
                         <button class="reset-btn" id="resetSearch" title="Reset search">
                             <i class="fas fa-times"></i>
@@ -1637,53 +1637,12 @@
                         <button class="reset-btn" id="resetDate" title="Reset date range">
                             <i class="fas fa-times"></i>
                         </button>
-                        <button class="calendar-btn" id="addToCalendar">
-                            <i class="fas fa-calendar-plus"></i>
-                            Add to Calendar
-                        </button>
                     </div>
                 </div>
-                <div class="filter-row">
-                <div class="filter-group">
-                    <label for="teamFilter">Team</label>
-                        <div class="select-wrapper">
-                    <select id="teamFilter">
-                        <option value="all">All Teams</option>
-                    </select>
-                            <button class="reset-btn" id="resetTeam" title="Reset team filter">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                </div>
-                <div class="filter-group">
-                    <label for="competitionFilter">Competition</label>
-                        <div class="select-wrapper">
-                    <select id="competitionFilter">
-                        <option value="all">All Competitions</option>
-                    </select>
-                            <button class="reset-btn" id="resetCompetition" title="Reset competition filter">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                </div>
-                <div class="filter-group">
-                    <label for="statusFilter">Status</label>
-                        <div class="select-wrapper">
-                    <select id="statusFilter">
-                        <option value="all">All Matches</option>
-                        <option value="fixture">Upcoming Fixtures</option>
-                        <option value="result">Past Results</option>
-                    </select>
-                            <button class="reset-btn" id="resetStatus" title="Reset status filter">
-                                <i class="fas fa-times"></i>
-                            </button>
-                    </div>
-                </div>
-                    <button class="share-btn" id="shareBtn">
-                        <i class="fas fa-share-alt"></i>
-                        Share
-                    </button>
-            </div>
+                <button class="share-btn" id="shareBtn">
+                    <i class="fas fa-share-alt"></i>
+                    Share
+                </button>
         </div>
         
         <div id="matchContainer" class="match-list">
@@ -2041,9 +2000,6 @@
         
         // Enhanced filter matches function to include search and date range
         function filterMatches() {
-            const teamFilter = document.getElementById('teamFilter').value;
-            const competitionFilter = document.getElementById('competitionFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             
             // Get date range safely
@@ -2054,22 +2010,6 @@
             }
             
             return matches.filter(match => {
-                // Team filter
-                if (teamFilter !== 'all' && match.Team !== teamFilter) return false;
-                
-                // Competition filter
-                if (competitionFilter !== 'all' && match.Competition !== competitionFilter) return false;
-                
-                // Status filter
-                if (statusFilter === 'fixture') {
-                    // Show only upcoming matches (no result or '---')
-                    if (match.Result && match.Result !== '---') return false;
-                } else if (statusFilter === 'result') {
-                    // Show only past matches (has a result)
-                    if (!match.Result || match.Result === '---') return false;
-                }
-                // For 'all' status, we don't filter by result
-                
                 // Search filter
                 if (searchQuery) {
                     const searchableText = [
