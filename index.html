@@ -2555,18 +2555,18 @@ END:VCALENDAR`;
             updateUpcomingTraining(teamName);
         }
         
-        // Add new function to update upcoming training sessions
+        // Function to update upcoming training sessions
         function updateUpcomingTraining(teamName) {
+            console.log('Updating training sessions for:', teamName);
+            
             const teamMatches = teamName === 'all' 
-                ? matches 
-                : matches.filter(match => match.Team === teamName);
+                ? matches.filter(match => match.isTraining)
+                : matches.filter(match => match.Team === teamName && match.isTraining);
             
             // Filter upcoming training sessions
-            // Add a Set to track unique training sessions
             const seenTraining = new Set();
             const upcomingTraining = teamMatches
                 .filter(match => {
-                    if (!match.isTraining) return false;
                     // Create a unique identifier for each training session
                     const trainingId = `${match.Date}-${match.Time}-${match.Team}-${match.Venue}`;
                     if (seenTraining.has(trainingId)) {
@@ -2576,9 +2576,14 @@ END:VCALENDAR`;
                     return true;
                 })
                 .sort((a, b) => parseDate(a.Date) - parseDate(b.Date))
-                .slice(0, 5); // Increased from 3 to 5
+                .slice(0, 5);
             
             const upcomingTrainingList = document.getElementById('upcomingTrainingList');
+            if (!upcomingTrainingList) {
+                console.error('Training list element not found');
+                return;
+            }
+            
             upcomingTrainingList.innerHTML = '';
             
             if (upcomingTraining.length === 0) {
@@ -2586,12 +2591,14 @@ END:VCALENDAR`;
                 return;
             }
             
+            console.log('Found training sessions:', upcomingTraining.length);
+            
             upcomingTraining.forEach(session => {
                 const sessionElement = document.createElement('div');
                 sessionElement.className = 'upcoming-match training';
                 sessionElement.innerHTML = `
                     <div class="upcoming-match-date">${formatDate(session.Date)}</div>
-                    <div class="upcoming-match-teams">${session.Team} Training</div>
+                    <div class="upcoming-match-teams">${session.Team}</div>
                     <div class="upcoming-match-venue">${session.Venue} - ${session.Time}</div>
                 `;
                 upcomingTrainingList.appendChild(sessionElement);
