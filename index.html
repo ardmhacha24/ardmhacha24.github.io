@@ -2576,6 +2576,11 @@ END:VCALENDAR`;
                     document.querySelector('.main-content').prepend(sidebar);
                 }
                 
+                // Initially hide sidebar on mobile
+                if (window.innerWidth <= 992) {
+                    sidebar.style.transform = 'translateX(-100%)';
+                }
+                
                 // Create sidebar header
                 let sidebarHeader = sidebar.querySelector('.sidebar-header');
                 if (!sidebarHeader) {
@@ -2659,17 +2664,6 @@ END:VCALENDAR`;
                     sidebar.appendChild(teamUpcoming);
                 }
                 
-                // Create sidebar toggle button
-                let sidebarToggle = document.getElementById('sidebarToggle');
-                if (!sidebarToggle) {
-                    console.log('Creating sidebar toggle button');
-                    sidebarToggle = document.createElement('button');
-                    sidebarToggle.id = 'sidebarToggle';
-                    sidebarToggle.className = 'sidebar-toggle';
-                    sidebarToggle.innerHTML = '<span class="arrow"></span>';
-                    document.body.appendChild(sidebarToggle);
-                }
-                
                 // Create overlay
                 let overlay = document.querySelector('.sidebar-overlay');
                 if (!overlay) {
@@ -2679,63 +2673,34 @@ END:VCALENDAR`;
                     document.body.appendChild(overlay);
                 }
                 
-                // Initialize sidebar state
-                const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-                if (sidebarCollapsed) {
-                    sidebar.classList.add('collapsed');
-                    document.querySelector('.content-area').classList.add('expanded');
-                    if (window.innerWidth <= 992) {
-                        sidebarToggle.style.left = '15px';
-                        sidebarToggle.style.transform = 'none';
-                    } else {
-                        sidebarToggle.style.left = '60px';
-                        sidebarToggle.style.transform = 'translateY(-50%)';
-                    }
+                // Initialize hamburger menu
+                const hamburgerMenu = document.getElementById('hamburgerMenu');
+                if (hamburgerMenu) {
+                    hamburgerMenu.addEventListener('click', function() {
+                        console.log('Hamburger menu clicked');
+                        sidebar.classList.toggle('active');
+                        overlay.classList.toggle('active');
+                        document.body.classList.toggle('sidebar-open');
+                    });
                 }
-                
-                // Add event listeners
-                sidebarToggle.addEventListener('click', function() {
-                    console.log('Sidebar toggle clicked');
-                    sidebar.classList.toggle('collapsed');
-                    document.querySelector('.content-area').classList.toggle('expanded');
-                    
-                    if (sidebar.classList.contains('collapsed')) {
-                        localStorage.setItem('sidebarCollapsed', 'true');
-                        if (window.innerWidth <= 992) {
-                            sidebarToggle.style.left = '15px';
-                            sidebarToggle.style.transform = 'none';
-                        } else {
-                            sidebarToggle.style.left = '60px';
-                            sidebarToggle.style.transform = 'translateY(-50%)';
-                        }
-                    } else {
-                        localStorage.setItem('sidebarCollapsed', 'false');
-                        sidebarToggle.style.left = '15px';
-                        sidebarToggle.style.transform = 'none';
-                    }
-                });
                 
                 // Handle overlay click
                 overlay.addEventListener('click', function() {
                     console.log('Overlay clicked');
-                    sidebar.classList.add('collapsed');
-                    document.querySelector('.content-area').classList.add('expanded');
+                    sidebar.classList.remove('active');
                     overlay.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
                 });
                 
                 // Handle window resize
                 function checkScreenSize() {
                     console.log('Checking screen size');
                     if (window.innerWidth <= 992) {
-                        sidebar.classList.add('collapsed');
-                        document.querySelector('.content-area').classList.add('expanded');
-                        sidebarToggle.style.left = '15px';
-                        sidebarToggle.style.transform = 'none';
+                        sidebar.style.transform = 'translateX(-100%)';
+                        overlay.classList.remove('active');
+                        document.body.classList.remove('sidebar-open');
                     } else {
-                        sidebar.classList.remove('collapsed');
-                        document.querySelector('.content-area').classList.remove('expanded');
-                        sidebarToggle.style.left = '60px';
-                        sidebarToggle.style.transform = 'translateY(-50%)';
+                        sidebar.style.transform = 'translateX(0)';
                     }
                 }
                 
@@ -2744,6 +2709,10 @@ END:VCALENDAR`;
                 
                 // Add resize listener
                 window.addEventListener('resize', checkScreenSize);
+                
+                // Populate sidebar with initial data
+                populateSidebarTeamFilter();
+                updateTeamStats('all');
                 
                 console.log('=== initSidebarToggle END ===');
             } catch (error) {
