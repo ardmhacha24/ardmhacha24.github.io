@@ -2505,53 +2505,94 @@ END:VCALENDAR`;
             };
             
             // Create a Set to track unique match IDs to prevent double counting
-            const processedMatches = new Set();
+            const processedFixtureIds = new Set();
             
-            // Get all matches (excluding training events)
-            const relevantMatches = matches.filter(match => !match.isTraining);
+            // Get all matches for the selected team (excluding training events)
+            const teamMatches = teamName === 'all' 
+                ? matches.filter(match => !match.isTraining)
+                : matches.filter(match => {
+                    // Only include actual matches (not training)
+                    if (match.isTraining) {
+                        console.log('Skipping training event:', match);
+                        return false;
+                    }
+                    
+                    // Check if this team is either home or away team
+                    const isInvolved = match['Home Team'].includes(teamName) || match['Away Team'].includes(teamName);
+                    if (isInvolved) {
+                        console.log('Found match for team:', {
+                            date: match.Date,
+                            home: match['Home Team'],
+                            away: match['Away Team'],
+                            result: match.Result,
+                            fixtureId: match['Fixture ID']
+                        });
+                    }
+                    return isInvolved;
+                });
             
-            relevantMatches.forEach(match => {
-                // Create a unique identifier for the match
-                const matchId = `${match.Date}-${match['Home Team']}-${match['Away Team']}`;
+            console.log(`Found ${teamMatches.length} total matches for team`);
+            
+            // Process each match only once
+            teamMatches.forEach(match => {
+                // Use Fixture ID as the unique identifier
+                const fixtureId = match['Fixture ID'];
                 
-                // Skip if we've already processed this match
-                if (processedMatches.has(matchId)) {
-                    console.log('Skipping already processed match:', matchId);
+                // Skip if we've already counted this match
+                if (processedFixtureIds.has(fixtureId)) {
+                    console.log('DUPLICATE - Skipping match:', {
+                        fixtureId: fixtureId,
+                        date: match.Date,
+                        home: match['Home Team'],
+                        away: match['Away Team']
+                    });
                     return;
                 }
                 
-                // For 'all' teams or if this match involves the selected team
-                if (teamName === 'all' || match['Home Team'] === teamName || match['Away Team'] === teamName) {
-                    processedMatches.add(matchId);
-                    stats.total++;
+                // Mark this match as processed
+                processedFixtureIds.add(fixtureId);
+                
+                // Count the match
+                stats.total++;
+                
+                if (!match.Result || match.Result === '---') {
+                    stats.upcoming++;
+                    console.log('Counted as UPCOMING:', {
+                        fixtureId: fixtureId,
+                        date: match.Date,
+                        home: match['Home Team'],
+                        away: match['Away Team']
+                    });
+                } else {
+                    // Check if this team won the match
+                    const isHomeTeam = match['Home Team'].includes(teamName);
                     
-                    if (!match.Result || match.Result === '---') {
-                        stats.upcoming++;
-                        console.log('Counted as UPCOMING:', matchId);
+                    console.log('Processing result for match:', {
+                        fixtureId: fixtureId,
+                        date: match.Date,
+                        home: match['Home Team'],
+                        away: match['Away Team'],
+                        result: match.Result,
+                        isHomeTeam: isHomeTeam
+                    });
+                    
+                    if (match.Result === 'WIN' && isHomeTeam) {
+                    stats.wins++;
+                        console.log('Counted as WIN (home team won)');
+                    } else if (match.Result === 'LOSS' && !isHomeTeam) {
+                        stats.wins++;
+                        console.log('Counted as WIN (away team won)');
+                    } else if (match.Result === 'LOSS' && isHomeTeam) {
+                    stats.losses++;
+                        console.log('Counted as LOSS (home team lost)');
+                    } else if (match.Result === 'WIN' && !isHomeTeam) {
+                        stats.losses++;
+                        console.log('Counted as LOSS (away team lost)');
+                } else if (match.Result === 'DRAW') {
+                    stats.draws++;
+                        console.log('Counted as DRAW');
                     } else {
-                        const isHomeTeam = match['Home Team'] === teamName;
-                        
-                        if (teamName === 'all') {
-                            // For 'all' teams view, count results as recorded
-                            if (match.Result === 'WIN') stats.wins++;
-                            else if (match.Result === 'LOSS') stats.losses++;
-                            else if (match.Result === 'DRAW') stats.draws++;
-                        } else {
-                            // For specific team, interpret result from their perspective
-                            if (match.Result === 'WIN' && isHomeTeam) stats.wins++;
-                            else if (match.Result === 'LOSS' && !isHomeTeam) stats.wins++;
-                            else if (match.Result === 'LOSS' && isHomeTeam) stats.losses++;
-                            else if (match.Result === 'WIN' && !isHomeTeam) stats.losses++;
-                            else if (match.Result === 'DRAW') stats.draws++;
-                        }
-                        
-                        console.log('Processed result for match:', {
-                            id: matchId,
-                            result: match.Result,
-                            isHomeTeam,
-                            teamName,
-                            stats
-                        });
+                        console.warn('Unknown match result:', match.Result);
                     }
                 }
             });
@@ -2692,21 +2733,29 @@ END:VCALENDAR`;
                 teamFilter.remove(1);
             }
             
-            // Get unique teams from matches
-            const teamsSet = new Set();
+            // Get unique teams and normalize them
+            const teamsMap = new Map(); // Use a map to store normalized team name -> original team name
             matches.forEach(match => {
-                if (!match.isTraining) {  // Exclude training events
-                    if (match['Home Team'].includes('Grange')) {
-                        teamsSet.add(match['Home Team']);
-                    }
-                    if (match['Away Team'].includes('Grange')) {
-                        teamsSet.add(match['Away Team']);
+                if (match.Team) {
+                    // Remove venue annotations like "(** Main Pitch **)"
+                    let normalizedName = match.Team.replace(/\s*\(\*\*.*\*\*\)\s*$/, '');
+                    // Remove location prefixes like "@MAGHERY - "
+                    normalizedName = normalizedName.replace(/^@[^-]+-\s*/, '');
+                    // Trim any extra whitespace
+                    normalizedName = normalizedName.trim();
+                    
+                    // If we haven't seen this normalized name before, or if the current name is shorter
+                    // (prefer "Minor Boys" over "@MAGHERY - Minor Boys")
+                    if (!teamsMap.has(normalizedName) || match.Team.length < teamsMap.get(normalizedName).length) {
+                        teamsMap.set(normalizedName, match.Team);
                     }
                 }
             });
             
+            console.log('Normalized teams map:', teamsMap);
+            
             // Convert to array and sort
-            const uniqueTeams = Array.from(teamsSet).sort((a, b) => {
+            const uniqueTeams = Array.from(teamsMap.values()).sort((a, b) => {
                 // Custom sort function to group by age group
                 const ageGroupOrder = {
                     'Senior': 1,
@@ -2744,7 +2793,8 @@ END:VCALENDAR`;
             uniqueTeams.forEach(team => {
                 const option = document.createElement('option');
                 option.value = team;
-                option.textContent = team;
+                // Display the normalized version of the team name
+                option.textContent = team.replace(/^@[^-]+-\s*/, '').replace(/\s*\(\*\*.*\*\*\)\s*$/, '').trim();
                 teamFilter.appendChild(option);
             });
             
@@ -3596,7 +3646,7 @@ END:VCALENDAR`;
             });
         }
 
-        /*function updateTeamStats(teamName) {
+        function updateTeamStats(teamName) {
             console.log('Updating team stats for:', teamName);
             const stats = {
                 total: 0,
@@ -3646,7 +3696,7 @@ END:VCALENDAR`;
             // Update upcoming matches and training sessions in the sidebar
             updateUpcomingMatches(teamName);
             updateUpcomingTraining(teamName);
-        }*/
+        }
 
         function populateSidebarTeamFilter() {
             console.log('Populating sidebar team filter');
@@ -3662,21 +3712,29 @@ END:VCALENDAR`;
                 teamFilter.remove(1);
             }
             
-            // Get unique teams from matches
-            const teamsSet = new Set();
+            // Get unique teams and normalize them
+            const teamsMap = new Map(); // Use a map to store normalized team name -> original team name
             matches.forEach(match => {
-                if (!match.isTraining) {  // Exclude training events
-                    if (match['Home Team'].includes('Grange')) {
-                        teamsSet.add(match['Home Team']);
-                    }
-                    if (match['Away Team'].includes('Grange')) {
-                        teamsSet.add(match['Away Team']);
+                if (match.Team) {
+                    // Remove venue annotations like "(** Main Pitch **)"
+                    let normalizedName = match.Team.replace(/\s*\(\*\*.*\*\*\)\s*$/, '');
+                    // Remove location prefixes like "@MAGHERY - "
+                    normalizedName = normalizedName.replace(/^@[^-]+-\s*/, '');
+                    // Trim any extra whitespace
+                    normalizedName = normalizedName.trim();
+                    
+                    // If we haven't seen this normalized name before, or if the current name is shorter
+                    // (prefer "Minor Boys" over "@MAGHERY - Minor Boys")
+                    if (!teamsMap.has(normalizedName) || match.Team.length < teamsMap.get(normalizedName).length) {
+                        teamsMap.set(normalizedName, match.Team);
                     }
                 }
             });
             
+            console.log('Normalized teams map:', teamsMap);
+            
             // Convert to array and sort
-            const uniqueTeams = Array.from(teamsSet).sort((a, b) => {
+            const uniqueTeams = Array.from(teamsMap.values()).sort((a, b) => {
                 // Custom sort function to group by age group
                 const ageGroupOrder = {
                     'Senior': 1,
@@ -3714,7 +3772,8 @@ END:VCALENDAR`;
             uniqueTeams.forEach(team => {
                 const option = document.createElement('option');
                 option.value = team;
-                option.textContent = team;
+                // Display the normalized version of the team name
+                option.textContent = team.replace(/^@[^-]+-\s*/, '').replace(/\s*\(\*\*.*\*\*\)\s*$/, '').trim();
                 teamFilter.appendChild(option);
             });
             
