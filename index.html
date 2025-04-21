@@ -160,8 +160,8 @@
         .content-area {
             flex: 1;
             padding: 1rem;
-            max-width: calc(100% - 300px);
-            transition: max-width 0.3s ease;
+            width: 100%;
+            transition: margin-left 0.3s ease;
         }
         
         .content-area.expanded {
@@ -2503,49 +2503,31 @@ END:VCALENDAR`;
                 return;
             }
             
-            // Initialize sidebar state based on screen size
-            const isMobile = window.innerWidth <= 992;
-            console.log('Initial screen size check:', { isMobile, width: window.innerWidth });
-            
-            if (isMobile) {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-            } else {
-                sidebar.classList.add('active');
-            }
+            // Initialize sidebar as closed for all screen sizes
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
             
             // Hamburger menu click handler
             hamburgerMenu.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                        console.log('Hamburger menu clicked');
-                        sidebar.classList.toggle('active');
-                        overlay.classList.toggle('active');
-                    });
-                
+                console.log('Hamburger menu clicked');
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
             // Overlay click handler
             overlay.addEventListener('click', () => {
-                    console.log('Overlay clicked');
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
+                console.log('Overlay clicked');
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
             });
             
-            // Window resize handler
+            // Window resize handler - always ensure sidebar is closed on resize
             window.addEventListener('resize', () => {
-                const isMobile = window.innerWidth <= 992;
-                console.log('Window resized:', { isMobile, width: window.innerWidth });
-                
-                if (isMobile) {
-                    sidebar.classList.remove('active');
-                        overlay.classList.remove('active');
-                    } else {
-                    sidebar.classList.add('active');
-                }
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
             });
-            
-            // Initialize team filter and stats
-                populateSidebarTeamFilter();
-                //updateTeamStats('all');
         }
         
         // Initialize search functionality with autocomplete
