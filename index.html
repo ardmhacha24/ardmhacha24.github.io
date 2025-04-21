@@ -3308,30 +3308,39 @@ END:VCALENDAR`;
 
         function populateSidebarTeamFilter() {
             console.log('Populating sidebar team filter');
-            const teamFilter = document.querySelector('.team-filter');
+            const teamFilter = document.getElementById('sidebarTeamFilter');
+            
             if (!teamFilter) {
                 console.error('Team filter element not found');
                 return;
             }
             
-            const matches = getAllMatches();
+            // Clear existing options except the first one
+            while (teamFilter.options.length > 1) {
+                teamFilter.remove(1);
+            }
+            
+            // Get unique teams
             const teams = new Set();
             matches.forEach(match => {
-                teams.add(match.homeTeam);
-                teams.add(match.awayTeam);
+                if (match.Team) teams.add(match.Team);
             });
             
-            teamFilter.innerHTML = Array.from(teams)
-                .sort()
-                .map(team => `<option value="${team}">${team}</option>`)
-                .join('');
-            
-            teamFilter.addEventListener('change', (e) => {
-                const selectedTeam = e.target.value;
-                console.log('Team selected:', selectedTeam);
-                updateTeamStats(selectedTeam);
-                filterMatches(); // This will use the selected team to filter matches
+            // Add team options
+            Array.from(teams).sort().forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                teamFilter.appendChild(option);
             });
+            
+            // Add change event listener
+            teamFilter.addEventListener('change', function() {
+                console.log('Team filter changed to:', this.value);
+                updateTeamStats(this.value);
+            });
+            
+            console.log('Sidebar team filter populated with options:', Array.from(teams));
         }
 
         // Initialize everything when the DOM is loaded
