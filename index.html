@@ -1657,7 +1657,7 @@
                     <div class="search-group">
                         <div class="search-input-wrapper">
                             <i class="fas fa-search"></i>
-                            <input type="text" id="searchInput" placeholder="Search matches...">
+                            <input type="text" id="searchInput" placeholder="Search matches, teams or competitions...">
                         </div>
                         <button class="reset-btn" id="resetSearch" title="Reset search">
                             <i class="fas fa-times"></i>
@@ -1881,6 +1881,7 @@
             if (filteredMatches.length === 0) {
                 matchContainer.innerHTML = `
                     <div class="no-results">
+                        <p><b>LOADING......</b></p>
                         <p>No matches found for the selected filters.</p>
                         <p>Try changing your filter options.</p>
                     </div>
