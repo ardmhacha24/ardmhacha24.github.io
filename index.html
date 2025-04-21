@@ -2413,9 +2413,25 @@ END:VCALENDAR`;
                 ? matches 
                 : matches.filter(match => match.Team === teamName);
             
-            // Filter upcoming matches (excluding training)
+            // Filter upcoming matches (excluding training) and remove duplicates
+            const processedMatches = new Set(); // Track processed matches
             const upcomingMatches = teamMatches
-                .filter(match => !match.isTraining && (!match.Result || match.Result === '---'))
+                .filter(match => {
+                    if (match.isTraining) return false;
+                    if (match.Result && match.Result !== '---') return false;
+                    
+                    // Create a unique key for the match
+                    const matchKey = `${match.Date}-${match.Time}-${match['Home Team']}-${match['Away Team']}-${match.Venue}`;
+                    
+                    // Check if we've already processed this match
+                    if (processedMatches.has(matchKey)) {
+                        return false;
+                    }
+                    
+                    // Add to processed matches and keep this one
+                    processedMatches.add(matchKey);
+                    return true;
+                })
                 .sort((a, b) => parseDate(a.Date) - parseDate(b.Date))
                 .slice(0, 3);
             
