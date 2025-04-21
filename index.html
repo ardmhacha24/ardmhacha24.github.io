@@ -1936,14 +1936,8 @@
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
                 
-                // After all matches are loaded, update filters
-                console.log('Extracting filter options...');
-                const filterOptions = extractFilterOptions();
-                console.log('Filter options extracted:', filterOptions);
-                console.log('Populating filters...');
-                populateFilters(filterOptions);
-                console.log('Filters populated');
-                
+                // Display matches
+                displayMatches();
                 console.log('Initialization complete. Final match count:', matches.length);
                 
             } catch (error) {
@@ -3108,14 +3102,8 @@ END:VCALENDAR`;
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
                 
-                // After all matches are loaded, update filters
-                console.log('Extracting filter options...');
-                const filterOptions = extractFilterOptions();
-                console.log('Filter options extracted:', filterOptions);
-                console.log('Populating filters...');
-                populateFilters(filterOptions);
-                console.log('Filters populated');
-                
+                // Display matches
+                displayMatches();
                 console.log('Initialization complete. Final match count:', matches.length);
                 
             } catch (error) {
@@ -3311,14 +3299,8 @@ END:VCALENDAR`;
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
                 
-                // After all matches are loaded, update filters
-                console.log('Extracting filter options...');
-                const filterOptions = extractFilterOptions();
-                console.log('Filter options extracted:', filterOptions);
-                console.log('Populating filters...');
-                populateFilters(filterOptions);
-                console.log('Filters populated');
-                
+                // Display matches
+                displayMatches();
                 console.log('Initialization complete. Final match count:', matches.length);
                 
             } catch (error) {
