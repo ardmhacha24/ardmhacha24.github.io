@@ -127,6 +127,7 @@
             cursor: pointer;
             padding: 10px;
             z-index: 1001;
+            display: block; /* Always show hamburger */
         }
         
         @media (min-width: 993px) {
@@ -2503,17 +2504,22 @@ END:VCALENDAR`;
                 return;
             }
             
-            // Initialize sidebar as closed for all screen sizes
+            // Initialize sidebar as closed
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             
+            // Remove any existing event listeners
+            const newHamburger = hamburgerMenu.cloneNode(true);
+            hamburgerMenu.parentNode.replaceChild(newHamburger, hamburgerMenu);
+            
             // Hamburger menu click handler
-            hamburgerMenu.addEventListener('click', (e) => {
+            newHamburger.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('Hamburger menu clicked');
                 sidebar.classList.toggle('active');
                 overlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
             });
             
             // Overlay click handler
@@ -2521,12 +2527,27 @@ END:VCALENDAR`;
                 console.log('Overlay clicked');
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
+                document.body.style.overflow = '';
             });
             
-            // Window resize handler - always ensure sidebar is closed on resize
+            // Close sidebar when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!sidebar.contains(event.target) && 
+                    !newHamburger.contains(event.target) && 
+                    sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            // Close sidebar on window resize
             window.addEventListener('resize', () => {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
+                if (sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
             });
         }
         
