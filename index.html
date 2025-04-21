@@ -1609,48 +1609,31 @@
         let datePickerInstance = null;
         let trainingEvents = [];
         
-        // Initialize everything
-        async function init() {
-            console.log('Starting initialization...');
-            try {
-                // First, initialize UI components that don't depend on data
-                initializeDatePicker();
-                
-                // Fetch data
-                console.log('Fetching data...');
-                const [fetchedMatches, fetchedTraining] = await Promise.all([
-                    fetchMatchesFromWorker(),
-                    fetchTrainingEvents()
-                ]);
-                
-                // Store fetched data
-                matches = fetchedMatches;
-                trainingEvents = fetchedTraining;
-                
-                console.log('Data loaded:', {
-                    matches: matches.length,
-                    training: trainingEvents.length
-                });
-                
-                // Now initialize UI components that depend on data
-                initializeUI();
-                
-                // Display initial matches
-                displayMatches();
-                
-                console.log('Initialization complete');
-            } catch (error) {
-                console.error('Initialization error:', error);
-                throw error;
-            }
+        // Utility functions
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
         }
-
+        
         // Enhanced filter matches function
         function filterMatches() {
             console.log('=== filterMatches START ===');
             const searchInput = document.getElementById('searchInput');
-            const showMatches = document.getElementById('showMatchesToggle').checked;
-            const showTraining = document.getElementById('showTrainingToggle').checked;
+            const showMatchesToggle = document.getElementById('showMatchesToggle');
+            const showTrainingToggle = document.getElementById('showTrainingToggle');
+            
+            // Default to showing both if toggles aren't found
+            const showMatches = showMatchesToggle ? showMatchesToggle.checked : true;
+            const showTraining = showTrainingToggle ? showTrainingToggle.checked : true;
+            
+            console.log('Filter states:', { showMatches, showTraining });
             
             let filteredMatches = matches;
             
@@ -1709,6 +1692,30 @@
         // Initialize UI components
         function initializeUI() {
             console.log('Initializing UI components');
+            
+            // Ensure toggle elements exist in DOM
+            const toggleContainer = document.querySelector('.filter-container');
+            if (toggleContainer) {
+                if (!document.getElementById('showMatchesToggle')) {
+                    const matchesToggle = document.createElement('div');
+                    matchesToggle.className = 'filter-toggle';
+                    matchesToggle.innerHTML = `
+                        <input type="checkbox" id="showMatchesToggle" checked>
+                        <label for="showMatchesToggle">Show Matches</label>
+                    `;
+                    toggleContainer.appendChild(matchesToggle);
+                }
+                
+                if (!document.getElementById('showTrainingToggle')) {
+                    const trainingToggle = document.createElement('div');
+                    trainingToggle.className = 'filter-toggle';
+                    trainingToggle.innerHTML = `
+                        <input type="checkbox" id="showTrainingToggle" checked>
+                        <label for="showTrainingToggle">Show Training</label>
+                    `;
+                    toggleContainer.appendChild(trainingToggle);
+                }
+            }
             
             // Ensure stats elements exist in DOM
             const statsElements = [
