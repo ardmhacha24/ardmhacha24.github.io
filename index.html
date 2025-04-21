@@ -1841,7 +1841,6 @@
         function filterMatches() {
             console.log('=== filterMatches START ===');
             const searchInput = document.getElementById('searchInput');
-            const dateRangeInput = document.getElementById('dateRange');
             const showMatches = document.getElementById('showMatches').checked;
             const showTraining = document.getElementById('showTraining').checked;
             
@@ -1874,8 +1873,8 @@
             }
             
             // Apply date range filter if selected
-            if (dateRangeInput && dateRangeInput._flatpickr && dateRangeInput._flatpickr.selectedDates.length === 2) {
-                const [startDate, endDate] = dateRangeInput._flatpickr.selectedDates;
+            if (datePickerInstance && datePickerInstance.selectedDates.length === 2) {
+                const [startDate, endDate] = datePickerInstance.selectedDates;
                 console.log('Filtering by date range:', { startDate, endDate });
                 
                 filteredMatches = filteredMatches.filter(match => {
@@ -3564,6 +3563,7 @@ END:VCALENDAR`;
         // Initialize everything when the DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM loaded, initializing components');
+            datePickerInstance = initializeDatePicker();
             initSidebarToggle();
             populateSidebarTeamFilter();
             // ... existing initialization code ...
@@ -3666,7 +3666,7 @@ END:VCALENDAR`;
             }
             
             // Configure flatpickr
-            const picker = flatpickr(dateRange, {
+            datePickerInstance = flatpickr(dateRange, {
                 mode: "range",
                 dateFormat: "D M d Y",
                 allowInput: true,
@@ -3717,13 +3717,16 @@ END:VCALENDAR`;
             // Reset date range handler
             resetDateBtn.addEventListener('click', () => {
                 console.log('Resetting date range');
-                picker.clear();
+                if (datePickerInstance) {
+                    datePickerInstance.clear();
+                    datePickerInstance.setDate([]); // Explicitly clear the dates
+                }
                 displayMatches();
                 scrollToTodayMarker();
             });
             
             console.log('Date picker initialized');
-            return picker;
+            return datePickerInstance;
         }
 
         // Function to scroll to the first match within selected date range
