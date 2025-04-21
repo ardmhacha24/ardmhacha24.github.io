@@ -1966,6 +1966,31 @@
                     }
                 });
                 
+                // Initialize search input
+                const searchInput = document.getElementById('searchInput');
+                const resetSearchBtn = document.getElementById('resetSearch');
+                const resetDateBtn = document.getElementById('resetDate');
+                
+                // Add search input handler
+                searchInput.addEventListener('input', debounce(() => {
+                    displayMatches();
+                }, 300));
+                
+                // Add reset search button handler
+                resetSearchBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    displayMatches();
+                });
+                
+                // Add reset date button handler
+                resetDateBtn.addEventListener('click', () => {
+                    const dateRangeInput = document.getElementById('dateRange');
+                    if (dateRangeInput._flatpickr) {
+                        dateRangeInput._flatpickr.clear();
+                        displayMatches();
+                    }
+                });
+                
                 // Initialize sidebar
                 initSidebarToggle();
                 
