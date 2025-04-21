@@ -1970,6 +1970,20 @@
                 initializeUI();
                 console.log('UI initialized');
                 
+                // Add toggle event listeners
+                const showMatchesToggle = document.getElementById('showMatches');
+                const showTrainingToggle = document.getElementById('showTraining');
+                
+                showMatchesToggle.addEventListener('change', () => {
+                    console.log('Matches toggle changed:', showMatchesToggle.checked);
+                    displayMatches();
+                });
+                
+                showTrainingToggle.addEventListener('change', () => {
+                    console.log('Training toggle changed:', showTrainingToggle.checked);
+                    displayMatches();
+                });
+                
                 // Fetch matches from worker
                 console.log('Starting to fetch matches from worker...');
                 const workerMatches = await fetchMatchesFromWorker();
@@ -1985,20 +1999,6 @@
                 // Initialize search functionality
                 console.log('Initializing search functionality...');
                 initSearchAutocomplete();
-                
-                // Add search input handler with debounce
-                const searchInput = document.getElementById('searchInput');
-                searchInput.addEventListener('input', debounce(() => {
-                    console.log('Search input changed:', searchInput.value);
-                    displayMatches();
-                }, 300));
-                
-                // Add reset search button handler
-                const resetSearchBtn = document.getElementById('resetSearch');
-                resetSearchBtn.addEventListener('click', () => {
-                    searchInput.value = '';
-                    displayMatches();
-                });
                 
                 // Display matches
                 displayMatches();
@@ -2103,12 +2103,6 @@
                         match.Time || ''
                     ].join(' ').toLowerCase();
                     
-                    console.log('Match searchable text:', {
-                        match: `${match['Home Team']} vs ${match['Away Team']}`,
-                        searchableText: searchableText,
-                        includes: searchableText.includes(searchQuery)
-                    });
-                    
                     if (!searchableText.includes(searchQuery)) {
                         return false;
                     }
@@ -2120,16 +2114,9 @@
                     const startDate = dateRange[0];
                     const endDate = dateRange[1];
                     
-                    const isInRange = matchDate >= startDate && matchDate <= endDate;
-                    console.log('Date range check:', {
-                        match: `${match['Home Team']} vs ${match['Away Team']}`,
-                        matchDate: matchDate,
-                        startDate: startDate,
-                        endDate: endDate,
-                        isInRange: isInRange
-                    });
-                    
-                    if (!isInRange) return false;
+                    if (matchDate < startDate || matchDate > endDate) {
+                        return false;
+                    }
                 }
                 
                 return true;
@@ -3318,10 +3305,24 @@ END:VCALENDAR`;
                 initializeUI();
                 console.log('UI initialized');
                 
+                // Add toggle event listeners
+                const showMatchesToggle = document.getElementById('showMatches');
+                const showTrainingToggle = document.getElementById('showTraining');
+                
+                showMatchesToggle.addEventListener('change', () => {
+                    console.log('Matches toggle changed:', showMatchesToggle.checked);
+                    displayMatches();
+                });
+                
+                showTrainingToggle.addEventListener('change', () => {
+                    console.log('Training toggle changed:', showTrainingToggle.checked);
+                    displayMatches();
+                });
+                
                 // Fetch matches from worker
                 console.log('Starting to fetch matches from worker...');
                 const workerMatches = await fetchMatchesFromWorker();
-                console.log('Worker matches fetched:', workerMatches.length);
+                console.log('Worker matches fetched, adding to matches array...');
                 matches = matches.concat(workerMatches);
                 console.log('Total matches after worker fetch:', matches.length);
                 
@@ -3330,7 +3331,7 @@ END:VCALENDAR`;
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
                 
-                // Initialize search functionality after matches are loaded
+                // Initialize search functionality
                 console.log('Initializing search functionality...');
                 initSearchAutocomplete();
                 
@@ -3495,56 +3496,6 @@ END:VCALENDAR`;
                 console.error('Error in fetchMatchesFromWorker:', error);
                 console.error('Error details:', error.message);
                 return [];
-            }
-        }
-
-        // Initialize the application
-        async function init() {
-            console.log('Initializing application...');
-            try {
-                // Initialize empty matches array
-                matches = [];
-                console.log('Initialized empty matches array');
-                
-                // Wait for DOM to be fully loaded
-                if (document.readyState === 'loading') {
-                    console.log('DOM not fully loaded, waiting...');
-                    await new Promise(resolve => {
-                        document.addEventListener('DOMContentLoaded', resolve);
-                    });
-                    console.log('DOM fully loaded');
-                }
-                
-                // Initialize UI first without filters
-                console.log('Initializing UI...');
-                initializeUI();
-                console.log('UI initialized');
-                
-                // Fetch matches from worker
-                console.log('Starting to fetch matches from worker...');
-                const workerMatches = await fetchMatchesFromWorker();
-                console.log('Worker matches fetched, adding to matches array...');
-                matches = matches.concat(workerMatches);
-                console.log('Total matches after worker fetch:', matches.length);
-                
-                // Fetch training events
-                console.log('Starting to fetch training events...');
-                await fetchTrainingEvents();
-                console.log('Training events fetched, total matches now:', matches.length);
-                
-                // Display matches
-                displayMatches();
-                console.log('Initialization complete. Final match count:', matches.length);
-                
-            } catch (error) {
-                console.error('Error in init:', error);
-                console.error('Error stack:', error.stack);
-                document.getElementById('matchContainer').innerHTML = `
-                    <div class="no-results">
-                        <p>Error loading matches. Please try refreshing the page.</p>
-                        <p>Error details: ${error.message}</p>
-                    </div>
-                `;
             }
         }
     </script>
