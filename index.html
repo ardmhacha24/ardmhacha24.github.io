@@ -1935,23 +1935,41 @@
         
         // Separate UI initialization
         function initializeUI() {
-            try {
-                console.log('Initializing UI...');
-                
-                // Initialize date picker
-                initializeDatePicker();
-                
-                // Initialize sidebar
-                initSidebarToggle();
-                
-                // Display initial matches
-                displayMatches();
-                
-                console.log('UI initialization complete');
-            } catch (error) {
-                console.error('Error initializing UI:', error);
-                throw error;
+            console.log('Initializing UI components');
+            
+            // Initialize team filter in sidebar
+            const teamFilter = document.getElementById('sidebarTeamFilter');
+            if (teamFilter) {
+                teamFilter.addEventListener('change', function() {
+                    console.log('Team filter changed to:', this.value);
+                    updateTeamStats(this.value);
+                });
             }
+            
+            // Initialize match/training toggles
+            const showMatchesToggle = document.getElementById('showMatchesToggle');
+            const showTrainingToggle = document.getElementById('showTrainingToggle');
+            
+            if (showMatchesToggle) {
+                showMatchesToggle.addEventListener('change', function() {
+                    displayMatches();
+                });
+            }
+            
+            if (showTrainingToggle) {
+                showTrainingToggle.addEventListener('change', function() {
+                    displayMatches();
+                });
+            }
+            
+            // Initialize date picker
+            initializeDatePicker();
+            
+            // Initialize search autocomplete
+            initSearchAutocomplete();
+            
+            // Initialize team filter
+            populateSidebarTeamFilter();
         }
         
         // Debounce function to limit search input processing
@@ -3420,42 +3438,41 @@ END:VCALENDAR`;
 
         // Separate UI initialization
         function initializeUI() {
-            try {
-                console.log('Initializing UI...');
-                
-                // Initialize date picker
-                initializeDatePicker();
-                
-                // Initialize sidebar
-                initSidebarToggle();
-                
-                // Add toggle event listeners
-                const showMatchesToggle = document.getElementById('showMatches');
-                const showTrainingToggle = document.getElementById('showTraining');
-                
-                if (showMatchesToggle && showTrainingToggle) {
-                    showMatchesToggle.addEventListener('change', () => {
-                        console.log('Matches toggle changed:', showMatchesToggle.checked);
-                        displayMatches();
-                    });
-                    
-                    showTrainingToggle.addEventListener('change', () => {
-                        console.log('Training toggle changed:', showTrainingToggle.checked);
-                        displayMatches();
-                    });
-                }
-                
-                // Populate team filter and initialize stats
-                populateSidebarTeamFilter();
-                
-                // Display initial matches
-                displayMatches();
-                
-                console.log('UI initialization complete');
-            } catch (error) {
-                console.error('Error initializing UI:', error);
-                throw error;
+            console.log('Initializing UI components');
+            
+            // Initialize team filter in sidebar
+            const teamFilter = document.getElementById('sidebarTeamFilter');
+            if (teamFilter) {
+                teamFilter.addEventListener('change', function() {
+                    console.log('Team filter changed to:', this.value);
+                    updateTeamStats(this.value);
+                });
             }
+            
+            // Initialize match/training toggles
+            const showMatchesToggle = document.getElementById('showMatchesToggle');
+            const showTrainingToggle = document.getElementById('showTrainingToggle');
+            
+            if (showMatchesToggle) {
+                showMatchesToggle.addEventListener('change', function() {
+                    displayMatches();
+                });
+            }
+            
+            if (showTrainingToggle) {
+                showTrainingToggle.addEventListener('change', function() {
+                    displayMatches();
+                });
+            }
+            
+            // Initialize date picker
+            initializeDatePicker();
+            
+            // Initialize search autocomplete
+            initSearchAutocomplete();
+            
+            // Initialize team filter
+            populateSidebarTeamFilter();
         }
 
         // Remove any other DOMContentLoaded listeners and use just this one
