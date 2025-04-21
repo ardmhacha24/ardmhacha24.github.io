@@ -2519,18 +2519,22 @@ END:VCALENDAR`;
                 if (!match.Result || match.Result === '---') {
                     stats.upcoming++;
                 } else {
-                    switch (match.Result.toUpperCase()) {
-                        case 'WIN':
-                            stats.wins++;
-                            break;
-                        case 'LOSS':
-                            stats.losses++;
-                            break;
-                        case 'DRAW':
-                            stats.draws++;
-                            break;
-                        default:
-                            console.warn('Unknown match result:', match.Result);
+                    // Check if this team won the match
+                    const isHomeTeam = match['Home Team'].includes(teamName);
+                    const isAwayTeam = match['Away Team'].includes(teamName);
+                    
+                    if (match.Result === 'WIN' && isHomeTeam) {
+                        stats.wins++;
+                    } else if (match.Result === 'LOSS' && isAwayTeam) {
+                        stats.wins++;
+                    } else if (match.Result === 'LOSS' && isHomeTeam) {
+                        stats.losses++;
+                    } else if (match.Result === 'WIN' && isAwayTeam) {
+                        stats.losses++;
+                    } else if (match.Result === 'DRAW') {
+                        stats.draws++;
+                    } else {
+                        console.warn('Unknown match result:', match.Result);
                     }
                 }
             });
