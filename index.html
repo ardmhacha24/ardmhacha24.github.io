@@ -1364,7 +1364,8 @@
     </header>
     
     <div class="main-content">
-        <div class="sidebar" id="sidebar">
+        <div class="sidebar-overlay"></div>
+        <div class="sidebar">
             <div class="sidebar-header">
                 <h2>Team Statistics</h2>
                 <div class="team-selector">
@@ -1375,27 +1376,27 @@
             </div>
             
             <div class="team-stats">
-                <div class="team-stat-item" data-tooltip="Total Matches">
+                <div class="team-stat-item">
                     <i class="fas fa-trophy stat-icon"></i>
                     <span class="team-stat-label">Total Matches</span>
                     <span class="team-stat-value" id="sidebarTotalCount">0</span>
                 </div>
-                <div class="team-stat-item" data-tooltip="Wins">
+                <div class="team-stat-item">
                     <i class="fas fa-check-circle stat-icon"></i>
                     <span class="team-stat-label">Wins</span>
                     <span class="team-stat-value win" id="sidebarWinCount">0</span>
                 </div>
-                <div class="team-stat-item" data-tooltip="Losses">
+                <div class="team-stat-item">
                     <i class="fas fa-times-circle stat-icon"></i>
                     <span class="team-stat-label">Losses</span>
                     <span class="team-stat-value loss" id="sidebarLossCount">0</span>
                 </div>
-                <div class="team-stat-item" data-tooltip="Draws">
+                <div class="team-stat-item">
                     <i class="fas fa-minus-circle stat-icon"></i>
                     <span class="team-stat-label">Draws</span>
                     <span class="team-stat-value draw" id="sidebarDrawCount">0</span>
                 </div>
-                <div class="team-stat-item" data-tooltip="Upcoming Matches">
+                <div class="team-stat-item">
                     <i class="fas fa-calendar-alt stat-icon"></i>
                     <span class="team-stat-label">Upcoming Matches</span>
                     <span class="team-stat-value" id="sidebarUpcomingCount">0</span>
@@ -1830,7 +1831,7 @@
                 return matches;
             }
             
-            const searchQuery = searchInput.value.toLowerCase().trim();
+            const searchQuery = (searchInput.value || '').toLowerCase().trim();
             console.log('Current search query:', searchQuery);
             
             // Get date range safely
@@ -2351,34 +2352,39 @@ END:VCALENDAR`;
         // Populate sidebar team filter
         function populateSidebarTeamFilter() {
             console.log('Populating sidebar team filter');
-            const options = extractFilterOptions();
-            const sidebarTeamFilter = document.getElementById('sidebarTeamFilter');
+            const teamFilter = document.getElementById('sidebarTeamFilter');
             
-            if (!sidebarTeamFilter) {
-                console.error('Sidebar team filter element not found');
+            if (!teamFilter) {
+                console.error('Team filter element not found');
                 return;
             }
             
             // Clear existing options except the first one
-            while (sidebarTeamFilter.options.length > 1) {
-                sidebarTeamFilter.remove(1);
+            while (teamFilter.options.length > 1) {
+                teamFilter.remove(1);
             }
             
+            // Get unique teams
+            const teams = new Set();
+            matches.forEach(match => {
+                if (match.Team) teams.add(match.Team);
+            });
+            
             // Add team options
-            options.teams.forEach(team => {
+            Array.from(teams).sort().forEach(team => {
                 const option = document.createElement('option');
                 option.value = team;
                 option.textContent = team;
-                sidebarTeamFilter.appendChild(option);
+                teamFilter.appendChild(option);
             });
             
             // Add change event listener
-            sidebarTeamFilter.addEventListener('change', function() {
+            teamFilter.addEventListener('change', function() {
                 console.log('Team filter changed to:', this.value);
                 updateTeamStats(this.value);
             });
             
-            console.log('Sidebar team filter populated with options:', options.teams);
+            console.log('Sidebar team filter populated with options:', Array.from(teams));
         }
         
         // Initialize sidebar toggle functionality
@@ -2389,7 +2395,11 @@ END:VCALENDAR`;
             const overlay = document.querySelector('.sidebar-overlay');
             
             if (!sidebar || !hamburgerMenu || !overlay) {
-                console.error('Required sidebar elements not found:', { sidebar, hamburgerMenu, overlay });
+                console.error('Required sidebar elements not found:', { 
+                    sidebar: !!sidebar, 
+                    hamburgerMenu: !!hamburgerMenu, 
+                    overlay: !!overlay 
+                });
                 return;
             }
             
@@ -2488,7 +2498,7 @@ END:VCALENDAR`;
             // Add input event listener with debounce for suggestions
             searchInput.addEventListener('input', debounce(function() {
                 console.log('=== Search Input Event ===');
-                const val = this.value.toLowerCase().trim();
+                const val = (this.value || '').toLowerCase().trim();
                 console.log('Current input value:', val);
                 
                 suggestionsContainer.innerHTML = '';
@@ -2500,7 +2510,7 @@ END:VCALENDAR`;
                 }
                 
                 const matchingTerms = Array.from(searchableTerms)
-                    .filter(term => term.toLowerCase().includes(val))
+                    .filter(term => term && term.toLowerCase().includes(val))
                     .slice(0, 5);
                 
                 console.log('Matching suggestions:', matchingTerms);
