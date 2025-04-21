@@ -1489,7 +1489,7 @@
                 month: 'short',
                 year: '2-digit'
             }).replace(/,/g, '');
-            console.log('Formatted date:', formatted);
+            //console.log('Formatted date:', formatted);
             return formatted;
         }
         
@@ -1903,7 +1903,7 @@
         
         // Helper function to parse date strings
         function parseDate(dateStr) {
-            console.log('Parsing date string:', dateStr);
+            //console.log('Parsing date string:', dateStr);
             
             // Check if the date is in the format "Mon 31 Mar 25"
             const formatOne = /^[A-Za-z]{3} \d{1,2} [A-Za-z]{3} \d{2}$/;
@@ -1913,7 +1913,7 @@
             const month = getMonthNumber(parts[2]);
             const year = 2000 + parseInt(parts[3]);
                 const date = new Date(year, month, day);
-                console.log('Parsed date (format one):', date);
+                //console.log('Parsed date (format one):', date);
                 return date;
             }
             
