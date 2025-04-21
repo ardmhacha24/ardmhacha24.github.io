@@ -80,279 +80,155 @@
             width: 100%;
         }
         
+        /* Sidebar Styles */
         .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
             width: 300px;
-            background-color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            padding: 1rem;
+            height: 100vh;
+            background: #fff;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
             overflow-y: auto;
-            max-height: calc(100vh - 100px);
-            position: sticky;
-                top: 0;
-                transition: all 0.3s ease;
-            z-index: 10;
+            padding: 20px;
         }
         
         .sidebar.collapsed {
-            width: 60px;
-            padding: 1rem 0;
-            overflow: visible;
+            transform: translateX(-100%);
         }
         
-        .sidebar.collapsed .sidebar-header h2,
-        .sidebar.collapsed .team-selector,
-        .sidebar.collapsed .team-stat-label,
-        .sidebar.collapsed .team-upcoming h3,
-        .sidebar.collapsed .upcoming-match-teams,
-        .sidebar.collapsed .upcoming-match-venue {
-            display: none;
+        .sidebar.active {
+            transform: translateX(0);
         }
         
-        .sidebar.collapsed .team-stats {
-            margin: 0;
-            padding: 12px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 8px;
-        }
-        
-        .sidebar.collapsed .team-stats h3 {
-            font-size: 1rem;
-            margin: 0 0 8px 0;
-            color: var(--primary);
-            font-weight: 600;
-            text-align: center;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 4px;
-        }
-        
-        .sidebar.collapsed .team-stats .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 4px;
-            font-size: 0.8rem;
-        }
-        
-        .sidebar.collapsed .team-stats .stat-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 4px;
-            background: var(--light-bg);
-            border-radius: 4px;
-        }
-        
-        .sidebar.collapsed .team-stats .stat-label {
-            font-size: 0.7rem;
-            color: var(--light-text);
-            margin-bottom: 2px;
-        }
-        
-        .sidebar.collapsed .team-stats .stat-value {
-            font-weight: 600;
-            color: var(--text);
-        }
-        
-        /* Icons for mini sidebar */
-        .stat-icon {
-            display: none;
-            font-size: 1.2rem;
-            color: var(--primary);
-        }
-        
-        .sidebar.collapsed .stat-icon {
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-        
-        /* Tooltip for mini sidebar */
-        .sidebar.collapsed .team-stat-item::before {
-            content: attr(data-tooltip);
-            position: absolute;
-            left: 100%;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: var(--primary);
-            color: white;
-            padding: 0.5rem;
-            border-radius: 0.25rem;
-            font-size: 0.85rem;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s ease;
-            pointer-events: none;
-            margin-left: 0.5rem;
-            z-index: 1000;
-        }
-        
-        .sidebar.collapsed .team-stat-item::after {
-            content: '';
-            position: absolute;
-            left: 100%;
-            top: 50%;
-            transform: translateY(-50%);
-            border: 6px solid transparent;
-            border-right-color: var(--primary);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s ease;
-            pointer-events: none;
-            margin-left: -0.5rem;
-            z-index: 1000;
-        }
-        
-        .sidebar.collapsed .team-stat-item:hover::before,
-        .sidebar.collapsed .team-stat-item:hover::after {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .sidebar.collapsed .upcoming-match {
-            padding: 0.75rem 0;
-            text-align: center;
-            background: none;
-        }
-        
-        .sidebar.collapsed .upcoming-match-date {
-            font-size: 0.8rem;
-            margin: 0;
-        }
-        
-        .sidebar.collapsed + .sidebar-toggle {
-            left: 60px;
-        }
-        
-        @media (max-width: 992px) {
-            .sidebar.collapsed {
-                transform: translateX(-100%);
-                width: 0;
-                padding: 0;
-            }
-            
-            .sidebar.collapsed + .sidebar-toggle {
-                left: 15px;
-            }
-        }
-        
-        /* Overlay for when sidebar is open on mobile */
         .sidebar-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 9;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
             opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition: opacity 0.3s ease-in-out;
         }
         
         .sidebar-overlay.active {
+            display: block;
             opacity: 1;
-            visibility: visible;
         }
         
-        .sidebar-toggle {
-            position: fixed;
-            top: 50%;
-            left: 300px;
-            transform: translateY(-50%);
-            width: 32px;
-            height: 32px;
-            background-color: white;
-            color: var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Hamburger Menu Styles */
+        .hamburger-menu {
+            display: none;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            z-index: 11;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 1;
-            border: 2px solid var(--primary);
+            padding: 10px;
+            z-index: 1001;
         }
         
-        .sidebar-toggle:hover {
-            background-color: var(--primary);
-            color: white;
-            opacity: 1;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transform: translateY(-50%) scale(1.05);
+        .hamburger-menu.active {
+            display: block;
         }
         
-        @media (max-width: 992px) {
-            .sidebar-toggle {
-                top: 15px;
-                left: 15px;
-                transform: none;
-                width: 36px;
-                height: 36px;
-                background-color: white;
-                color: var(--primary);
-                border: 2px solid var(--primary);
-            }
-        }
-        
-        .sidebar.collapsed + .sidebar-toggle {
-            left: 0;
-            transform: translateY(-50%) scale(0.95);
-        }
-        
-        .sidebar.collapsed + .sidebar-toggle:hover {
-            transform: translateY(-50%) scale(1);
-        }
-        
-        /* Simple arrow icon */
-        .sidebar-toggle .arrow {
-            width: 12px;
-            height: 12px;
+        .hamburger-icon {
+            width: 25px;
+            height: 3px;
+            background: #333;
             position: relative;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            color: inherit;
-            font-size: 16px;
-            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .hamburger-icon:before,
+        .hamburger-icon:after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 3px;
+            background: #333;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .hamburger-icon:before {
+            transform: translateY(-8px);
+        }
+        
+        .hamburger-icon:after {
+            transform: translateY(8px);
+        }
+        
+        .hamburger-menu.active .hamburger-icon {
+            background: transparent;
+        }
+        
+        .hamburger-menu.active .hamburger-icon:before {
+            transform: rotate(45deg);
+        }
+        
+        .hamburger-menu.active .hamburger-icon:after {
+            transform: rotate(-45deg);
+        }
+        
+        /* Team Stats Styles */
+        .team-stats {
+            margin-top: 20px;
+        }
+        
+        .team-stat-item {
             display: flex;
             align-items: center;
-            justify-content: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
         }
         
-        .sidebar.collapsed + .sidebar-toggle .arrow::before {
-            content: '>';
+        .stat-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
         }
         
-        .sidebar-toggle .arrow::before {
-            content: '<';
+        .team-stat-label {
+            flex: 1;
+            font-weight: 500;
         }
         
+        .team-stat-value {
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 3px;
+        }
+        
+        .team-stat-value.win {
+            color: #28a745;
+        }
+        
+        .team-stat-value.loss {
+            color: #dc3545;
+        }
+        
+        .team-stat-value.draw {
+            color: #ffc107;
+        }
+        
+        /* Responsive Styles */
         @media (max-width: 992px) {
-            .sidebar-toggle {
-                top: 15px;
-                left: 15px;
-                transform: none;
-                width: 36px;
-                height: 36px;
-                background-color: white;
-                color: var(--primary);
-                border: 2px solid var(--primary);
+            .sidebar {
+                transform: translateX(-100%);
             }
             
-            .sidebar.collapsed + .sidebar-toggle {
-                left: 15px;
-                transform: scale(0.95);
+            .hamburger-menu {
+                display: block;
             }
             
-            .sidebar.collapsed + .sidebar-toggle:hover {
-                transform: scale(1);
+            .main-content {
+                margin-left: 0;
             }
             
-            .sidebar-toggle .arrow {
-                font-size: 18px;
+            body.sidebar-open {
+                overflow: hidden;
             }
         }
         
@@ -1510,54 +1386,12 @@
             white-space: pre-line;
         }
         
-        .hamburger-menu {
-            display: none;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 10px;
-            margin-left: auto;
-        }
-        
-        @media (max-width: 768px) {
-            .hamburger-menu {
-                display: block;
-            }
-            
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: -300px;
-                height: 100vh;
-                width: 300px;
-                z-index: 1000;
-                transition: left 0.3s ease;
-                background: white;
-                box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            }
-            
-            .sidebar.active {
-                left: 0;
-            }
-            
-            .content-area {
-                margin-left: 0;
-                width: 100%;
-            }
-            
-            .header-logo {
-                display: none;
-            }
-        }
-
         .toggle-group {
             display: flex;
             gap: 1rem;
             align-items: center;
         }
-
+        
         .toggle-label {
             display: flex;
             align-items: center;
@@ -1565,18 +1399,18 @@
             cursor: pointer;
             user-select: none;
         }
-
+        
         .toggle-label input[type="checkbox"] {
             width: 16px;
             height: 16px;
             cursor: pointer;
         }
-
+        
         .toggle-text {
             font-size: 0.9rem;
             color: var(--text);
         }
-
+        
         .filter-row {
             margin-top: 1rem;
             padding-top: 1rem;
@@ -2513,6 +2347,7 @@ END:VCALENDAR`;
         
         // Function to update team statistics in the sidebar
         function updateTeamStats(teamName) {
+            console.log('Updating team stats for:', teamName);
             const stats = {
                 total: 0,
                 wins: 0,
@@ -2525,6 +2360,8 @@ END:VCALENDAR`;
             const teamMatches = teamName === 'all' 
                 ? matches 
                 : matches.filter(match => match.Team === teamName);
+            
+            console.log('Filtered matches for stats:', teamMatches);
             
             // Count each match only once
             teamMatches.forEach(match => {
@@ -2540,6 +2377,8 @@ END:VCALENDAR`;
                     stats.upcoming++;
                 }
             });
+            
+            console.log('Calculated stats:', stats);
             
             // Update sidebar stats
             document.getElementById('sidebarTotalCount').textContent = stats.total;
@@ -2586,20 +2425,35 @@ END:VCALENDAR`;
         
         // Populate sidebar team filter
         function populateSidebarTeamFilter() {
+            console.log('Populating sidebar team filter');
             const options = extractFilterOptions();
             const sidebarTeamFilter = document.getElementById('sidebarTeamFilter');
+            
+            if (!sidebarTeamFilter) {
+                console.error('Sidebar team filter element not found');
+                return;
+            }
             
             // Clear existing options except the first one
             while (sidebarTeamFilter.options.length > 1) {
                 sidebarTeamFilter.remove(1);
             }
             
+            // Add team options
             options.teams.forEach(team => {
                 const option = document.createElement('option');
                 option.value = team;
                 option.textContent = team;
                 sidebarTeamFilter.appendChild(option);
             });
+            
+            // Add change event listener
+            sidebarTeamFilter.addEventListener('change', function() {
+                console.log('Team filter changed to:', this.value);
+                updateTeamStats(this.value);
+            });
+            
+            console.log('Sidebar team filter populated with options:', options.teams);
         }
         
         // Initialize sidebar toggle functionality
@@ -2620,92 +2474,10 @@ END:VCALENDAR`;
                 // Initially hide sidebar on mobile
                 if (window.innerWidth <= 992) {
                     sidebar.style.transform = 'translateX(-100%)';
+                    sidebar.classList.add('collapsed');
                 }
                 
-                // Create sidebar header
-                let sidebarHeader = sidebar.querySelector('.sidebar-header');
-                if (!sidebarHeader) {
-                    console.log('Creating sidebar header');
-                    sidebarHeader = document.createElement('div');
-                    sidebarHeader.className = 'sidebar-header';
-                    sidebar.appendChild(sidebarHeader);
-                    
-                    const headerTitle = document.createElement('h2');
-                    headerTitle.textContent = 'Team Statistics';
-                    sidebarHeader.appendChild(headerTitle);
-                    
-                    const teamSelector = document.createElement('div');
-                    teamSelector.className = 'team-selector';
-                    const teamSelect = document.createElement('select');
-                    teamSelect.id = 'sidebarTeamFilter';
-                    const defaultOption = document.createElement('option');
-                    defaultOption.value = 'all';
-                    defaultOption.textContent = 'All Teams';
-                    teamSelect.appendChild(defaultOption);
-                    teamSelector.appendChild(teamSelect);
-                    sidebarHeader.appendChild(teamSelector);
-                }
-                
-                // Create team stats section
-                let teamStats = sidebar.querySelector('.team-stats');
-                if (!teamStats) {
-                    console.log('Creating team stats section');
-                    teamStats = document.createElement('div');
-                    teamStats.className = 'team-stats';
-                    
-                    const statItems = [
-                        { id: 'sidebarTotalCount', label: 'Total Matches', icon: 'trophy' },
-                        { id: 'sidebarWinCount', label: 'Wins', icon: 'check-circle', class: 'win' },
-                        { id: 'sidebarLossCount', label: 'Losses', icon: 'times-circle', class: 'loss' },
-                        { id: 'sidebarDrawCount', label: 'Draws', icon: 'minus-circle', class: 'draw' },
-                        { id: 'sidebarUpcomingCount', label: 'Upcoming Matches', icon: 'calendar-alt' }
-                    ];
-                    
-                    statItems.forEach(item => {
-                        const statItem = document.createElement('div');
-                        statItem.className = 'team-stat-item';
-                        statItem.setAttribute('data-tooltip', item.label);
-                        
-                        const icon = document.createElement('i');
-                        icon.className = `fas fa-${item.icon} stat-icon`;
-                        
-                        const label = document.createElement('span');
-                        label.className = 'team-stat-label';
-                        label.textContent = item.label;
-                        
-                        const value = document.createElement('span');
-                        value.className = `team-stat-value${item.class ? ' ' + item.class : ''}`;
-                        value.id = item.id;
-                        value.textContent = '0';
-                        
-                        statItem.appendChild(icon);
-                        statItem.appendChild(label);
-                        statItem.appendChild(value);
-                        teamStats.appendChild(statItem);
-                    });
-                    
-                    sidebar.appendChild(teamStats);
-                }
-                
-                // Create upcoming matches section
-                let teamUpcoming = sidebar.querySelector('.team-upcoming');
-                if (!teamUpcoming) {
-                    console.log('Creating upcoming matches section');
-                    teamUpcoming = document.createElement('div');
-                    teamUpcoming.className = 'team-upcoming';
-                    
-                    const upcomingTitle = document.createElement('h3');
-                    upcomingTitle.textContent = 'Next 3 Upcoming Matches';
-                    teamUpcoming.appendChild(upcomingTitle);
-                    
-                    const upcomingList = document.createElement('div');
-                    upcomingList.id = 'upcomingMatchesList';
-                    teamUpcoming.appendChild(upcomingList);
-                    
-                    sidebar.appendChild(teamUpcoming);
-                }
-                
-                // Create overlay
+                // Create overlay if it doesn't exist
                 let overlay = document.querySelector('.sidebar-overlay');
                 if (!overlay) {
                     console.log('Creating sidebar overlay');
@@ -2722,6 +2494,13 @@ END:VCALENDAR`;
                         sidebar.classList.toggle('active');
                         overlay.classList.toggle('active');
                         document.body.classList.toggle('sidebar-open');
+                        
+                        // Update transform based on active state
+                        if (sidebar.classList.contains('active')) {
+                            sidebar.style.transform = 'translateX(0)';
+                        } else {
+                            sidebar.style.transform = 'translateX(-100%)';
+                        }
                     });
                 }
                 
@@ -2731,6 +2510,7 @@ END:VCALENDAR`;
                     sidebar.classList.remove('active');
                     overlay.classList.remove('active');
                     document.body.classList.remove('sidebar-open');
+                    sidebar.style.transform = 'translateX(-100%)';
                 });
                 
                 // Handle window resize
@@ -2738,10 +2518,12 @@ END:VCALENDAR`;
                     console.log('Checking screen size');
                     if (window.innerWidth <= 992) {
                         sidebar.style.transform = 'translateX(-100%)';
+                        sidebar.classList.add('collapsed');
                         overlay.classList.remove('active');
                         document.body.classList.remove('sidebar-open');
                     } else {
                         sidebar.style.transform = 'translateX(0)';
+                        sidebar.classList.remove('collapsed');
                     }
                 }
                 
@@ -3503,6 +3285,158 @@ END:VCALENDAR`;
                 return [];
             }
         }
+
+        // Sidebar and Team Stats Management
+        function initSidebarToggle() {
+            const sidebar = document.querySelector('.sidebar');
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            if (!sidebar || !hamburgerMenu || !overlay) {
+                console.error('Required sidebar elements not found');
+                return;
+            }
+            
+            // Initialize sidebar state
+            const isMobile = window.innerWidth <= 992;
+            if (isMobile) {
+                sidebar.classList.add('collapsed');
+                hamburgerMenu.classList.add('active');
+            }
+            
+            // Hamburger menu click handler
+            hamburgerMenu.addEventListener('click', () => {
+                console.log('Hamburger menu clicked');
+                sidebar.classList.toggle('collapsed');
+                hamburgerMenu.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open');
+            });
+            
+            // Overlay click handler
+            overlay.addEventListener('click', () => {
+                console.log('Overlay clicked');
+                sidebar.classList.add('collapsed');
+                hamburgerMenu.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            });
+            
+            // Window resize handler
+            window.addEventListener('resize', () => {
+                const isMobile = window.innerWidth <= 992;
+                if (isMobile) {
+                    sidebar.classList.add('collapsed');
+                    hamburgerMenu.classList.add('active');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    hamburgerMenu.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
+                }
+            });
+        }
+
+        function updateTeamStats(teamName) {
+            console.log('Updating team stats for:', teamName);
+            const matches = getAllMatches();
+            const teamMatches = matches.filter(match => 
+                match.homeTeam === teamName || match.awayTeam === teamName
+            );
+            
+            const stats = {
+                total: teamMatches.length,
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                upcoming: 0
+            };
+            
+            teamMatches.forEach(match => {
+                if (match.status === 'upcoming') {
+                    stats.upcoming++;
+                    return;
+                }
+                
+                const isHome = match.homeTeam === teamName;
+                const teamScore = isHome ? match.homeScore : match.awayScore;
+                const opponentScore = isHome ? match.awayScore : match.homeScore;
+                
+                if (teamScore > opponentScore) stats.wins++;
+                else if (teamScore < opponentScore) stats.losses++;
+                else stats.draws++;
+            });
+            
+            const statsContainer = document.querySelector('.team-stats');
+            if (!statsContainer) {
+                console.error('Team stats container not found');
+                return;
+            }
+            
+            statsContainer.innerHTML = `
+                <div class="team-stat-item">
+                    <span class="stat-icon">📊</span>
+                    <span class="team-stat-label">Total Matches</span>
+                    <span class="team-stat-value">${stats.total}</span>
+                </div>
+                <div class="team-stat-item">
+                    <span class="stat-icon">✅</span>
+                    <span class="team-stat-label">Wins</span>
+                    <span class="team-stat-value win">${stats.wins}</span>
+                </div>
+                <div class="team-stat-item">
+                    <span class="stat-icon">❌</span>
+                    <span class="team-stat-label">Losses</span>
+                    <span class="team-stat-value loss">${stats.losses}</span>
+                </div>
+                <div class="team-stat-item">
+                    <span class="stat-icon">🤝</span>
+                    <span class="team-stat-label">Draws</span>
+                    <span class="team-stat-value draw">${stats.draws}</span>
+                </div>
+                <div class="team-stat-item">
+                    <span class="stat-icon">📅</span>
+                    <span class="team-stat-label">Upcoming</span>
+                    <span class="team-stat-value">${stats.upcoming}</span>
+                </div>
+            `;
+        }
+
+        function populateSidebarTeamFilter() {
+            console.log('Populating sidebar team filter');
+            const teamFilter = document.querySelector('.team-filter');
+            if (!teamFilter) {
+                console.error('Team filter element not found');
+                return;
+            }
+            
+            const matches = getAllMatches();
+            const teams = new Set();
+            matches.forEach(match => {
+                teams.add(match.homeTeam);
+                teams.add(match.awayTeam);
+            });
+            
+            teamFilter.innerHTML = Array.from(teams)
+                .sort()
+                .map(team => `<option value="${team}">${team}</option>`)
+                .join('');
+            
+            teamFilter.addEventListener('change', (e) => {
+                const selectedTeam = e.target.value;
+                console.log('Team selected:', selectedTeam);
+                updateTeamStats(selectedTeam);
+                filterMatches(); // This will use the selected team to filter matches
+            });
+        }
+
+        // Initialize everything when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing components');
+            initSidebarToggle();
+            populateSidebarTeamFilter();
+            // ... existing initialization code ...
+        });
     </script>
 </body>
 </html>
