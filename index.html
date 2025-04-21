@@ -2564,92 +2564,191 @@ END:VCALENDAR`;
         // Initialize sidebar toggle functionality
         function initSidebarToggle() {
             try {
-                console.log('Initializing sidebar toggle...');
+                console.log('=== initSidebarToggle START ===');
                 
-                // Wait for a short time to ensure DOM is ready
-                setTimeout(() => {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const contentArea = document.querySelector('.content-area');
-                    
-                    if (!sidebar || !sidebarToggle || !contentArea) {
-                        console.warn('Some sidebar elements not found, skipping sidebar initialization');
-                        return;
-                    }
-            
-            // Create overlay element
-            const overlay = document.createElement('div');
-            overlay.className = 'sidebar-overlay';
-            document.body.appendChild(overlay);
-            
-            // Check if user has a preference stored
-            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            if (sidebarCollapsed) {
-                sidebar.classList.add('collapsed');
-                contentArea.classList.add('expanded');
-                if (window.innerWidth <= 992) {
-                    sidebarToggle.style.left = '15px';
-                    sidebarToggle.style.transform = 'none';
-                } else {
-                    sidebarToggle.style.left = '60px';
-                    sidebarToggle.style.transform = 'translateY(-50%)';
+                // Create sidebar elements if they don't exist
+                let sidebar = document.getElementById('sidebar');
+                if (!sidebar) {
+                    console.log('Creating sidebar element');
+                    sidebar = document.createElement('div');
+                    sidebar.id = 'sidebar';
+                    sidebar.className = 'sidebar';
+                    document.querySelector('.main-content').prepend(sidebar);
                 }
-            }
-            
-            // Check screen size and auto-collapse on small screens
-            function checkScreenSize() {
-                if (window.innerWidth <= 992) {
+                
+                // Create sidebar header
+                let sidebarHeader = sidebar.querySelector('.sidebar-header');
+                if (!sidebarHeader) {
+                    console.log('Creating sidebar header');
+                    sidebarHeader = document.createElement('div');
+                    sidebarHeader.className = 'sidebar-header';
+                    sidebar.appendChild(sidebarHeader);
+                    
+                    const headerTitle = document.createElement('h2');
+                    headerTitle.textContent = 'Team Statistics';
+                    sidebarHeader.appendChild(headerTitle);
+                    
+                    const teamSelector = document.createElement('div');
+                    teamSelector.className = 'team-selector';
+                    const teamSelect = document.createElement('select');
+                    teamSelect.id = 'sidebarTeamFilter';
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = 'all';
+                    defaultOption.textContent = 'All Teams';
+                    teamSelect.appendChild(defaultOption);
+                    teamSelector.appendChild(teamSelect);
+                    sidebarHeader.appendChild(teamSelector);
+                }
+                
+                // Create team stats section
+                let teamStats = sidebar.querySelector('.team-stats');
+                if (!teamStats) {
+                    console.log('Creating team stats section');
+                    teamStats = document.createElement('div');
+                    teamStats.className = 'team-stats';
+                    
+                    const statItems = [
+                        { id: 'sidebarTotalCount', label: 'Total Matches', icon: 'trophy' },
+                        { id: 'sidebarWinCount', label: 'Wins', icon: 'check-circle', class: 'win' },
+                        { id: 'sidebarLossCount', label: 'Losses', icon: 'times-circle', class: 'loss' },
+                        { id: 'sidebarDrawCount', label: 'Draws', icon: 'minus-circle', class: 'draw' },
+                        { id: 'sidebarUpcomingCount', label: 'Upcoming Matches', icon: 'calendar-alt' }
+                    ];
+                    
+                    statItems.forEach(item => {
+                        const statItem = document.createElement('div');
+                        statItem.className = 'team-stat-item';
+                        statItem.setAttribute('data-tooltip', item.label);
+                        
+                        const icon = document.createElement('i');
+                        icon.className = `fas fa-${item.icon} stat-icon`;
+                        
+                        const label = document.createElement('span');
+                        label.className = 'team-stat-label';
+                        label.textContent = item.label;
+                        
+                        const value = document.createElement('span');
+                        value.className = `team-stat-value${item.class ? ' ' + item.class : ''}`;
+                        value.id = item.id;
+                        value.textContent = '0';
+                        
+                        statItem.appendChild(icon);
+                        statItem.appendChild(label);
+                        statItem.appendChild(value);
+                        teamStats.appendChild(statItem);
+                    });
+                    
+                    sidebar.appendChild(teamStats);
+                }
+                
+                // Create upcoming matches section
+                let teamUpcoming = sidebar.querySelector('.team-upcoming');
+                if (!teamUpcoming) {
+                    console.log('Creating upcoming matches section');
+                    teamUpcoming = document.createElement('div');
+                    teamUpcoming.className = 'team-upcoming';
+                    
+                    const upcomingTitle = document.createElement('h3');
+                    upcomingTitle.textContent = 'Next 3 Upcoming Matches';
+                    teamUpcoming.appendChild(upcomingTitle);
+                    
+                    const upcomingList = document.createElement('div');
+                    upcomingList.id = 'upcomingMatchesList';
+                    teamUpcoming.appendChild(upcomingList);
+                    
+                    sidebar.appendChild(teamUpcoming);
+                }
+                
+                // Create sidebar toggle button
+                let sidebarToggle = document.getElementById('sidebarToggle');
+                if (!sidebarToggle) {
+                    console.log('Creating sidebar toggle button');
+                    sidebarToggle = document.createElement('button');
+                    sidebarToggle.id = 'sidebarToggle';
+                    sidebarToggle.className = 'sidebar-toggle';
+                    sidebarToggle.innerHTML = '<span class="arrow"></span>';
+                    document.body.appendChild(sidebarToggle);
+                }
+                
+                // Create overlay
+                let overlay = document.querySelector('.sidebar-overlay');
+                if (!overlay) {
+                    console.log('Creating sidebar overlay');
+                    overlay = document.createElement('div');
+                    overlay.className = 'sidebar-overlay';
+                    document.body.appendChild(overlay);
+                }
+                
+                // Initialize sidebar state
+                const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                if (sidebarCollapsed) {
                     sidebar.classList.add('collapsed');
-                    contentArea.classList.add('expanded');
-                    sidebarToggle.style.left = '15px';
-                    sidebarToggle.style.transform = 'none';
-                    } else {
-                        sidebar.classList.remove('collapsed');
-                        contentArea.classList.remove('expanded');
-                            sidebarToggle.style.left = '60px';
-                        sidebarToggle.style.transform = 'translateY(-50%)';
-                }
-            }
-            
-                    // Initial check
-            checkScreenSize();
-                    
-                    // Add event listener for window resize
-            window.addEventListener('resize', checkScreenSize);
-            
-                    // Toggle sidebar
-                    sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('collapsed');
-                contentArea.classList.toggle('expanded');
-                
-                    if (sidebar.classList.contains('collapsed')) {
-                            localStorage.setItem('sidebarCollapsed', 'true');
-                            if (window.innerWidth <= 992) {
+                    document.querySelector('.content-area').classList.add('expanded');
+                    if (window.innerWidth <= 992) {
                         sidebarToggle.style.left = '15px';
-                                sidebarToggle.style.transform = 'none';
+                        sidebarToggle.style.transform = 'none';
                     } else {
-                                sidebarToggle.style.left = '60px';
-                                sidebarToggle.style.transform = 'translateY(-50%)';
+                        sidebarToggle.style.left = '60px';
+                        sidebarToggle.style.transform = 'translateY(-50%)';
                     }
-                } else {
-                            localStorage.setItem('sidebarCollapsed', 'false');
+                }
+                
+                // Add event listeners
+                sidebarToggle.addEventListener('click', function() {
+                    console.log('Sidebar toggle clicked');
+                    sidebar.classList.toggle('collapsed');
+                    document.querySelector('.content-area').classList.toggle('expanded');
+                    
+                    if (sidebar.classList.contains('collapsed')) {
+                        localStorage.setItem('sidebarCollapsed', 'true');
+                        if (window.innerWidth <= 992) {
                             sidebarToggle.style.left = '15px';
                             sidebarToggle.style.transform = 'none';
+                        } else {
+                            sidebarToggle.style.left = '60px';
+                            sidebarToggle.style.transform = 'translateY(-50%)';
                         }
-                    });
-                    
-                    // Handle overlay click
-                    overlay.addEventListener('click', function() {
-                    sidebar.classList.add('collapsed');
-                    contentArea.classList.add('expanded');
-                    overlay.classList.remove('active');
-                    });
-                    
-                    console.log('Sidebar toggle initialized successfully');
-                }, 100); // Small delay to ensure DOM is ready
+                    } else {
+                        localStorage.setItem('sidebarCollapsed', 'false');
+                        sidebarToggle.style.left = '15px';
+                        sidebarToggle.style.transform = 'none';
+                    }
+                });
                 
+                // Handle overlay click
+                overlay.addEventListener('click', function() {
+                    console.log('Overlay clicked');
+                    sidebar.classList.add('collapsed');
+                    document.querySelector('.content-area').classList.add('expanded');
+                    overlay.classList.remove('active');
+                });
+                
+                // Handle window resize
+                function checkScreenSize() {
+                    console.log('Checking screen size');
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.add('collapsed');
+                        document.querySelector('.content-area').classList.add('expanded');
+                        sidebarToggle.style.left = '15px';
+                        sidebarToggle.style.transform = 'none';
+                    } else {
+                        sidebar.classList.remove('collapsed');
+                        document.querySelector('.content-area').classList.remove('expanded');
+                        sidebarToggle.style.left = '60px';
+                        sidebarToggle.style.transform = 'translateY(-50%)';
+                    }
+                }
+                
+                // Initial check
+                checkScreenSize();
+                
+                // Add resize listener
+                window.addEventListener('resize', checkScreenSize);
+                
+                console.log('=== initSidebarToggle END ===');
             } catch (error) {
-                console.error('Error initializing sidebar toggle:', error);
+                console.error('Error in initSidebarToggle:', error);
+                console.error('Error stack:', error.stack);
             }
         }
         
