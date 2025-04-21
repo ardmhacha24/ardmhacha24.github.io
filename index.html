@@ -2493,8 +2493,8 @@ END:VCALENDAR`;
                     // Only include actual matches (not training)
                     if (match.isTraining) return false;
                     
-                    // Check if this is the correct team
-                    return match.Team === teamName;
+                    // Check if this team is either home or away team
+                    return match['Home Team'].includes(teamName) || match['Away Team'].includes(teamName);
                 });
             
             console.log('Filtered matches for stats:', teamMatches.length);
@@ -2521,15 +2521,14 @@ END:VCALENDAR`;
                 } else {
                     // Check if this team won the match
                     const isHomeTeam = match['Home Team'].includes(teamName);
-                    const isAwayTeam = match['Away Team'].includes(teamName);
                     
                     if (match.Result === 'WIN' && isHomeTeam) {
                         stats.wins++;
-                    } else if (match.Result === 'LOSS' && isAwayTeam) {
+                    } else if (match.Result === 'LOSS' && !isHomeTeam) {
                         stats.wins++;
                     } else if (match.Result === 'LOSS' && isHomeTeam) {
                         stats.losses++;
-                    } else if (match.Result === 'WIN' && isAwayTeam) {
+                    } else if (match.Result === 'WIN' && !isHomeTeam) {
                         stats.losses++;
                     } else if (match.Result === 'DRAW') {
                         stats.draws++;
