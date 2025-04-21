@@ -320,7 +320,7 @@
         
         .controls {
             background: white;
-            padding: 1rem;
+            padding: 0.75rem;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 1rem;
@@ -328,8 +328,142 @@
             top: 0;
             z-index: 10;
             transition: all 0.3s ease;
+        }
+
+        .filter-container {
             display: flex;
             flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-group {
+            flex: 2;
+            min-width: 200px;
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 0.4rem 0.75rem 0.4rem 2rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            height: 36px;
+        }
+
+        .search-input-wrapper i {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-text);
+        }
+
+        .date-range-group {
+            flex: 1;
+            min-width: 150px;
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+        }
+
+        .date-range-input {
+            flex: 1;
+            padding: 0.4rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            height: 36px;
+        }
+
+        .reset-btn {
+            background-color: var(--light-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            transition: all 0.2s ease;
+        }
+
+        .reset-btn:hover {
+            background-color: var(--border);
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            padding-top: 0.25rem;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .toggle-text {
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .controls.collapsed {
+            padding: 0.5rem;
+        }
+
+        .controls.collapsed .filter-row {
+            display: none;
+        }
+
+        .controls.collapsed .search-row {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .search-row {
+                flex-direction: column;
+            }
+
+            .search-group, .date-range-group {
+                width: 100%;
+            }
+
+            .filter-row {
+                justify-content: flex-start;
+            }
         }
 
         .controls-toggle {
@@ -362,12 +496,6 @@
 
         .controls.collapsed .controls-toggle i {
             transform: rotate(180deg);
-        }
-
-        .controls.collapsed {
-            padding: 0.5rem;
-            max-height: 60px;
-            overflow: hidden;
         }
 
         .controls.collapsed .filter-row {
@@ -1421,26 +1549,25 @@
         
         <div class="content-area">
         <div class="controls">
-            <div class="search-row">
-                <div class="search-group">
-                    <div class="search-input-wrapper">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput" placeholder="Search matches, teams or competitions...">
+            <div class="filter-container">
+                <div class="search-row">
+                    <div class="search-group">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search matches, teams or competitions...">
+                        </div>
+                        <button class="reset-btn" id="resetSearch" title="Reset search">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
-                    <button class="reset-btn" id="resetSearch" title="Reset search">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <div class="date-range-group">
+                        <input type="text" id="dateRange" class="date-range-input" placeholder="Select date range">
+                        <button class="reset-btn" id="resetDate" title="Reset date range">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="date-range-group">
-                    <input type="text" id="dateRange" class="date-range-input" placeholder="Select date range">
-                    <button class="reset-btn" id="resetDate" title="Reset date range">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label>Show:</label>
+                <div class="filter-row">
                     <div class="toggle-group">
                         <label class="toggle-label">
                             <input type="checkbox" id="showMatches" checked>
@@ -1453,6 +1580,9 @@
                     </div>
                 </div>
             </div>
+            <button class="controls-toggle">
+                <i class="fas fa-chevron-up"></i>
+            </button>
         </div>
         
         <div id="matchContainer" class="match-list">
