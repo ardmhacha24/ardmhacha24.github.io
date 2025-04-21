@@ -1479,7 +1479,7 @@
         
         // Function to format date in a more readable format
         function formatDate(dateStr) {
-            //console.log('Formatting date:', dateStr);
+            console.log('Formatting date:', dateStr);
             if (typeof dateStr === 'string') {
                 dateStr = parseDate(dateStr);
             }
@@ -2322,6 +2322,7 @@ END:VCALENDAR`;
             });
         }
         
+        /*
         // Function to update team statistics in the sidebar
         function updateTeamStats(teamName) {
             console.log('!!!!!!!!!!Updating team stats for:', teamName);
@@ -2374,7 +2375,8 @@ END:VCALENDAR`;
             updateUpcomingMatches(teamName);
             updateUpcomingTraining(teamName);
         }
-        
+        */
+
         // Add new function for upcoming training sessions
         function updateUpcomingTraining(teamName) {
             const teamMatches = teamName === 'all' 
