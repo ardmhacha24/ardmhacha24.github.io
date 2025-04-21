@@ -3439,6 +3439,140 @@ END:VCALENDAR`;
             populateSidebarTeamFilter();
             // ... existing initialization code ...
         });
+
+        // ... existing code ...
+        // Remove any other DOMContentLoaded listeners and use just this one
+        let initializationInProgress = false;
+
+        async function init() {
+            // Prevent multiple initializations
+            if (initializationInProgress) {
+                console.log('Initialization already in progress, skipping...');
+                return;
+            }
+            
+            initializationInProgress = true;
+            console.log('=== init START ===');
+            
+            try {
+                // Initialize empty matches array
+                matches = [];
+                console.log('Initialized empty matches array');
+                
+                // Fetch matches from worker first
+                console.log('Starting to fetch matches from worker...');
+                const workerMatches = await fetchMatchesFromWorker();
+                console.log('Worker matches fetched:', workerMatches.length);
+                matches = workerMatches; // Replace instead of concat
+                
+                // Fetch training events
+                console.log('Starting to fetch training events...');
+                await fetchTrainingEvents();
+                console.log('Training events fetched, total matches now:', matches.length);
+                
+                // Initialize UI only after all data is loaded
+                console.log('Initializing UI...');
+                initializeUI();
+                
+                // Initialize search functionality
+                console.log('Initializing search functionality...');
+                initSearchAutocomplete();
+                
+                console.log('Initialization complete. Final match count:', matches.length);
+                
+            } catch (error) {
+                console.error('Error in init:', error);
+                console.error('Error stack:', error.stack);
+                document.getElementById('matchContainer').innerHTML = `
+                    <div class="no-results">
+                        <p>Error loading matches. Please try refreshing the page.</p>
+                        <p>Error details: ${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                initializationInProgress = false;
+                console.log('=== init END ===');
+            }
+        }
+
+        // Clean up multiple event listeners
+        document.removeEventListener('DOMContentLoaded', init);
+        window.removeEventListener('load', init);
+
+        // Add single initialization point
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init, { once: true });
+        } else {
+            init();
+        }
+
+        // Remove the duplicate initialization in the service worker section
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Update initializeUI to not reinitialize if already done
+        let uiInitialized = false;
+
+        function initializeUI() {
+            if (uiInitialized) {
+                console.log('UI already initialized, skipping...');
+                return;
+            }
+            
+            try {
+                console.log('Initializing UI...');
+                
+                // Initialize date picker
+                flatpickr("#dateRange", {
+                    mode: "range",
+                    dateFormat: "D M d Y",
+                    onChange: function(selectedDates) {
+                        displayMatches();
+                    }
+                });
+                
+                // Initialize sidebar
+                initSidebarToggle();
+                
+                // Add toggle event listeners
+                const showMatchesToggle = document.getElementById('showMatches');
+                const showTrainingToggle = document.getElementById('showTraining');
+                
+                if (showMatchesToggle && showTrainingToggle) {
+                    showMatchesToggle.addEventListener('change', () => {
+                        console.log('Matches toggle changed:', showMatchesToggle.checked);
+                        displayMatches();
+                    });
+                    
+                    showTrainingToggle.addEventListener('change', () => {
+                        console.log('Training toggle changed:', showTrainingToggle.checked);
+                        displayMatches();
+                    });
+                }
+                
+                // Populate team filter and initialize stats
+                populateSidebarTeamFilter();
+                
+                // Display initial matches
+                displayMatches();
+                
+                uiInitialized = true;
+                console.log('UI initialization complete');
+            } catch (error) {
+                console.error('Error initializing UI:', error);
+                throw error;
+            }
+        }
+        // ... existing code ...
     </script>
 </body>
 </html>
