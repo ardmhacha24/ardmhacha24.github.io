@@ -1848,13 +1848,18 @@
             
             console.log('Total matches before filtering:', matches.length);
             
-            const filteredMatches = matches.filter(match => {
-                // Type filter (matches/training)
+            // First apply type filters (matches/training)
+            let filteredMatches = matches.filter(match => {
                 if (!showMatches && !match.isTraining) return false;
                 if (!showTraining && match.isTraining) return false;
-                
-                // Search filter
-                if (searchQuery) {
+                return true;
+            });
+            
+            console.log('Matches after type filtering:', filteredMatches.length);
+            
+            // Then apply search filter if there's a search query
+            if (searchQuery) {
+                filteredMatches = filteredMatches.filter(match => {
                     const searchableText = [
                         match.Competition || '',
                         match.Team || '',
@@ -1866,26 +1871,24 @@
                         match.Time || ''
                     ].join(' ').toLowerCase();
                     
-                    if (!searchableText.includes(searchQuery)) {
-                        return false;
-                    }
-                }
-                
-                // Date range filter
-                if (dateRange && dateRange.length === 2) {
+                    return searchableText.includes(searchQuery);
+                });
+                console.log('Matches after search filtering:', filteredMatches.length);
+            }
+            
+            // Finally apply date range filter if selected
+            if (dateRange && dateRange.length === 2) {
+                filteredMatches = filteredMatches.filter(match => {
                     const matchDate = parseDate(match.Date);
                     const startDate = dateRange[0];
                     const endDate = dateRange[1];
                     
-                    if (matchDate < startDate || matchDate > endDate) {
-                        return false;
-                    }
-                }
-                
-                return true;
-            });
+                    return matchDate >= startDate && matchDate <= endDate;
+                });
+                console.log('Matches after date range filtering:', filteredMatches.length);
+            }
             
-            console.log('Total matches after filtering:', filteredMatches.length);
+            console.log('Total matches after all filtering:', filteredMatches.length);
             console.log('=== filterMatches END ===');
             return filteredMatches;
         }
