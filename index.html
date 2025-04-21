@@ -2487,7 +2487,7 @@ END:VCALENDAR`;
             };
             
             // Create a Set to track unique match IDs to prevent double counting
-            const processedMatches = new Set();
+            const processedFixtureIds = new Set();
             
             // Get all matches for the selected team (excluding training events)
             const teamMatches = teamName === 'all' 
@@ -2506,7 +2506,8 @@ END:VCALENDAR`;
                             date: match.Date,
                             home: match['Home Team'],
                             away: match['Away Team'],
-                            result: match.Result
+                            result: match.Result,
+                            fixtureId: match['Fixture ID']
                         });
                     }
                     return isInvolved;
@@ -2516,17 +2517,22 @@ END:VCALENDAR`;
             
             // Process each match only once
             teamMatches.forEach(match => {
-                // Create a unique identifier for the match
-                const matchId = `${match.Date}-${match.Time}-${match['Home Team']}-${match['Away Team']}`;
+                // Use Fixture ID as the unique identifier
+                const fixtureId = match['Fixture ID'];
                 
                 // Skip if we've already counted this match
-                if (processedMatches.has(matchId)) {
-                    console.log('DUPLICATE - Skipping match:', matchId);
+                if (processedFixtureIds.has(fixtureId)) {
+                    console.log('DUPLICATE - Skipping match:', {
+                        fixtureId: fixtureId,
+                        date: match.Date,
+                        home: match['Home Team'],
+                        away: match['Away Team']
+                    });
                     return;
                 }
                 
                 // Mark this match as processed
-                processedMatches.add(matchId);
+                processedFixtureIds.add(fixtureId);
                 
                 // Count the match
                 stats.total++;
@@ -2534,6 +2540,7 @@ END:VCALENDAR`;
                 if (!match.Result || match.Result === '---') {
                     stats.upcoming++;
                     console.log('Counted as UPCOMING:', {
+                        fixtureId: fixtureId,
                         date: match.Date,
                         home: match['Home Team'],
                         away: match['Away Team']
@@ -2543,6 +2550,7 @@ END:VCALENDAR`;
                     const isHomeTeam = match['Home Team'].includes(teamName);
                     
                     console.log('Processing result for match:', {
+                        fixtureId: fixtureId,
                         date: match.Date,
                         home: match['Home Team'],
                         away: match['Away Team'],
