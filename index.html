@@ -1480,17 +1480,33 @@
         // Function to format date in a more readable format
         function formatDate(dateStr) {
             console.log('Formatting date:', dateStr);
-            if (typeof dateStr === 'string') {
-                dateStr = parseDate(dateStr);
+            
+            try {
+                let date;
+                if (dateStr instanceof Date) {
+                    date = dateStr;
+                } else {
+                    date = parseDate(dateStr);
+                }
+                
+                if (!date) {
+                    console.error('Could not parse date:', dateStr);
+                    return '';
+                }
+                
+                const formatted = date.toLocaleDateString('en-GB', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                    year: '2-digit'
+                }).replace(/,/g, '');
+                
+                console.log('Formatted date:', formatted);
+                return formatted;
+            } catch (error) {
+                console.error('Error formatting date:', error);
+                return '';
             }
-            const formatted = dateStr.toLocaleDateString('en-GB', {
-                weekday: 'short',
-                day: 'numeric',
-                month: 'short',
-                year: '2-digit'
-            }).replace(/,/g, '');
-            console.log('Formatted date:', formatted);
-            return formatted;
         }
         
         // Extract unique teams, competitions for filters
@@ -1793,13 +1809,7 @@
                 console.log('Initializing UI...');
                 
                 // Initialize date picker
-                flatpickr("#dateRange", {
-                    mode: "range",
-                    dateFormat: "D M d Y",
-                    onChange: function(selectedDates) {
-                        displayMatches();
-                    }
-                });
+                initializeDatePicker();
                 
                 // Initialize sidebar
                 initSidebarToggle();
@@ -1831,42 +1841,22 @@
         function filterMatches() {
             console.log('=== filterMatches START ===');
             const searchInput = document.getElementById('searchInput');
+            const dateRangeInput = document.getElementById('dateRange');
             const showMatches = document.getElementById('showMatches').checked;
             const showTraining = document.getElementById('showTraining').checked;
             
-            console.log('Filter settings:', { showMatches, showTraining });
+            let filteredMatches = matches;
             
-            if (!searchInput) {
-                console.error('Search input element not found!');
-                return matches;
-            }
-            
-            const searchQuery = (searchInput.value || '').toLowerCase().trim();
-            console.log('Current search query:', searchQuery);
-            
-            // Get date range safely
-            let dateRange = null;
-            const dateRangeInput = document.getElementById('dateRange');
-            console.log('Date range input element:', dateRangeInput);
-            
-            if (dateRangeInput && dateRangeInput._flatpickr && dateRangeInput._flatpickr.selectedDates.length > 0) {
-                dateRange = dateRangeInput._flatpickr.selectedDates;
-                console.log('Selected date range:', dateRange);
-            }
-            
-            console.log('Total matches before filtering:', matches.length);
-            
-            // First apply type filters (matches/training)
-            let filteredMatches = matches.filter(match => {
+            // Apply type filters first
+            filteredMatches = filteredMatches.filter(match => {
                 if (!showMatches && !match.isTraining) return false;
                 if (!showTraining && match.isTraining) return false;
                 return true;
             });
             
-            console.log('Matches after type filtering:', filteredMatches.length);
-            
-            // Then apply search filter if there's a search query
-            if (searchQuery) {
+            // Apply search filter if there's a query
+            if (searchInput && searchInput.value) {
+                const searchQuery = searchInput.value.toLowerCase().trim();
                 filteredMatches = filteredMatches.filter(match => {
                     const searchableText = [
                         match.Competition || '',
@@ -1875,29 +1865,37 @@
                         match['Away Team'] || '',
                         match.Venue || '',
                         match.Round || '',
-                        match.Date || '',
+                        formatDate(match.Date) || '',
                         match.Time || ''
                     ].join(' ').toLowerCase();
                     
                     return searchableText.includes(searchQuery);
                 });
-                console.log('Matches after search filtering:', filteredMatches.length);
             }
             
-            // Finally apply date range filter if selected
-            if (dateRange && dateRange.length === 2) {
+            // Apply date range filter if selected
+            if (dateRangeInput && dateRangeInput._flatpickr && dateRangeInput._flatpickr.selectedDates.length === 2) {
+                const [startDate, endDate] = dateRangeInput._flatpickr.selectedDates;
+                console.log('Filtering by date range:', { startDate, endDate });
+                
                 filteredMatches = filteredMatches.filter(match => {
                     const matchDate = parseDate(match.Date);
-                    const startDate = dateRange[0];
-                    const endDate = dateRange[1];
+                    if (!matchDate) return false;
                     
-                    return matchDate >= startDate && matchDate <= endDate;
+                    // Set the match date to the start of day for comparison
+                    matchDate.setHours(0, 0, 0, 0);
+                    
+                    // Create comparison dates at start and end of day
+                    const compareStart = new Date(startDate);
+                    compareStart.setHours(0, 0, 0, 0);
+                    const compareEnd = new Date(endDate);
+                    compareEnd.setHours(23, 59, 59, 999);
+                    
+                    return matchDate >= compareStart && matchDate <= compareEnd;
                 });
-                console.log('Matches after date range filtering:', filteredMatches.length);
             }
             
-            console.log('Total matches after all filtering:', filteredMatches.length);
-            console.log('=== filterMatches END ===');
+            console.log('Filtered matches count:', filteredMatches.length);
             return filteredMatches;
         }
         
@@ -1905,22 +1903,45 @@
         function parseDate(dateStr) {
             console.log('Parsing date string:', dateStr);
             
-            // Check if the date is in the format "Mon 31 Mar 25"
-            const formatOne = /^[A-Za-z]{3} \d{1,2} [A-Za-z]{3} \d{2}$/;
-            if (formatOne.test(dateStr)) {
-            const parts = dateStr.split(' ');
-            const day = parseInt(parts[1]);
-            const month = getMonthNumber(parts[2]);
-            const year = 2000 + parseInt(parts[3]);
-                const date = new Date(year, month, day);
-                console.log('Parsed date (format one):', date);
-                return date;
+            // Handle empty or invalid input
+            if (!dateStr) {
+                console.warn('Empty date string provided');
+                return null;
             }
             
-            // Otherwise, assume it's a standard date string
-            const date = new Date(dateStr);
-            console.log('Parsed date (standard):', date);
-            return date;
+            try {
+                // Check if the date is in the format "Mon 31 Mar 25"
+                const formatOne = /^[A-Za-z]{3}\s+\d{1,2}\s+[A-Za-z]{3}\s+\d{2}$/;
+                if (formatOne.test(dateStr)) {
+                    const parts = dateStr.split(' ');
+                    const day = parseInt(parts[1], 10);
+                    const month = getMonthNumber(parts[2]);
+                    const year = 2000 + parseInt(parts[3], 10);
+                    const date = new Date(year, month, day);
+                    
+                    // Validate the parsed date
+                    if (isNaN(date.getTime())) {
+                        console.error('Invalid date created from parts:', { day, month, year });
+                        return null;
+                    }
+                    
+                    console.log('Parsed date (format one):', date);
+                    return date;
+                }
+                
+                // Handle ISO format or other standard date strings
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) {
+                    console.error('Invalid date string:', dateStr);
+                    return null;
+                }
+                
+                console.log('Parsed date (standard):', date);
+                return date;
+            } catch (error) {
+                console.error('Error parsing date:', error);
+                return null;
+            }
         }
         
         function getMonthNumber(monthStr) {
@@ -3194,13 +3215,7 @@ END:VCALENDAR`;
                 console.log('Initializing UI...');
                 
                 // Initialize date picker
-                flatpickr("#dateRange", {
-                    mode: "range",
-                    dateFormat: "D M d Y",
-                    onChange: function(selectedDates) {
-                        displayMatches();
-                    }
-                });
+                initializeDatePicker();
                 
                 // Initialize sidebar
                 initSidebarToggle();
@@ -3553,6 +3568,200 @@ END:VCALENDAR`;
             populateSidebarTeamFilter();
             // ... existing initialization code ...
         });
+
+        // Enhanced date handling functions
+        function parseDate(dateStr) {
+            console.log('Parsing date string:', dateStr);
+            
+            // Handle empty or invalid input
+            if (!dateStr) {
+                console.warn('Empty date string provided');
+                return null;
+            }
+            
+            try {
+                // Check if the date is in the format "Mon 31 Mar 25"
+                const formatOne = /^[A-Za-z]{3}\s+\d{1,2}\s+[A-Za-z]{3}\s+\d{2}$/;
+                if (formatOne.test(dateStr)) {
+                    const parts = dateStr.split(' ');
+                    const day = parseInt(parts[1], 10);
+                    const month = getMonthNumber(parts[2]);
+                    const year = 2000 + parseInt(parts[3], 10);
+                    const date = new Date(year, month, day);
+                    
+                    // Validate the parsed date
+                    if (isNaN(date.getTime())) {
+                        console.error('Invalid date created from parts:', { day, month, year });
+                        return null;
+                    }
+                    
+                    console.log('Parsed date (format one):', date);
+                    return date;
+                }
+                
+                // Handle ISO format or other standard date strings
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) {
+                    console.error('Invalid date string:', dateStr);
+                    return null;
+                }
+                
+                console.log('Parsed date (standard):', date);
+                return date;
+            } catch (error) {
+                console.error('Error parsing date:', error);
+                return null;
+            }
+        }
+
+        function formatDate(dateStr) {
+            console.log('Formatting date:', dateStr);
+            
+            try {
+                let date;
+                if (dateStr instanceof Date) {
+                    date = dateStr;
+                } else {
+                    date = parseDate(dateStr);
+                }
+                
+                if (!date) {
+                    console.error('Could not parse date:', dateStr);
+                    return '';
+                }
+                
+                const formatted = date.toLocaleDateString('en-GB', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                    year: '2-digit'
+                }).replace(/,/g, '');
+                
+                console.log('Formatted date:', formatted);
+                return formatted;
+            } catch (error) {
+                console.error('Error formatting date:', error);
+                return '';
+            }
+        }
+
+        function getMonthNumber(monthStr) {
+            const months = {
+                'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+                'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+            };
+            return months[monthStr];
+        }
+
+        // Initialize date picker with enhanced functionality
+        function initializeDatePicker() {
+            console.log('Initializing date picker...');
+            
+            const dateRange = document.getElementById('dateRange');
+            const resetDateBtn = document.getElementById('resetDate');
+            
+            if (!dateRange || !resetDateBtn) {
+                console.error('Date picker elements not found');
+                return;
+            }
+            
+            // Configure flatpickr
+            const picker = flatpickr(dateRange, {
+                mode: "range",
+                dateFormat: "D M d Y",
+                allowInput: true,
+                minDate: "2024-01-01",
+                maxDate: "2025-12-31",
+                defaultHour: 0,
+                enableTime: false,
+                disableMobile: false, // Enable native picker on mobile
+                locale: {
+                    firstDayOfWeek: 1 // Start week on Monday
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    console.log('Date selection changed:', { selectedDates, dateStr });
+                    
+                    if (selectedDates.length === 2) {
+                        // Ensure end date is set to end of day for inclusive filtering
+                        selectedDates[1].setHours(23, 59, 59, 999);
+                        
+                        // Store the selected dates in the instance for reference
+                        instance.selectedStartDate = selectedDates[0];
+                        instance.selectedEndDate = selectedDates[1];
+                        
+                        console.log('Date range set:', {
+                            start: selectedDates[0],
+                            end: selectedDates[1]
+                        });
+                    }
+                    
+                    // Update display with filtered matches
+                    displayMatches();
+                    
+                    // Scroll to the first match within the selected date range
+                    scrollToFirstMatchInRange(selectedDates);
+                },
+                onOpen: function(selectedDates, dateStr, instance) {
+                    // Store the current dates before opening
+                    instance.previousDates = [...selectedDates];
+                },
+                onClose: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 1) {
+                        // If only one date was selected, reset to previous selection
+                        instance.setDate(instance.previousDates, true);
+                        console.log('Reset to previous dates due to incomplete selection');
+                    }
+                }
+            });
+            
+            // Reset date range handler
+            resetDateBtn.addEventListener('click', () => {
+                console.log('Resetting date range');
+                picker.clear();
+                displayMatches();
+                scrollToTodayMarker();
+            });
+            
+            console.log('Date picker initialized');
+            return picker;
+        }
+
+        // Function to scroll to the first match within selected date range
+        function scrollToFirstMatchInRange(selectedDates) {
+            if (!selectedDates || selectedDates.length !== 2) return;
+            
+            console.log('Scrolling to first match in range');
+            
+            const startDate = selectedDates[0];
+            const endDate = selectedDates[1];
+            
+            // Find the first date header within the range
+            const dateHeaders = document.querySelectorAll('.date-header');
+            let firstMatchHeader = null;
+            
+            dateHeaders.forEach(header => {
+                if (firstMatchHeader) return;
+                
+                const headerDate = parseDate(header.textContent);
+                if (headerDate && headerDate >= startDate && headerDate <= endDate) {
+                    firstMatchHeader = header;
+                }
+            });
+            
+            if (firstMatchHeader) {
+                console.log('Scrolling to date header:', firstMatchHeader.textContent);
+                firstMatchHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Function to scroll to today's marker
+        function scrollToTodayMarker() {
+            console.log('Scrolling to today marker');
+            const todayMarker = document.querySelector('.today-marker');
+            if (todayMarker) {
+                todayMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
     </script>
 </body>
 </html>
