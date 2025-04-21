@@ -2511,12 +2511,6 @@ END:VCALENDAR`;
                 return;
             }
             
-            // Add direct event listener for search input
-            searchInput.addEventListener('input', debounce(function() {
-                console.log('Search input changed:', this.value);
-                displayMatches();
-            }, 300));
-            
             // Remove any existing suggestions container
             const existingSuggestions = document.querySelector('.autocomplete-suggestions');
             if (existingSuggestions) {
@@ -2545,7 +2539,6 @@ END:VCALENDAR`;
             });
             
             console.log('Total searchable terms:', searchableTerms.size);
-            console.log('Searchable terms:', Array.from(searchableTerms));
             
             // Add input event listener with debounce for suggestions
             searchInput.addEventListener('input', debounce(function() {
@@ -2558,6 +2551,7 @@ END:VCALENDAR`;
                 if (val.length < 2) {
                     console.log('Input too short, hiding suggestions');
                     suggestionsContainer.style.display = 'none';
+                    displayMatches(); // Update display when search is cleared
                     return;
                 }
                 
@@ -2586,6 +2580,7 @@ END:VCALENDAR`;
                     suggestionsContainer.style.display = 'none';
                 }
                 
+                displayMatches(); // Update display with search results
                 currentFocus = -1;
             }, 300));
             
@@ -2846,15 +2841,15 @@ END:VCALENDAR`;
         }
         
         function mergeAndDisplayEvents(trainingEvents) {
-            // Get current matches
+            // Get current matches after applying all filters
             const currentMatches = filterMatches();
             
-            // Combine matches and training events
+            // Combine filtered matches and training events
             const allEvents = [...currentMatches, ...trainingEvents].sort((a, b) => {
                 return new Date(a.Date + ' ' + a.Time) - new Date(b.Date + ' ' + b.Time);
             });
             
-            // Update display
+            // Update display with combined events
             displayMatches(allEvents);
         }
         
@@ -3094,6 +3089,22 @@ END:VCALENDAR`;
                 
                 // Initialize sidebar
                 initSidebarToggle();
+                
+                // Add toggle event listeners
+                const showMatchesToggle = document.getElementById('showMatches');
+                const showTrainingToggle = document.getElementById('showTraining');
+                
+                if (showMatchesToggle && showTrainingToggle) {
+                    showMatchesToggle.addEventListener('change', () => {
+                        console.log('Matches toggle changed:', showMatchesToggle.checked);
+                        displayMatches();
+                    });
+                    
+                    showTrainingToggle.addEventListener('change', () => {
+                        console.log('Training toggle changed:', showTrainingToggle.checked);
+                        displayMatches();
+                    });
+                }
                 
                 // Populate team filter and initialize stats
                 populateSidebarTeamFilter();
