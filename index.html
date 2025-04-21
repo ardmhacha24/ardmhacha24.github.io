@@ -2454,19 +2454,68 @@ END:VCALENDAR`;
                 teamFilter.remove(1);
             }
             
-            // Get unique teams
-            const teams = new Set();
+            // Get unique teams and normalize them
+            const teamsMap = new Map(); // Use a map to store normalized team name -> original team name
             matches.forEach(match => {
-                if (match.Team) teams.add(match.Team);
+                if (match.Team) {
+                    // Remove venue annotations like "(** Main Pitch **)"
+                    let normalizedName = match.Team.replace(/\s*\(\*\*.*\*\*\)\s*$/, '');
+                    // Remove location prefixes like "@MAGHERY - "
+                    normalizedName = normalizedName.replace(/^@[^-]+-\s*/, '');
+                    // Trim any extra whitespace
+                    normalizedName = normalizedName.trim();
+                    
+                    // If we haven't seen this normalized name before, or if the current name is shorter
+                    // (prefer "Minor Boys" over "@MAGHERY - Minor Boys")
+                    if (!teamsMap.has(normalizedName) || match.Team.length < teamsMap.get(normalizedName).length) {
+                        teamsMap.set(normalizedName, match.Team);
+                    }
+                }
             });
             
-            console.log('Found teams:', Array.from(teams));
+            console.log('Normalized teams map:', teamsMap);
+            
+            // Convert to array and sort
+            const uniqueTeams = Array.from(teamsMap.values()).sort((a, b) => {
+                // Custom sort function to group by age group
+                const ageGroupOrder = {
+                    'Senior': 1,
+                    'Minor': 2,
+                    'U16': 3,
+                    'U14': 4,
+                    'U12': 5,
+                    'U10': 6,
+                    'U8': 7,
+                    'U6': 8,
+                    'Tots': 9
+                };
+                
+                // Extract age group from team name
+                const getAgeGroup = (name) => {
+                    for (const [group, order] of Object.entries(ageGroupOrder)) {
+                        if (name.includes(group)) return order;
+                    }
+                    return 999; // Default order for unknown age groups
+                };
+                
+                const orderA = getAgeGroup(a);
+                const orderB = getAgeGroup(b);
+                
+                // First sort by age group
+                if (orderA !== orderB) return orderA - orderB;
+                
+                // Then sort alphabetically within same age group
+                return a.localeCompare(b);
+            });
+            
+            console.log('Unique sorted teams:', uniqueTeams);
             
             // Add team options
-            Array.from(teams).sort().forEach(team => {
+            uniqueTeams.forEach(team => {
                 const option = document.createElement('option');
                 option.value = team;
-                option.textContent = team;
+                // Display the normalized version of the team name
+                option.textContent = team.replace(/^@[^-]+-\s*/, '').replace(/\s*\(\*\*.*\*\*\)\s*$/, '').trim();
                 teamFilter.appendChild(option);
             });
             
@@ -3397,19 +3446,68 @@ END:VCALENDAR`;
                 teamFilter.remove(1);
             }
             
-            // Get unique teams
-            const teams = new Set();
+            // Get unique teams and normalize them
+            const teamsMap = new Map(); // Use a map to store normalized team name -> original team name
             matches.forEach(match => {
-                if (match.Team) teams.add(match.Team);
+                if (match.Team) {
+                    // Remove venue annotations like "(** Main Pitch **)"
+                    let normalizedName = match.Team.replace(/\s*\(\*\*.*\*\*\)\s*$/, '');
+                    // Remove location prefixes like "@MAGHERY - "
+                    normalizedName = normalizedName.replace(/^@[^-]+-\s*/, '');
+                    // Trim any extra whitespace
+                    normalizedName = normalizedName.trim();
+                    
+                    // If we haven't seen this normalized name before, or if the current name is shorter
+                    // (prefer "Minor Boys" over "@MAGHERY - Minor Boys")
+                    if (!teamsMap.has(normalizedName) || match.Team.length < teamsMap.get(normalizedName).length) {
+                        teamsMap.set(normalizedName, match.Team);
+                    }
+                }
             });
             
-            console.log('Found teams:', Array.from(teams));
+            console.log('Normalized teams map:', teamsMap);
+            
+            // Convert to array and sort
+            const uniqueTeams = Array.from(teamsMap.values()).sort((a, b) => {
+                // Custom sort function to group by age group
+                const ageGroupOrder = {
+                    'Senior': 1,
+                    'Minor': 2,
+                    'U16': 3,
+                    'U14': 4,
+                    'U12': 5,
+                    'U10': 6,
+                    'U8': 7,
+                    'U6': 8,
+                    'Tots': 9
+                };
+                
+                // Extract age group from team name
+                const getAgeGroup = (name) => {
+                    for (const [group, order] of Object.entries(ageGroupOrder)) {
+                        if (name.includes(group)) return order;
+                    }
+                    return 999; // Default order for unknown age groups
+                };
+                
+                const orderA = getAgeGroup(a);
+                const orderB = getAgeGroup(b);
+                
+                // First sort by age group
+                if (orderA !== orderB) return orderA - orderB;
+                
+                // Then sort alphabetically within same age group
+                return a.localeCompare(b);
+            });
+            
+            console.log('Unique sorted teams:', uniqueTeams);
             
             // Add team options
-            Array.from(teams).sort().forEach(team => {
+            uniqueTeams.forEach(team => {
                 const option = document.createElement('option');
                 option.value = team;
-                option.textContent = team;
+                // Display the normalized version of the team name
+                option.textContent = team.replace(/^@[^-]+-\s*/, '').replace(/\s*\(\*\*.*\*\*\)\s*$/, '').trim();
                 teamFilter.appendChild(option);
             });
             
