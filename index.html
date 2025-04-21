@@ -2353,25 +2353,55 @@ END:VCALENDAR`;
                 upcoming: 0
             };
             
+            // Create a Set to track unique match IDs to prevent double counting
+            const processedMatches = new Set();
+            
             // Get all matches for the selected team (excluding training events)
             const teamMatches = teamName === 'all' 
                 ? matches.filter(match => !match.isTraining)
-                : matches.filter(match => match.Team === teamName && !match.isTraining);
+                : matches.filter(match => {
+                    // Only include actual matches (not training)
+                    if (match.isTraining) return false;
+                    
+                    // Check if this is the correct team
+                    return match.Team === teamName;
+                });
             
-            console.log('Filtered matches for stats:', teamMatches);
+            console.log('Filtered matches for stats:', teamMatches.length);
             
-            // Count each match only once
+            // Process each match only once
             teamMatches.forEach(match => {
+                // Create a unique identifier for the match
+                const matchId = `${match.Date}-${match.Time}-${match['Home Team']}-${match['Away Team']}`;
+                
+                // Skip if we've already counted this match
+                if (processedMatches.has(matchId)) {
+                    console.log('Skipping duplicate match:', matchId);
+                    return;
+                }
+                
+                // Mark this match as processed
+                processedMatches.add(matchId);
+                
+                // Count the match
                 stats.total++;
                 
-                if (match.Result === 'WIN') {
-                    stats.wins++;
-                } else if (match.Result === 'LOSS') {
-                    stats.losses++;
-                } else if (match.Result === 'DRAW') {
-                    stats.draws++;
-                } else if (match.Result === '---' || !match.Result) {
+                if (!match.Result || match.Result === '---') {
                     stats.upcoming++;
+                } else {
+                    switch (match.Result.toUpperCase()) {
+                        case 'WIN':
+                            stats.wins++;
+                            break;
+                        case 'LOSS':
+                            stats.losses++;
+                            break;
+                        case 'DRAW':
+                            stats.draws++;
+                            break;
+                        default:
+                            console.warn('Unknown match result:', match.Result);
+                    }
                 }
             });
             
@@ -2438,28 +2468,31 @@ END:VCALENDAR`;
             });
         }
         
-        // Update the updateUpcomingMatches function to exclude training events
+        // Update the updateUpcomingMatches function to also use unique match tracking
         function updateUpcomingMatches(teamName) {
+            const processedMatches = new Set();
+            
             const teamMatches = teamName === 'all' 
                 ? matches 
                 : matches.filter(match => match.Team === teamName);
             
-            // Filter upcoming matches (excluding training events)
-            // Add a Set to track unique match identifiers
-            const seenMatches = new Set();
+            // Filter upcoming matches (excluding training events and duplicates)
             const upcomingMatches = teamMatches
                 .filter(match => {
                     if (match.isTraining) return false;
-                    if (!match.Result || match.Result === '---') {
-                        // Create a unique identifier for each match
-                        const matchId = `${match.Date}-${match.Time}-${match['Home Team']}-${match['Away Team']}`;
-                        if (seenMatches.has(matchId)) {
-                            return false;
-                        }
-                        seenMatches.add(matchId);
-                        return true;
+                    if (match.Result && match.Result !== '---') return false;
+                    
+                    // Create a unique identifier for the match
+                    const matchId = `${match.Date}-${match.Time}-${match['Home Team']}-${match['Away Team']}`;
+                    
+                    // Skip if we've already seen this match
+                    if (processedMatches.has(matchId)) {
+                        return false;
                     }
-                    return false;
+                    
+                    // Mark this match as processed
+                    processedMatches.add(matchId);
+                    return true;
                 })
                 .sort((a, b) => parseDate(a.Date) - parseDate(b.Date))
                 .slice(0, 3);
