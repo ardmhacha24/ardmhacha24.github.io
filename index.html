@@ -3674,42 +3674,64 @@ END:VCALENDAR`;
                 maxDate: "2025-12-31",
                 defaultHour: 0,
                 enableTime: false,
-                disableMobile: false, // Enable native picker on mobile
+                disableMobile: false,
                 locale: {
-                    firstDayOfWeek: 1 // Start week on Monday
+                    firstDayOfWeek: 1
                 },
+                // Don't update on individual date selections
                 onChange: function(selectedDates, dateStr, instance) {
                     console.log('Date selection changed:', { selectedDates, dateStr });
+                    // Don't do anything here - wait for onClose
+                },
+                onOpen: function(selectedDates, dateStr, instance) {
+                    // Store the current dates before opening
+                    instance.previousDates = selectedDates.length ? [...selectedDates] : [];
+                    console.log('Stored previous dates:', instance.previousDates);
+                },
+                onClose: function(selectedDates, dateStr, instance) {
+                    console.log('Date picker closed with dates:', selectedDates);
                     
+                    // If no dates are selected, keep previous selection or clear
+                    if (selectedDates.length === 0) {
+                        if (instance.previousDates && instance.previousDates.length) {
+                            instance.setDate(instance.previousDates, false);
+                            selectedDates = instance.previousDates;
+                        }
+                    }
+                    
+                    // Handle single date selection
+                    if (selectedDates.length === 1) {
+                        // Set the same date as both start and end
+                        const selectedDate = new Date(selectedDates[0]);
+                        const endDate = new Date(selectedDates[0]);
+                        endDate.setHours(23, 59, 59, 999);
+                        instance.setDate([selectedDate, endDate], false);
+                        selectedDates = [selectedDate, endDate];
+                    }
+                    
+                    // Handle complete range selection
                     if (selectedDates.length === 2) {
-                        // Ensure end date is set to end of day for inclusive filtering
+                        // Ensure end date is set to end of day
                         selectedDates[1].setHours(23, 59, 59, 999);
+                        instance.setDate(selectedDates, false);
                         
-                        // Store the selected dates in the instance for reference
-                        instance.selectedStartDate = selectedDates[0];
-                        instance.selectedEndDate = selectedDates[1];
-                        
-                        console.log('Date range set:', {
+                        console.log('Final date range:', {
                             start: selectedDates[0],
                             end: selectedDates[1]
                         });
                     }
                     
-                    // Update display with filtered matches
-                    displayMatches();
-                    
-                    // Scroll to the first match within the selected date range
-                    scrollToFirstMatchInRange(selectedDates);
-                },
-                onOpen: function(selectedDates, dateStr, instance) {
-                    // Store the current dates before opening
-                    instance.previousDates = [...selectedDates];
-                },
-                onClose: function(selectedDates, dateStr, instance) {
-                    if (selectedDates.length === 1) {
-                        // If only one date was selected, reset to previous selection
-                        instance.setDate(instance.previousDates, true);
-                        console.log('Reset to previous dates due to incomplete selection');
+                    // Only update display if we have a valid selection
+                    if (selectedDates.length === 2) {
+                        // Store the dates in the instance
+                        instance.selectedStartDate = selectedDates[0];
+                        instance.selectedEndDate = selectedDates[1];
+                        
+                        // Update the display
+                        displayMatches();
+                        
+                        // Scroll to the first match in range
+                        scrollToFirstMatchInRange(selectedDates);
                     }
                 }
             });
@@ -3719,7 +3741,9 @@ END:VCALENDAR`;
                 console.log('Resetting date range');
                 if (datePickerInstance) {
                     datePickerInstance.clear();
-                    datePickerInstance.setDate([]); // Explicitly clear the dates
+                    datePickerInstance.setDate([], false);
+                    datePickerInstance.selectedStartDate = null;
+                    datePickerInstance.selectedEndDate = null;
                 }
                 displayMatches();
                 scrollToTodayMarker();
@@ -3735,26 +3759,29 @@ END:VCALENDAR`;
             
             console.log('Scrolling to first match in range');
             
-            const startDate = selectedDates[0];
-            const endDate = selectedDates[1];
-            
-            // Find the first date header within the range
-            const dateHeaders = document.querySelectorAll('.date-header');
-            let firstMatchHeader = null;
-            
-            dateHeaders.forEach(header => {
-                if (firstMatchHeader) return;
+            // Add a small delay to ensure the DOM has updated
+            setTimeout(() => {
+                const startDate = selectedDates[0];
+                const endDate = selectedDates[1];
                 
-                const headerDate = parseDate(header.textContent);
-                if (headerDate && headerDate >= startDate && headerDate <= endDate) {
-                    firstMatchHeader = header;
+                // Find the first date header within the range
+                const dateHeaders = document.querySelectorAll('.date-header');
+                let firstMatchHeader = null;
+                
+                dateHeaders.forEach(header => {
+                    if (firstMatchHeader) return;
+                    
+                    const headerDate = parseDate(header.textContent);
+                    if (headerDate && headerDate >= startDate && headerDate <= endDate) {
+                        firstMatchHeader = header;
+                    }
+                });
+                
+                if (firstMatchHeader) {
+                    console.log('Scrolling to date header:', firstMatchHeader.textContent);
+                    firstMatchHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
-            });
-            
-            if (firstMatchHeader) {
-                console.log('Scrolling to date header:', firstMatchHeader.textContent);
-                firstMatchHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            }, 100);
         }
 
         // Function to scroll to today's marker
