@@ -1723,7 +1723,7 @@
         
         // Initialize the application
         async function init() {
-            console.log('Initializing application...');
+            console.log('=== init START ===');
             try {
                 // Initialize empty matches array
                 matches = [];
@@ -1738,43 +1738,25 @@
                     console.log('DOM fully loaded');
                 }
                 
-                // Initialize UI first without filters
-                console.log('Initializing UI...');
-                initializeUI();
-                console.log('UI initialized');
-                
-                // Add toggle event listeners
-                const showMatchesToggle = document.getElementById('showMatches');
-                const showTrainingToggle = document.getElementById('showTraining');
-                
-                showMatchesToggle.addEventListener('change', () => {
-                    console.log('Matches toggle changed:', showMatchesToggle.checked);
-                    displayMatches();
-                });
-                
-                showTrainingToggle.addEventListener('change', () => {
-                    console.log('Training toggle changed:', showTrainingToggle.checked);
-                    displayMatches();
-                });
-                
                 // Fetch matches from worker
                 console.log('Starting to fetch matches from worker...');
                 const workerMatches = await fetchMatchesFromWorker();
-                console.log('Worker matches fetched, adding to matches array...');
-                matches = matches.concat(workerMatches);
-                console.log('Total matches after worker fetch:', matches.length);
+                console.log('Worker matches fetched:', workerMatches.length);
+                matches = workerMatches; // Replace instead of concat
                 
                 // Fetch training events
                 console.log('Starting to fetch training events...');
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
                 
+                // Initialize UI after data is loaded
+                console.log('Initializing UI...');
+                initializeUI();
+                
                 // Initialize search functionality
                 console.log('Initializing search functionality...');
                 initSearchAutocomplete();
                 
-                // Display matches
-                displayMatches();
                 console.log('Initialization complete. Final match count:', matches.length);
                 
             } catch (error) {
@@ -1787,6 +1769,7 @@
                     </div>
                 `;
             }
+            console.log('=== init END ===');
         }
         
         // Separate UI initialization
@@ -3024,20 +3007,15 @@ END:VCALENDAR`;
 
                 // Get existing non-training matches
                 const existingMatches = matches.filter(m => !m.isTraining);
-                console.log('Existing non-training matches:', existingMatches);
+                console.log('Existing non-training matches:', existingMatches.length);
                 
                 // Process training events
                 const trainingMatches = events.items.map(event => {
-                    console.log('Processing calendar event:', event);
                     const startDateTime = new Date(event.start.dateTime || event.start.date);
                     const endDateTime = new Date(event.end.dateTime || event.end.date);
                     
-                    // Use the same formatDate function for consistency
-                    const formattedDate = formatDate(startDateTime);
-                    console.log(`Formatted training date: ${formattedDate} from ${startDateTime}`);
-                    
                     return {
-                        'Date': formattedDate,
+                        'Date': formatDate(startDateTime),
                         'Time': startDateTime.toLocaleTimeString('en-GB', {
                             hour: '2-digit',
                             minute: '2-digit',
@@ -3059,17 +3037,10 @@ END:VCALENDAR`;
                         'isTraining': true
                     };
                 });
-                console.log('Processed training matches:', trainingMatches);
+                console.log('Processed training matches:', trainingMatches.length);
 
-                // Reset matches array with non-training matches
-                matches = [...existingMatches];
-                
-                // Add training matches
-                matches = matches.concat(trainingMatches);
-                console.log('Combined matches:', matches);
-
-                // Sort by date and time
-                matches.sort((a, b) => {
+                // Combine matches and sort
+                matches = [...existingMatches, ...trainingMatches].sort((a, b) => {
                     const dateA = parseDate(a.Date);
                     const dateB = parseDate(b.Date);
                     if (dateA.getTime() === dateB.getTime()) {
@@ -3078,9 +3049,9 @@ END:VCALENDAR`;
                     return dateA - dateB;
                 });
 
-                // Update display
+                console.log('Total matches after combining:', matches.length);
                 displayMatches();
-                console.log('Display updated with training events');
+
             } catch (error) {
                 console.error('Error in fetchTrainingEvents:', error);
             }
@@ -3106,9 +3077,8 @@ END:VCALENDAR`;
                 // Fetch matches from worker
                 console.log('Starting to fetch matches from worker...');
                 const workerMatches = await fetchMatchesFromWorker();
-                console.log('Worker matches fetched, adding to matches array...');
-                matches = matches.concat(workerMatches);
-                console.log('Total matches after worker fetch:', matches.length);
+                console.log('Worker matches fetched:', workerMatches.length);
+                matches = workerMatches; // Replace instead of concat
                 
                 // Fetch training events
                 console.log('Starting to fetch training events...');
