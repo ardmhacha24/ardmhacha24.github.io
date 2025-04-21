@@ -1376,6 +1376,7 @@
             </div>
             
             <div class="team-stats">
+                <h3>Match Statistics</h3>
                 <div class="team-stat-item">
                     <i class="fas fa-trophy stat-icon"></i>
                     <span class="team-stat-label">Total Matches</span>
@@ -1407,6 +1408,13 @@
                 <h3>Next 3 Upcoming Matches</h3>
                 <div id="upcomingMatchesList">
                     <!-- Upcoming matches will be populated here -->
+                </div>
+            </div>
+
+            <div class="team-upcoming">
+                <h3>Next 3 Training Sessions</h3>
+                <div id="upcomingTrainingList">
+                    <!-- Upcoming training sessions will be populated here -->
                 </div>
             </div>
         </div>
@@ -2325,10 +2333,10 @@ END:VCALENDAR`;
                 upcoming: 0
             };
             
-            // Get all matches for the selected team
+            // Get all matches for the selected team (excluding training events)
             const teamMatches = teamName === 'all' 
-                ? matches 
-                : matches.filter(match => match.Team === teamName);
+                ? matches.filter(match => !match.isTraining)
+                : matches.filter(match => match.Team === teamName && !match.isTraining);
             
             console.log('Filtered matches for stats:', teamMatches);
             
@@ -2362,19 +2370,52 @@ END:VCALENDAR`;
             if (drawCount) drawCount.textContent = stats.draws;
             if (upcomingCount) upcomingCount.textContent = stats.upcoming;
             
-            // Update upcoming matches in the sidebar
+            // Update upcoming matches and training sessions in the sidebar
             updateUpcomingMatches(teamName);
+            updateUpcomingTraining(teamName);
         }
         
-        // Function to update upcoming matches in the sidebar
+        // Add new function to update upcoming training sessions
+        function updateUpcomingTraining(teamName) {
+            const teamMatches = teamName === 'all' 
+                ? matches 
+                : matches.filter(match => match.Team === teamName);
+            
+            // Filter upcoming training sessions
+            const upcomingTraining = teamMatches
+                .filter(match => match.isTraining)
+                .sort((a, b) => parseDate(a.Date) - parseDate(b.Date))
+                .slice(0, 3);
+            
+            const upcomingTrainingList = document.getElementById('upcomingTrainingList');
+            upcomingTrainingList.innerHTML = '';
+            
+            if (upcomingTraining.length === 0) {
+                upcomingTrainingList.innerHTML = '<p>No upcoming training sessions</p>';
+                return;
+            }
+            
+            upcomingTraining.forEach(session => {
+                const sessionElement = document.createElement('div');
+                sessionElement.className = 'upcoming-match training';
+                sessionElement.innerHTML = `
+                    <div class="upcoming-match-date">${formatDate(session.Date)}</div>
+                    <div class="upcoming-match-teams">${session.Team} Training</div>
+                    <div class="upcoming-match-venue">${session.Venue} - ${session.Time}</div>
+                `;
+                upcomingTrainingList.appendChild(sessionElement);
+            });
+        }
+        
+        // Update the updateUpcomingMatches function to exclude training events
         function updateUpcomingMatches(teamName) {
             const teamMatches = teamName === 'all' 
                 ? matches 
                 : matches.filter(match => match.Team === teamName);
             
-            // Filter upcoming matches
+            // Filter upcoming matches (excluding training events)
             const upcomingMatches = teamMatches
-                .filter(match => !match.Result || match.Result === '---')
+                .filter(match => !match.isTraining && (!match.Result || match.Result === '---'))
                 .sort((a, b) => parseDate(a.Date) - parseDate(b.Date))
                 .slice(0, 3);
             
@@ -3300,10 +3341,10 @@ END:VCALENDAR`;
                 upcoming: 0
             };
             
-            // Get all matches for the selected team
+            // Get all matches for the selected team (excluding training events)
             const teamMatches = teamName === 'all' 
-                ? matches 
-                : matches.filter(match => match.Team === teamName);
+                ? matches.filter(match => !match.isTraining)
+                : matches.filter(match => match.Team === teamName && !match.isTraining);
             
             console.log('Filtered matches for stats:', teamMatches);
             
@@ -3337,8 +3378,9 @@ END:VCALENDAR`;
             if (drawCount) drawCount.textContent = stats.draws;
             if (upcomingCount) upcomingCount.textContent = stats.upcoming;
             
-            // Update upcoming matches in the sidebar
+            // Update upcoming matches and training sessions in the sidebar
             updateUpcomingMatches(teamName);
+            updateUpcomingTraining(teamName);
         }
 
         function populateSidebarTeamFilter() {
