@@ -1604,9 +1604,191 @@
     </div>
     
     <script>
-        // Parse the CSV data and store it in a global variable
+        // Global variables
         let matches = [];
+        let datePickerInstance = null;
+        let trainingEvents = [];
         
+        // Initialize everything
+        async function init() {
+            console.log('Starting initialization...');
+            try {
+                // First, initialize UI components that don't depend on data
+                initializeDatePicker();
+                
+                // Fetch data
+                console.log('Fetching data...');
+                const [fetchedMatches, fetchedTraining] = await Promise.all([
+                    fetchMatchesFromWorker(),
+                    fetchTrainingEvents()
+                ]);
+                
+                // Store fetched data
+                matches = fetchedMatches;
+                trainingEvents = fetchedTraining;
+                
+                console.log('Data loaded:', {
+                    matches: matches.length,
+                    training: trainingEvents.length
+                });
+                
+                // Now initialize UI components that depend on data
+                initializeUI();
+                
+                // Display initial matches
+                displayMatches();
+                
+                console.log('Initialization complete');
+            } catch (error) {
+                console.error('Initialization error:', error);
+                throw error;
+            }
+        }
+
+        // Enhanced filter matches function
+        function filterMatches() {
+            console.log('=== filterMatches START ===');
+            const searchInput = document.getElementById('searchInput');
+            const showMatches = document.getElementById('showMatchesToggle').checked;
+            const showTraining = document.getElementById('showTrainingToggle').checked;
+            
+            let filteredMatches = matches;
+            
+            // Apply type filters first
+            filteredMatches = filteredMatches.filter(match => {
+                if (!showMatches && !match.isTraining) return false;
+                if (!showTraining && match.isTraining) return false;
+                return true;
+            });
+            
+            // Apply search filter if there's a query
+            if (searchInput && searchInput.value) {
+                const searchQuery = searchInput.value.toLowerCase().trim();
+                filteredMatches = filteredMatches.filter(match => {
+                    const searchableText = [
+                        match.Competition || '',
+                        match.Team || '',
+                        match['Home Team'] || '',
+                        match['Away Team'] || '',
+                        match.Venue || '',
+                        match.Round || '',
+                        formatDate(match.Date) || '',
+                        match.Time || ''
+                    ].join(' ').toLowerCase();
+                    
+                    return searchableText.includes(searchQuery);
+                });
+            }
+            
+            // Apply date range filter if selected
+            if (datePickerInstance && datePickerInstance.selectedDates && datePickerInstance.selectedDates.length === 2) {
+                const [startDate, endDate] = datePickerInstance.selectedDates;
+                console.log('Filtering by date range:', { startDate, endDate });
+                
+                filteredMatches = filteredMatches.filter(match => {
+                    const matchDate = parseDate(match.Date);
+                    if (!matchDate) return false;
+                    
+                    // Set the match date to the start of day for comparison
+                    matchDate.setHours(0, 0, 0, 0);
+                    
+                    // Create comparison dates at start and end of day
+                    const compareStart = new Date(startDate);
+                    compareStart.setHours(0, 0, 0, 0);
+                    const compareEnd = new Date(endDate);
+                    compareEnd.setHours(23, 59, 59, 999);
+                    
+                    return matchDate >= compareStart && matchDate <= compareEnd;
+                });
+            }
+            
+            console.log('Filtered matches count:', filteredMatches.length);
+            return filteredMatches;
+        }
+        
+        // Initialize UI components
+        function initializeUI() {
+            console.log('Initializing UI components');
+            
+            // Ensure stats elements exist in DOM
+            const statsElements = [
+                'totalMatches',
+                'wins',
+                'losses',
+                'draws',
+                'upcomingMatches'
+            ];
+            
+            const missingElements = statsElements.filter(id => !document.getElementById(id));
+            if (missingElements.length > 0) {
+                console.error('Missing stats elements:', missingElements);
+                // Create the missing elements in the sidebar
+                const statsContainer = document.querySelector('.stats-container');
+                if (statsContainer) {
+                    const statsHTML = `
+                        <div class="stats-row">
+                            <div class="stat-label">Total Matches:</div>
+                            <div class="stat-value" id="totalMatches">0</div>
+                        </div>
+                        <div class="stats-row">
+                            <div class="stat-label">Wins:</div>
+                            <div class="stat-value" id="wins">0</div>
+                        </div>
+                        <div class="stats-row">
+                            <div class="stat-label">Losses:</div>
+                            <div class="stat-value" id="losses">0</div>
+                        </div>
+                        <div class="stats-row">
+                            <div class="stat-label">Draws:</div>
+                            <div class="stat-value" id="draws">0</div>
+                        </div>
+                        <div class="stats-row">
+                            <div class="stat-label">Upcoming:</div>
+                            <div class="stat-value" id="upcomingMatches">0</div>
+                        </div>
+                    `;
+                    statsContainer.innerHTML = statsHTML;
+                }
+            }
+            
+            // Initialize team filter in sidebar
+            const teamFilter = document.getElementById('sidebarTeamFilter');
+            if (teamFilter) {
+                teamFilter.addEventListener('change', function() {
+                    console.log('Team filter changed to:', this.value);
+                    updateTeamStats(this.value);
+                });
+            }
+            
+            // Initialize match/training toggles
+            const showMatchesToggle = document.getElementById('showMatchesToggle');
+            const showTrainingToggle = document.getElementById('showTrainingToggle');
+            
+            if (showMatchesToggle) {
+                showMatchesToggle.addEventListener('change', function() {
+                        displayMatches();
+                });
+            }
+            
+            if (showTrainingToggle) {
+                showTrainingToggle.addEventListener('change', function() {
+                    displayMatches();
+                });
+            }
+            
+            // Initialize search autocomplete
+            initSearchAutocomplete();
+            
+            // Initialize team filter
+            populateSidebarTeamFilter();
+        }
+        
+        // Remove any other DOMContentLoaded listeners and use just this one
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing...');
+            init().catch(error => console.error('Initialization error:', error));
+        });
+
         // Function to format date in a more readable format
         function formatDate(dateStr) {
             console.log('Formatting date:', dateStr);
@@ -1863,187 +2045,6 @@
             });
             
             console.log('Matches displayed:', filteredMatches.length);
-        }
-        
-        // Initialize the application
-        async function init() {
-            console.log('Initializing application...');
-            try {
-                // Initialize empty matches array
-                matches = [];
-                console.log('Initialized empty matches array');
-                
-                // Wait for DOM to be fully loaded
-                if (document.readyState === 'loading') {
-                    console.log('DOM not fully loaded, waiting...');
-                    await new Promise(resolve => {
-                        document.addEventListener('DOMContentLoaded', resolve);
-                    });
-                    console.log('DOM fully loaded');
-                }
-                
-                // Initialize UI first without filters
-                console.log('Initializing UI...');
-                initializeUI();
-                console.log('UI initialized');
-                
-                // Add toggle event listeners
-                const showMatchesToggle = document.getElementById('showMatches');
-                const showTrainingToggle = document.getElementById('showTraining');
-                
-                showMatchesToggle.addEventListener('change', () => {
-                    console.log('Matches toggle changed:', showMatchesToggle.checked);
-                    displayMatches();
-                });
-                
-                showTrainingToggle.addEventListener('change', () => {
-                    console.log('Training toggle changed:', showTrainingToggle.checked);
-                    displayMatches();
-                });
-                
-                // Fetch matches from worker
-                console.log('Starting to fetch matches from worker...');
-                const workerMatches = await fetchMatchesFromWorker();
-                console.log('Worker matches fetched, adding to matches array...');
-                matches = matches.concat(workerMatches);
-                console.log('Total matches after worker fetch:', matches.length);
-                
-                // Fetch training events
-                console.log('Starting to fetch training events...');
-                await fetchTrainingEvents();
-                console.log('Training events fetched, total matches now:', matches.length);
-                
-                // Initialize search functionality
-                console.log('Initializing search functionality...');
-                initSearchAutocomplete();
-                
-                // Display matches
-                displayMatches();
-                console.log('Initialization complete. Final match count:', matches.length);
-                
-            } catch (error) {
-                console.error('Error in init:', error);
-                console.error('Error stack:', error.stack);
-                document.getElementById('matchContainer').innerHTML = `
-                    <div class="no-results">
-                        <p>Error loading matches. Please try refreshing the page.</p>
-                        <p>Error details: ${error.message}</p>
-                    </div>
-                `;
-            }
-        }
-        
-        // Separate UI initialization
-        function initializeUI() {
-            console.log('Initializing UI components');
-            
-            // Initialize team filter in sidebar
-            const teamFilter = document.getElementById('sidebarTeamFilter');
-            if (teamFilter) {
-                teamFilter.addEventListener('change', function() {
-                    console.log('Team filter changed to:', this.value);
-                    updateTeamStats(this.value);
-                });
-            }
-            
-            // Initialize match/training toggles
-            const showMatchesToggle = document.getElementById('showMatchesToggle');
-            const showTrainingToggle = document.getElementById('showTrainingToggle');
-            
-            if (showMatchesToggle) {
-                showMatchesToggle.addEventListener('change', function() {
-                        displayMatches();
-                });
-            }
-            
-            if (showTrainingToggle) {
-                showTrainingToggle.addEventListener('change', function() {
-                    displayMatches();
-                });
-            }
-            
-            // Initialize date picker
-            initializeDatePicker();
-            
-            // Initialize search autocomplete
-            initSearchAutocomplete();
-            
-            // Initialize team filter
-            populateSidebarTeamFilter();
-        }
-        
-        // Debounce function to limit search input processing
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-        
-        // Enhanced filter matches function to include search and date range
-        function filterMatches() {
-            console.log('=== filterMatches START ===');
-            const searchInput = document.getElementById('searchInput');
-            const showMatches = document.getElementById('showMatches').checked;
-            const showTraining = document.getElementById('showTraining').checked;
-            
-            let filteredMatches = matches;
-            
-            // Apply type filters first
-            filteredMatches = filteredMatches.filter(match => {
-                if (!showMatches && !match.isTraining) return false;
-                if (!showTraining && match.isTraining) return false;
-                return true;
-            });
-            
-            // Apply search filter if there's a query
-            if (searchInput && searchInput.value) {
-                const searchQuery = searchInput.value.toLowerCase().trim();
-                filteredMatches = filteredMatches.filter(match => {
-                    const searchableText = [
-                        match.Competition || '',
-                        match.Team || '',
-                        match['Home Team'] || '',
-                        match['Away Team'] || '',
-                        match.Venue || '',
-                        match.Round || '',
-                        formatDate(match.Date) || '',
-                        match.Time || ''
-                    ].join(' ').toLowerCase();
-                    
-                    return searchableText.includes(searchQuery);
-                });
-            }
-            
-            // Apply date range filter if selected
-            if (datePickerInstance && datePickerInstance.selectedDates.length === 2) {
-                const [startDate, endDate] = datePickerInstance.selectedDates;
-                console.log('Filtering by date range:', { startDate, endDate });
-                
-                filteredMatches = filteredMatches.filter(match => {
-                    const matchDate = parseDate(match.Date);
-                    if (!matchDate) return false;
-                    
-                    // Set the match date to the start of day for comparison
-                    matchDate.setHours(0, 0, 0, 0);
-                    
-                    // Create comparison dates at start and end of day
-                    const compareStart = new Date(startDate);
-                    compareStart.setHours(0, 0, 0, 0);
-                    const compareEnd = new Date(endDate);
-                    compareEnd.setHours(23, 59, 59, 999);
-                    
-                    return matchDate >= compareStart && matchDate <= compareEnd;
-                });
-            }
-            
-            console.log('Filtered matches count:', filteredMatches.length);
-            return filteredMatches;
         }
         
         // Helper function to parse date strings
@@ -3354,12 +3355,6 @@ END:VCALENDAR`;
             // Initialize team filter
             populateSidebarTeamFilter();
         }
-
-        // Remove any other DOMContentLoaded listeners and use just this one
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, initializing...');
-            init().catch(error => console.error('Initialization error:', error));
-        });
 
         // Function to create Google Calendar URL
         function createCalendarUrl(match, title, location) {
