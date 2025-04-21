@@ -2157,7 +2157,7 @@
             matchCard.innerHTML = `
                 <div class="match-header">
                     <div class="match-header-main">
-                        <span class="team-category">${homeTeam} vs ${awayTeam}</span>
+                        <span class="team-category">${match.Team || ''}</span>
                         <span class="competition">${match.Competition}</span>
                     </div>
                     <div class="match-info">
@@ -2171,10 +2171,24 @@
                             <div class="team-name">${homeTeam}</div>
                         </div>
                         <div class="score-container">
-                            ${match.Result && match.Result !== '---' && homeScore && awayScore
-                                ? `<span class="score">${homeScore}</span><span class="score">${awayScore}</span>` 
-                                : `<span class="vs">vs</span>`
-                            }
+                            ${(() => {
+                                const hasResult = match.Result && match.Result !== '---';
+                                const hasHomeScore = match['Home Score'] && match['Home Score'] !== '---';
+                                const hasAwayScore = match['Away Score'] && match['Away Score'] !== '---';
+                                
+                                console.log('Match data for score display:', {
+                                    result: match.Result,
+                                    homeScore: match['Home Score'],
+                                    awayScore: match['Away Score'],
+                                    hasResult,
+                                    hasHomeScore,
+                                    hasAwayScore
+                                });
+                                
+                                return hasResult && hasHomeScore && hasAwayScore
+                                    ? `<span class="score">${match['Home Score']}</span><span class="score">${match['Away Score']}</span>` 
+                                    : `<span class="vs">vs</span>`;
+                            })()}
                         </div>
                         <div class="team">
                             <div class="team-name">${awayTeam}</div>
