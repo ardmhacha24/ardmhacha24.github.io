@@ -1808,6 +1808,64 @@
             document.getElementById('upcomingCount').textContent = stats.upcoming;
         }
         
+        // Group matches by date
+        function groupMatchesByDate(matches) {
+            console.log('Starting groupMatchesByDate with matches:', matches);
+            const groupedMatches = {};
+            const processedIds = new Set();
+            
+            matches.forEach(match => {
+                // Format date consistently
+                const date = formatDate(match.Date);
+                console.log(`Processing match: ${match.Team} on ${date} (original date: ${match.Date})`);
+                
+                if (!groupedMatches[date]) {
+                    groupedMatches[date] = {
+                        matches: [],
+                        training: []
+                    };
+                    console.log(`Created new date group for: ${date}`);
+                }
+                
+                // For training events, use the ID to check for duplicates
+                // For regular matches, use the combination of date, time, and team
+                const matchId = match.isTraining ? 
+                    match['Fixture ID'] : 
+                    `${date}-${match.Time || '00:00'}-${match.Team}`;
+                
+                if (!processedIds.has(matchId)) {
+                    processedIds.add(matchId);
+                    if (match.isTraining) {
+                        groupedMatches[date].training.push(match);
+                    } else {
+                        groupedMatches[date].matches.push(match);
+                    }
+                    console.log(`Added ${match.isTraining ? 'training event' : 'match'} to group ${date}: ${match.Team} at ${match.Time}`);
+                } else {
+                    console.log(`Skipped duplicate ${match.isTraining ? 'training event' : 'match'}: ${match.Team} at ${match.Time}`);
+                }
+            });
+            
+            console.log('Final grouped matches:', groupedMatches);
+            
+            // Sort matches and training events within each date group by time
+            Object.keys(groupedMatches).forEach(date => {
+                groupedMatches[date].matches.sort((a, b) => {
+                    const timeA = a.Time || '00:00';
+                    const timeB = b.Time || '00:00';
+                    return timeA.localeCompare(timeB);
+                });
+                groupedMatches[date].training.sort((a, b) => {
+                    const timeA = a.Time || '00:00';
+                    const timeB = b.Time || '00:00';
+                    return timeA.localeCompare(timeB);
+                });
+                console.log(`Sorted matches and training for ${date}:`, groupedMatches[date]);
+            });
+            
+            return groupedMatches;
+        }
+        
         // Enhanced display matches function
         function displayMatches() {
             console.log('Displaying matches...');
@@ -1836,8 +1894,8 @@
             });
                 
             // Get today's date for comparison
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
                 
             // Create a container for today's date marker
             const todayMarker = document.createElement('div');
@@ -1852,17 +1910,14 @@
                 dateHeader.textContent = formatDate(date);
                 matchContainer.appendChild(dateHeader);
                 
-                // Sort matches within each date chronologically
-                const sortedMatches = groupedMatches[date].sort((a, b) => {
-                    // If both matches have times, sort by time
-                    if (a.Time && b.Time) {
-                        return a.Time.localeCompare(b.Time);
-                    }
-                    // If only one has time, put the one with time first
-                    return (b.Time ? 1 : 0) - (a.Time ? 1 : 0);
+                // First display matches
+                groupedMatches[date].matches.forEach(match => {
+                    const matchCard = createMatchCard(match);
+                    matchContainer.appendChild(matchCard);
                 });
                 
-                sortedMatches.forEach(match => {
+                // Then display training events
+                groupedMatches[date].training.forEach(match => {
                     const matchCard = createMatchCard(match);
                     matchContainer.appendChild(matchCard);
                 });
@@ -1962,7 +2017,7 @@
                 initSidebarToggle();
                 
                 // Display initial matches
-                    displayMatches();
+                displayMatches();
                 
                 console.log('UI initialization complete');
             } catch (error) {
@@ -2040,52 +2095,6 @@
                 
                 return true;
             });
-        }
-        
-        // Group matches by date
-        function groupMatchesByDate(matches) {
-            console.log('Starting groupMatchesByDate with matches:', matches);
-            const groupedMatches = {};
-            const processedIds = new Set();
-            
-            matches.forEach(match => {
-                // Format date consistently
-                const date = formatDate(match.Date);
-                console.log(`Processing match: ${match.Team} on ${date} (original date: ${match.Date})`);
-                
-                if (!groupedMatches[date]) {
-                    groupedMatches[date] = [];
-                    console.log(`Created new date group for: ${date}`);
-                }
-                
-                // For training events, use the ID to check for duplicates
-                // For regular matches, use the combination of date, time, and team
-                const matchId = match.isTraining ? 
-                    match['Fixture ID'] : 
-                    `${date}-${match.Time || '00:00'}-${match.Team}`;
-                
-                if (!processedIds.has(matchId)) {
-                    processedIds.add(matchId);
-                groupedMatches[date].push(match);
-                    console.log(`Added match to group ${date}: ${match.Team} at ${match.Time}`);
-                } else {
-                    console.log(`Skipped duplicate match: ${match.Team} at ${match.Time}`);
-                }
-            });
-            
-            console.log('Final grouped matches:', groupedMatches);
-            
-            // Sort matches within each date group by time
-            Object.keys(groupedMatches).forEach(date => {
-                groupedMatches[date].sort((a, b) => {
-                    const timeA = a.Time || '00:00';
-                    const timeB = b.Time || '00:00';
-                    return timeA.localeCompare(timeB);
-                });
-                console.log(`Sorted matches for ${date}:`, groupedMatches[date]);
-            });
-            
-            return groupedMatches;
         }
         
         // Helper function to parse date strings
