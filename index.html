@@ -2012,18 +2012,31 @@
         
         // Enhanced filter matches function to include search and date range
         function filterMatches() {
-            console.log('Filtering matches...');
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
-            console.log('Search query:', searchQuery);
+            console.log('=== filterMatches START ===');
+            const searchInput = document.getElementById('searchInput');
+            console.log('Search input element:', searchInput);
+            
+            if (!searchInput) {
+                console.error('Search input element not found!');
+                return matches;
+            }
+            
+            const searchQuery = searchInput.value.toLowerCase().trim();
+            console.log('Current search query:', searchQuery);
             
             // Get date range safely
             let dateRange = null;
             const dateRangeInput = document.getElementById('dateRange');
+            console.log('Date range input element:', dateRangeInput);
+            
             if (dateRangeInput && dateRangeInput._flatpickr && dateRangeInput._flatpickr.selectedDates.length > 0) {
                 dateRange = dateRangeInput._flatpickr.selectedDates;
+                console.log('Selected date range:', dateRange);
             }
             
-            return matches.filter(match => {
+            console.log('Total matches before filtering:', matches.length);
+            
+            const filteredMatches = matches.filter(match => {
                 // Search filter
                 if (searchQuery) {
                     const searchableText = [
@@ -2037,24 +2050,41 @@
                         match.Time || ''
                     ].join(' ').toLowerCase();
                     
-                    console.log('Searchable text for match:', searchableText);
+                    console.log('Match searchable text:', {
+                        match: `${match['Home Team']} vs ${match['Away Team']}`,
+                        searchableText: searchableText,
+                        includes: searchableText.includes(searchQuery)
+                    });
                     
                     if (!searchableText.includes(searchQuery)) {
                         return false;
                     }
                 }
                 
-                // Date range filter - only apply if dates are selected
+                // Date range filter
                 if (dateRange && dateRange.length === 2) {
                     const matchDate = parseDate(match.Date);
                     const startDate = dateRange[0];
                     const endDate = dateRange[1];
                     
-                    if (matchDate < startDate || matchDate > endDate) return false;
+                    const isInRange = matchDate >= startDate && matchDate <= endDate;
+                    console.log('Date range check:', {
+                        match: `${match['Home Team']} vs ${match['Away Team']}`,
+                        matchDate: matchDate,
+                        startDate: startDate,
+                        endDate: endDate,
+                        isInRange: isInRange
+                    });
+                    
+                    if (!isInRange) return false;
                 }
                 
                 return true;
             });
+            
+            console.log('Total matches after filtering:', filteredMatches.length);
+            console.log('=== filterMatches END ===');
+            return filteredMatches;
         }
         
         // Helper function to parse date strings
@@ -2625,60 +2655,73 @@ END:VCALENDAR`;
         
         // Initialize search functionality with autocomplete
         function initSearchAutocomplete() {
-            console.log('Initializing search autocomplete...');
+            console.log('=== initSearchAutocomplete START ===');
             const searchInput = document.getElementById('searchInput');
+            console.log('Search input element:', searchInput);
+            
+            if (!searchInput) {
+                console.error('Search input element not found!');
+                return;
+            }
             
             // Remove any existing suggestions container
             const existingSuggestions = document.querySelector('.autocomplete-suggestions');
             if (existingSuggestions) {
+                console.log('Removing existing suggestions container');
                 existingSuggestions.remove();
             }
             
             const suggestionsContainer = document.createElement('div');
             suggestionsContainer.className = 'autocomplete-suggestions';
             searchInput.parentNode.appendChild(suggestionsContainer);
+            console.log('Created new suggestions container');
             
             let currentFocus = -1;
             
             // Create a list of all searchable terms
             const searchableTerms = new Set();
+            console.log('Building searchable terms from matches...');
+            
             matches.forEach(match => {
-                // Add team names
                 if (match.Team) searchableTerms.add(match.Team);
                 if (match['Home Team']) searchableTerms.add(match['Home Team']);
                 if (match['Away Team']) searchableTerms.add(match['Away Team']);
-                // Add competition names
                 if (match.Competition) searchableTerms.add(match.Competition);
-                // Add venues
                 if (match.Venue) searchableTerms.add(match.Venue);
-                // Add rounds
                 if (match.Round) searchableTerms.add(match.Round);
             });
             
+            console.log('Total searchable terms:', searchableTerms.size);
             console.log('Searchable terms:', Array.from(searchableTerms));
             
+            // Add input event listener
             searchInput.addEventListener('input', function() {
+                console.log('=== Search Input Event ===');
                 const val = this.value.toLowerCase().trim();
+                console.log('Current input value:', val);
+                
                 suggestionsContainer.innerHTML = '';
                 
                 if (val.length < 2) {
+                    console.log('Input too short, hiding suggestions');
                     suggestionsContainer.style.display = 'none';
                     return;
                 }
                 
-                const matches = Array.from(searchableTerms)
+                const matchingTerms = Array.from(searchableTerms)
                     .filter(term => term.toLowerCase().includes(val))
-                    .slice(0, 5); // Limit to 5 suggestions
+                    .slice(0, 5);
                 
-                console.log('Matching suggestions:', matches);
+                console.log('Matching suggestions:', matchingTerms);
                 
-                if (matches.length > 0) {
-                    matches.forEach(match => {
+                if (matchingTerms.length > 0) {
+                    matchingTerms.forEach(term => {
                         const div = document.createElement('div');
                         div.className = 'autocomplete-suggestion';
-                        div.innerHTML = match;
+                        div.innerHTML = term;
                         div.addEventListener('click', function() {
-                            searchInput.value = match;
+                            console.log('Suggestion clicked:', term);
+                            searchInput.value = term;
                             suggestionsContainer.style.display = 'none';
                             displayMatches();
                         });
@@ -2686,15 +2729,20 @@ END:VCALENDAR`;
                     });
                     suggestionsContainer.style.display = 'block';
                 } else {
+                    console.log('No matching suggestions found');
                     suggestionsContainer.style.display = 'none';
                 }
                 
                 currentFocus = -1;
             });
             
-            // Handle keyboard navigation
+            // Add keyboard navigation
             searchInput.addEventListener('keydown', function(e) {
+                console.log('=== Keyboard Event ===');
+                console.log('Key pressed:', e.key);
+                
                 const suggestions = suggestionsContainer.getElementsByClassName('autocomplete-suggestion');
+                console.log('Current suggestions count:', suggestions.length);
                 
                 if (suggestions.length > 0) {
                     if (e.key === 'ArrowDown') {
@@ -2707,7 +2755,9 @@ END:VCALENDAR`;
                         setActiveSuggestion(suggestions);
                     } else if (e.key === 'Enter' && currentFocus > -1) {
                         e.preventDefault();
-                        searchInput.value = suggestions[currentFocus].textContent;
+                        const selectedTerm = suggestions[currentFocus].textContent;
+                        console.log('Selected suggestion:', selectedTerm);
+                        searchInput.value = selectedTerm;
                         suggestionsContainer.style.display = 'none';
                         displayMatches();
                     }
@@ -2715,6 +2765,7 @@ END:VCALENDAR`;
             });
             
             function setActiveSuggestion(suggestions) {
+                console.log('Setting active suggestion, current focus:', currentFocus);
                 Array.from(suggestions).forEach((s, i) => {
                     s.classList.remove('active');
                     if (i === currentFocus) s.classList.add('active');
@@ -2724,11 +2775,12 @@ END:VCALENDAR`;
             // Close suggestions when clicking outside
             document.addEventListener('click', function(e) {
                 if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                    console.log('Click outside search area, hiding suggestions');
                     suggestionsContainer.style.display = 'none';
                 }
             });
             
-            console.log('Search autocomplete initialized');
+            console.log('=== initSearchAutocomplete END ===');
         }
 
         // Start the app when the DOM is loaded
@@ -3112,7 +3164,7 @@ END:VCALENDAR`;
 
         // Initialize the application
         async function init() {
-            console.log('Initializing application...');
+            console.log('=== init START ===');
             try {
                 // Initialize empty matches array
                 matches = [];
@@ -3135,7 +3187,7 @@ END:VCALENDAR`;
                 // Fetch matches from worker
                 console.log('Starting to fetch matches from worker...');
                 const workerMatches = await fetchMatchesFromWorker();
-                console.log('Worker matches fetched, adding to matches array...');
+                console.log('Worker matches fetched:', workerMatches.length);
                 matches = matches.concat(workerMatches);
                 console.log('Total matches after worker fetch:', matches.length);
                 
@@ -3150,17 +3202,28 @@ END:VCALENDAR`;
                 
                 // Add search input handler with debounce
                 const searchInput = document.getElementById('searchInput');
-                searchInput.addEventListener('input', debounce(() => {
-                    console.log('Search input changed:', searchInput.value);
-                    displayMatches();
-                }, 300));
+                console.log('Search input element for event listener:', searchInput);
                 
-                // Add reset search button handler
-                const resetSearchBtn = document.getElementById('resetSearch');
-                resetSearchBtn.addEventListener('click', () => {
-                    searchInput.value = '';
-                    displayMatches();
-                });
+                if (searchInput) {
+                    searchInput.addEventListener('input', debounce(() => {
+                        console.log('Search input changed:', searchInput.value);
+                        displayMatches();
+                    }, 300));
+                    
+                    // Add reset search button handler
+                    const resetSearchBtn = document.getElementById('resetSearch');
+                    console.log('Reset search button element:', resetSearchBtn);
+                    
+                    if (resetSearchBtn) {
+                        resetSearchBtn.addEventListener('click', () => {
+                            console.log('Reset search clicked');
+                            searchInput.value = '';
+                            displayMatches();
+                        });
+                    }
+                } else {
+                    console.error('Search input element not found for event listener!');
+                }
                 
                 // Display matches
                 displayMatches();
@@ -3176,6 +3239,7 @@ END:VCALENDAR`;
                     </div>
                 `;
             }
+            console.log('=== init END ===');
         }
 
         // Separate UI initialization
