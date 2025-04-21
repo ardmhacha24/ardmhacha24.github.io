@@ -1413,42 +1413,38 @@
         
         <div class="content-area">
         <div class="controls">
-                <div class="search-row">
-                    <div class="search-group">
-                        <div class="search-input-wrapper">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="searchInput" placeholder="Search matches, teams or competitions...">
-                        </div>
-                        <button class="reset-btn" id="resetSearch" title="Reset search">
-                            <i class="fas fa-times"></i>
-                        </button>
+            <div class="search-row">
+                <div class="search-group">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search matches, teams or competitions...">
                     </div>
-                    <div class="date-range-group">
-                        <input type="text" id="dateRange" class="date-range-input" placeholder="Select date range">
-                        <button class="reset-btn" id="resetDate" title="Reset date range">
-                            <i class="fas fa-times"></i>
-                        </button>
+                    <button class="reset-btn" id="resetSearch" title="Reset search">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="date-range-group">
+                    <input type="text" id="dateRange" class="date-range-input" placeholder="Select date range">
+                    <button class="reset-btn" id="resetDate" title="Reset date range">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Show:</label>
+                    <div class="toggle-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="showMatches" checked>
+                            <span class="toggle-text">Matches</span>
+                        </label>
+                        <label class="toggle-label">
+                            <input type="checkbox" id="showTraining" checked>
+                            <span class="toggle-text">Training</span>
+                        </label>
                     </div>
                 </div>
-                <div class="filter-row">
-                    <div class="filter-group">
-                        <label>Show:</label>
-                        <div class="toggle-group">
-                            <label class="toggle-label">
-                                <input type="checkbox" id="showMatches" checked>
-                                <span class="toggle-text">Matches</span>
-                            </label>
-                            <label class="toggle-label">
-                                <input type="checkbox" id="showTraining" checked>
-                                <span class="toggle-text">Training</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <button class="share-btn" id="shareBtn">
-                    <i class="fas fa-share-alt"></i>
-                    Share
-                </button>
+            </div>
         </div>
         
         <div id="matchContainer" class="match-list">
@@ -2351,11 +2347,17 @@ END:VCALENDAR`;
             console.log('Calculated stats:', stats);
             
             // Update sidebar stats
-            document.getElementById('sidebarTotalCount').textContent = stats.total;
-            document.getElementById('sidebarWinCount').textContent = stats.wins;
-            document.getElementById('sidebarLossCount').textContent = stats.losses;
-            document.getElementById('sidebarDrawCount').textContent = stats.draws;
-            document.getElementById('sidebarUpcomingCount').textContent = stats.upcoming;
+            const totalCount = document.getElementById('sidebarTotalCount');
+            const winCount = document.getElementById('sidebarWinCount');
+            const lossCount = document.getElementById('sidebarLossCount');
+            const drawCount = document.getElementById('sidebarDrawCount');
+            const upcomingCount = document.getElementById('sidebarUpcomingCount');
+            
+            if (totalCount) totalCount.textContent = stats.total;
+            if (winCount) winCount.textContent = stats.wins;
+            if (lossCount) lossCount.textContent = stats.losses;
+            if (drawCount) drawCount.textContent = stats.draws;
+            if (upcomingCount) upcomingCount.textContent = stats.upcoming;
             
             // Update upcoming matches in the sidebar
             updateUpcomingMatches(teamName);
@@ -2414,6 +2416,8 @@ END:VCALENDAR`;
                 if (match.Team) teams.add(match.Team);
             });
             
+            console.log('Found teams:', Array.from(teams));
+            
             // Add team options
             Array.from(teams).sort().forEach(team => {
                 const option = document.createElement('option');
@@ -2428,7 +2432,8 @@ END:VCALENDAR`;
                 updateTeamStats(this.value);
             });
             
-            console.log('Sidebar team filter populated with options:', Array.from(teams));
+            // Initialize with 'all' teams selected
+            updateTeamStats('all');
         }
         
         // Initialize sidebar toggle functionality
@@ -3035,25 +3040,6 @@ END:VCALENDAR`;
                     console.log('DOM fully loaded');
                 }
                 
-                // Initialize UI first without filters
-                console.log('Initializing UI...');
-                initializeUI();
-                console.log('UI initialized');
-                
-                // Add toggle event listeners
-                const showMatchesToggle = document.getElementById('showMatches');
-                const showTrainingToggle = document.getElementById('showTraining');
-                
-                showMatchesToggle.addEventListener('change', () => {
-                    console.log('Matches toggle changed:', showMatchesToggle.checked);
-                    displayMatches();
-                });
-                
-                showTrainingToggle.addEventListener('change', () => {
-                    console.log('Training toggle changed:', showTrainingToggle.checked);
-                    displayMatches();
-                });
-                
                 // Fetch matches from worker
                 console.log('Starting to fetch matches from worker...');
                 const workerMatches = await fetchMatchesFromWorker();
@@ -3066,12 +3052,14 @@ END:VCALENDAR`;
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
                 
+                // Initialize UI after data is loaded
+                console.log('Initializing UI...');
+                initializeUI();
+                
                 // Initialize search functionality
                 console.log('Initializing search functionality...');
                 initSearchAutocomplete();
                 
-                // Display matches
-                displayMatches();
                 console.log('Initialization complete. Final match count:', matches.length);
                 
             } catch (error) {
@@ -3103,6 +3091,9 @@ END:VCALENDAR`;
                 
                 // Initialize sidebar
                 initSidebarToggle();
+                
+                // Populate team filter and initialize stats
+                populateSidebarTeamFilter();
                 
                 // Display initial matches
                 displayMatches();
@@ -3287,67 +3278,53 @@ END:VCALENDAR`;
 
         function updateTeamStats(teamName) {
             console.log('Updating team stats for:', teamName);
-            const matches = getAllMatches();
-            const teamMatches = matches.filter(match => 
-                match.homeTeam === teamName || match.awayTeam === teamName
-            );
-            
             const stats = {
-                total: teamMatches.length,
+                total: 0,
                 wins: 0,
                 losses: 0,
                 draws: 0,
                 upcoming: 0
             };
             
+            // Get all matches for the selected team
+            const teamMatches = teamName === 'all' 
+                ? matches 
+                : matches.filter(match => match.Team === teamName);
+            
+            console.log('Filtered matches for stats:', teamMatches);
+            
+            // Count each match only once
             teamMatches.forEach(match => {
-                if (match.status === 'upcoming') {
+                stats.total++;
+                
+                if (match.Result === 'WIN') {
+                    stats.wins++;
+                } else if (match.Result === 'LOSS') {
+                    stats.losses++;
+                } else if (match.Result === 'DRAW') {
+                    stats.draws++;
+                } else if (match.Result === '---' || !match.Result) {
                     stats.upcoming++;
-                    return;
                 }
-                
-                const isHome = match.homeTeam === teamName;
-                const teamScore = isHome ? match.homeScore : match.awayScore;
-                const opponentScore = isHome ? match.awayScore : match.homeScore;
-                
-                if (teamScore > opponentScore) stats.wins++;
-                else if (teamScore < opponentScore) stats.losses++;
-                else stats.draws++;
             });
             
-            const statsContainer = document.querySelector('.team-stats');
-            if (!statsContainer) {
-                console.error('Team stats container not found');
-                return;
-            }
+            console.log('Calculated stats:', stats);
             
-            statsContainer.innerHTML = `
-                <div class="team-stat-item">
-                    <span class="stat-icon">📊</span>
-                    <span class="team-stat-label">Total Matches</span>
-                    <span class="team-stat-value">${stats.total}</span>
-                </div>
-                <div class="team-stat-item">
-                    <span class="stat-icon">✅</span>
-                    <span class="team-stat-label">Wins</span>
-                    <span class="team-stat-value win">${stats.wins}</span>
-                </div>
-                <div class="team-stat-item">
-                    <span class="stat-icon">❌</span>
-                    <span class="team-stat-label">Losses</span>
-                    <span class="team-stat-value loss">${stats.losses}</span>
-                </div>
-                <div class="team-stat-item">
-                    <span class="stat-icon">🤝</span>
-                    <span class="team-stat-label">Draws</span>
-                    <span class="team-stat-value draw">${stats.draws}</span>
-                </div>
-                <div class="team-stat-item">
-                    <span class="stat-icon">📅</span>
-                    <span class="team-stat-label">Upcoming</span>
-                    <span class="team-stat-value">${stats.upcoming}</span>
-                </div>
-            `;
+            // Update sidebar stats
+            const totalCount = document.getElementById('sidebarTotalCount');
+            const winCount = document.getElementById('sidebarWinCount');
+            const lossCount = document.getElementById('sidebarLossCount');
+            const drawCount = document.getElementById('sidebarDrawCount');
+            const upcomingCount = document.getElementById('sidebarUpcomingCount');
+            
+            if (totalCount) totalCount.textContent = stats.total;
+            if (winCount) winCount.textContent = stats.wins;
+            if (lossCount) lossCount.textContent = stats.losses;
+            if (drawCount) drawCount.textContent = stats.draws;
+            if (upcomingCount) upcomingCount.textContent = stats.upcoming;
+            
+            // Update upcoming matches in the sidebar
+            updateUpcomingMatches(teamName);
         }
 
         function populateSidebarTeamFilter() {
@@ -3370,6 +3347,8 @@ END:VCALENDAR`;
                 if (match.Team) teams.add(match.Team);
             });
             
+            console.log('Found teams:', Array.from(teams));
+            
             // Add team options
             Array.from(teams).sort().forEach(team => {
                 const option = document.createElement('option');
@@ -3384,7 +3363,8 @@ END:VCALENDAR`;
                 updateTeamStats(this.value);
             });
             
-            console.log('Sidebar team filter populated with options:', Array.from(teams));
+            // Initialize with 'all' teams selected
+            updateTeamStats('all');
         }
 
         // Initialize everything when the DOM is loaded
