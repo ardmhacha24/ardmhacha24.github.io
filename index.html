@@ -1438,13 +1438,13 @@
             margin-top: 8px;
             white-space: pre-line;
         }
-        
+
         .toggle-group {
             display: flex;
             gap: 1rem;
             align-items: center;
         }
-        
+
         .toggle-label {
             display: flex;
             align-items: center;
@@ -1452,18 +1452,18 @@
             cursor: pointer;
             user-select: none;
         }
-        
+
         .toggle-label input[type="checkbox"] {
             width: 16px;
             height: 16px;
             cursor: pointer;
         }
-        
+
         .toggle-text {
             font-size: 0.9rem;
             color: var(--text);
         }
-        
+
         .filter-row {
             margin-top: 1rem;
             padding-top: 1rem;
@@ -1568,21 +1568,21 @@
                     </div>
                 </div>
                 <div class="filter-row">
-                    <div class="toggle-group">
-                        <label class="toggle-label">
-                            <input type="checkbox" id="showMatches" checked>
-                            <span class="toggle-text">Matches</span>
-                        </label>
-                        <label class="toggle-label">
-                            <input type="checkbox" id="showTraining" checked>
-                            <span class="toggle-text">Training</span>
-                        </label>
+                        <div class="toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="showMatches" checked>
+                                <span class="toggle-text">Matches</span>
+                            </label>
+                            <label class="toggle-label">
+                                <input type="checkbox" id="showTraining" checked>
+                                <span class="toggle-text">Training</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
             <button class="controls-toggle">
                 <i class="fas fa-chevron-up"></i>
-            </button>
+                </button>
         </div>
         
         <div id="matchContainer" class="match-list">
@@ -1625,14 +1625,14 @@
                 }
                 
                 const formatted = date.toLocaleDateString('en-GB', {
-                    weekday: 'short',
-                    day: 'numeric',
-                    month: 'short',
-                    year: '2-digit'
-                }).replace(/,/g, '');
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+                year: '2-digit'
+            }).replace(/,/g, '');
                 
-                console.log('Formatted date:', formatted);
-                return formatted;
+            console.log('Formatted date:', formatted);
+            return formatted;
             } catch (error) {
                 console.error('Error formatting date:', error);
                 return '';
@@ -1795,55 +1795,55 @@
                 noResults.className = 'no-results';
                 noResults.innerHTML = `
                     <p><b>LOADING......</b></p>
-                    <p>No matches found for the selected filters.</p>
-                    <p>Try changing your filter options.</p>
+                        <p>No matches found for the selected filters.</p>
+                        <p>Try changing your filter options.</p>
                 `;
                 fragment.appendChild(noResults);
             } else {
-                // Group matches by date
-                const groupedMatches = groupMatchesByDate(filteredMatches);
+            // Group matches by date
+            const groupedMatches = groupMatchesByDate(filteredMatches);
+            
+            // Sort dates chronologically
+            const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
+                const dateA = parseDate(a);
+                const dateB = parseDate(b);
+                return dateA - dateB;
+            });
                 
-                // Sort dates chronologically
-                const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
-                    const dateA = parseDate(a);
-                    const dateB = parseDate(b);
-                    return dateA - dateB;
+            // Get today's date for comparison
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+                
+            // Create a container for today's date marker
+            const todayMarker = document.createElement('div');
+            todayMarker.className = 'today-marker';
+            todayMarker.innerHTML = '<span>Today</span>';
+                todayMarker.style.display = 'none';
+            
+            // Loop through dates and matches
+            sortedDates.forEach(date => {
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'date-header';
+                dateHeader.textContent = formatDate(date);
+                    fragment.appendChild(dateHeader);
+                
+                // First display matches
+                groupedMatches[date].matches.forEach(match => {
+                    const matchCard = createMatchCard(match);
+                        fragment.appendChild(matchCard);
                 });
                 
-                // Get today's date for comparison
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
-                // Create a container for today's date marker
-                const todayMarker = document.createElement('div');
-                todayMarker.className = 'today-marker';
-                todayMarker.innerHTML = '<span>Today</span>';
-                todayMarker.style.display = 'none';
-                
-                // Loop through dates and matches
-                sortedDates.forEach(date => {
-                    const dateHeader = document.createElement('div');
-                    dateHeader.className = 'date-header';
-                    dateHeader.textContent = formatDate(date);
-                    fragment.appendChild(dateHeader);
-                    
-                    // First display matches
-                    groupedMatches[date].matches.forEach(match => {
-                        const matchCard = createMatchCard(match);
+                // Then display training events
+                groupedMatches[date].training.forEach(match => {
+                    const matchCard = createMatchCard(match);
                         fragment.appendChild(matchCard);
-                    });
-                    
-                    // Then display training events
-                    groupedMatches[date].training.forEach(match => {
-                        const matchCard = createMatchCard(match);
-                        fragment.appendChild(matchCard);
-                    });
-                    
-                    // Insert today marker after the appropriate date
-                    const currentDate = parseDate(date);
-                    if (currentDate <= today && 
-                        (!sortedDates[sortedDates.indexOf(date) + 1] || 
-                         parseDate(sortedDates[sortedDates.indexOf(date) + 1]) > today)) {
+                });
+                
+                // Insert today marker after the appropriate date
+                const currentDate = parseDate(date);
+                if (currentDate <= today && 
+                    (!sortedDates[sortedDates.indexOf(date) + 1] || 
+                     parseDate(sortedDates[sortedDates.indexOf(date) + 1]) > today)) {
                         fragment.appendChild(todayMarker.cloneNode(true));
                     }
                 });
@@ -1952,7 +1952,7 @@
             
             if (showMatchesToggle) {
                 showMatchesToggle.addEventListener('change', function() {
-                    displayMatches();
+                        displayMatches();
                 });
             }
             
@@ -2057,14 +2057,14 @@
             }
             
             try {
-                // Check if the date is in the format "Mon 31 Mar 25"
+            // Check if the date is in the format "Mon 31 Mar 25"
                 const formatOne = /^[A-Za-z]{3}\s+\d{1,2}\s+[A-Za-z]{3}\s+\d{2}$/;
-                if (formatOne.test(dateStr)) {
-                    const parts = dateStr.split(' ');
+            if (formatOne.test(dateStr)) {
+            const parts = dateStr.split(' ');
                     const day = parseInt(parts[1], 10);
-                    const month = getMonthNumber(parts[2]);
+            const month = getMonthNumber(parts[2]);
                     const year = 2000 + parseInt(parts[3], 10);
-                    const date = new Date(year, month, day);
+                const date = new Date(year, month, day);
                     
                     // Validate the parsed date
                     if (isNaN(date.getTime())) {
@@ -2072,19 +2072,19 @@
                         return null;
                     }
                     
-                    console.log('Parsed date (format one):', date);
-                    return date;
-                }
-                
+                console.log('Parsed date (format one):', date);
+                return date;
+            }
+            
                 // Handle ISO format or other standard date strings
-                const date = new Date(dateStr);
+            const date = new Date(dateStr);
                 if (isNaN(date.getTime())) {
                     console.error('Invalid date string:', dateStr);
                     return null;
                 }
                 
-                console.log('Parsed date (standard):', date);
-                return date;
+            console.log('Parsed date (standard):', date);
+            return date;
             } catch (error) {
                 console.error('Error parsing date:', error);
                 return null;
@@ -2577,19 +2577,19 @@ END:VCALENDAR`;
                     });
                     
                     if (match.Result === 'WIN' && isHomeTeam) {
-                        stats.wins++;
+                    stats.wins++;
                         console.log('Counted as WIN (home team won)');
                     } else if (match.Result === 'LOSS' && !isHomeTeam) {
                         stats.wins++;
                         console.log('Counted as WIN (away team won)');
                     } else if (match.Result === 'LOSS' && isHomeTeam) {
-                        stats.losses++;
+                    stats.losses++;
                         console.log('Counted as LOSS (home team lost)');
                     } else if (match.Result === 'WIN' && !isHomeTeam) {
                         stats.losses++;
                         console.log('Counted as LOSS (away team lost)');
-                    } else if (match.Result === 'DRAW') {
-                        stats.draws++;
+                } else if (match.Result === 'DRAW') {
+                    stats.draws++;
                         console.log('Counted as DRAW');
                     } else {
                         console.warn('Unknown match result:', match.Result);
@@ -2804,62 +2804,65 @@ END:VCALENDAR`;
         
         // Initialize sidebar toggle functionality
         function initSidebarToggle() {
+            console.log('Initializing sidebar toggle...');
             const sidebar = document.querySelector('.sidebar');
-            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
             const overlay = document.querySelector('.sidebar-overlay');
             
             if (!sidebar || !hamburgerMenu || !overlay) {
-                console.error('Required sidebar elements not found');
+                console.error('Required sidebar elements not found:', { 
+                    sidebar: !!sidebar, 
+                    hamburgerMenu: !!hamburgerMenu, 
+                    overlay: !!overlay 
+                });
                 return;
             }
             
-            // Initialize sidebar state
+            // Initialize sidebar state based on screen size
             const isMobile = window.innerWidth <= 992;
+            console.log('Initial screen size check:', { isMobile, width: window.innerWidth });
+            
             if (isMobile) {
-                sidebar.classList.add('collapsed');
-                hamburgerMenu.classList.add('active');
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            } else {
+                sidebar.classList.add('active');
             }
             
             // Hamburger menu click handler
-            hamburgerMenu.addEventListener('click', () => {
-                console.log('Hamburger menu clicked');
-                sidebar.classList.toggle('collapsed');
-                hamburgerMenu.classList.toggle('active');
-                overlay.classList.toggle('active');
-                document.body.classList.toggle('sidebar-open');
-            });
-            
+            hamburgerMenu.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                        console.log('Hamburger menu clicked');
+                        sidebar.classList.toggle('active');
+                        overlay.classList.toggle('active');
+                    });
+                
             // Overlay click handler
             overlay.addEventListener('click', () => {
-                console.log('Overlay clicked');
-                sidebar.classList.add('collapsed');
-                hamburgerMenu.classList.remove('active');
-                overlay.classList.remove('active');
-                document.body.classList.remove('sidebar-open');
+                    console.log('Overlay clicked');
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
             });
             
             // Window resize handler
             window.addEventListener('resize', () => {
                 const isMobile = window.innerWidth <= 992;
+                console.log('Window resized:', { isMobile, width: window.innerWidth });
+                
                 if (isMobile) {
-                    sidebar.classList.add('collapsed');
-                    hamburgerMenu.classList.add('active');
+                    sidebar.classList.remove('active');
+                        overlay.classList.remove('active');
+                    } else {
+                    sidebar.classList.add('active');
                 }
             });
+            
+            // Initialize team filter and stats
+                populateSidebarTeamFilter();
+                updateTeamStats('all');
         }
-
-        function populateSidebarTeamFilter() {
-            // ... existing code ...
-        }
-
-        // Initialize everything when the DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, initializing components');
-            datePickerInstance = initializeDatePicker();
-            initSidebarToggle();
-            populateSidebarTeamFilter();
-        });
-
+        
         // Initialize search functionality with autocomplete
         function initSearchAutocomplete() {
             console.log('=== initSearchAutocomplete START ===');
@@ -3452,7 +3455,7 @@ END:VCALENDAR`;
             
             if (showMatchesToggle) {
                 showMatchesToggle.addEventListener('change', function() {
-                    displayMatches();
+                        displayMatches();
                 });
             }
             
@@ -3634,6 +3637,11 @@ END:VCALENDAR`;
                 if (isMobile) {
                     sidebar.classList.add('collapsed');
                     hamburgerMenu.classList.add('active');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    hamburgerMenu.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
                 }
             });
         }
@@ -3772,6 +3780,15 @@ END:VCALENDAR`;
             // Initialize with 'all' teams selected
             updateTeamStats('all');
         }
+
+        // Initialize everything when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing components');
+            datePickerInstance = initializeDatePicker();
+            initSidebarToggle();
+            populateSidebarTeamFilter();
+            // ... existing initialization code ...
+        });
 
         // Enhanced date handling functions
         function parseDate(dateStr) {
