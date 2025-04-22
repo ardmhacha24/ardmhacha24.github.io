@@ -44,19 +44,18 @@
             min-height: 100vh;
         }
         
-        /* Header styles */
         header {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            background-color: #1a1a1a;
+            background-color: var(--primary);
             color: white;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            height: 80px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
         }
         
         .header-logo {
@@ -75,44 +74,48 @@
             margin-bottom: 0.5rem;
         }
         
-        /* Main content layout */
         .main-content {
-            margin-top: 80px;
-            min-height: calc(100vh - 80px);
-            transition: margin-left 0.3s ease-in-out;
+            display: flex;
+            flex: 1;
+            width: 100%;
         }
         
         /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+                top: 0;
+            width: 300px;
+            height: 100vh;
+            background: #fff;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+            overflow-y: auto;
+            padding: 20px;
+                transform: translateX(-100%);
+            }
+            
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        
         .sidebar-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 998;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
             display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
         }
         
         .sidebar-overlay.active {
             display: block;
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: 80px; /* Height of header */
-            left: -300px;
-            width: 300px;
-            height: calc(100vh - 80px);
-            background-color: white;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            z-index: 999;
-            transition: transform 0.3s ease-in-out;
-            overflow-y: auto;
-        }
-        
-        .sidebar.active {
-            transform: translateX(300px);
+            opacity: 1;
         }
         
         /* Hamburger Menu Styles */
@@ -120,18 +123,11 @@
             background: none;
             border: none;
             color: white;
-            font-size: 1.5rem;
+            font-size: 24px;
             cursor: pointer;
-            padding: 0.5rem;
-            margin-right: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 10px;
             z-index: 1001;
-        }
-        
-        .hamburger-menu:hover {
-            opacity: 0.8;
+            display: block; /* Always show hamburger */
         }
         
         @media (min-width: 993px) {
@@ -2496,11 +2492,15 @@ END:VCALENDAR`;
         function initSidebarToggle() {
             console.log('Initializing sidebar toggle...');
             const sidebar = document.querySelector('.sidebar');
-            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
             const overlay = document.querySelector('.sidebar-overlay');
             
             if (!sidebar || !hamburgerMenu || !overlay) {
-                console.error('Required sidebar elements not found');
+                console.error('Required sidebar elements not found:', { 
+                    sidebar: !!sidebar, 
+                    hamburgerMenu: !!hamburgerMenu, 
+                    overlay: !!overlay 
+                });
                 return;
             }
             
@@ -2508,40 +2508,46 @@ END:VCALENDAR`;
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             
+            // Remove any existing event listeners
+            const newHamburger = hamburgerMenu.cloneNode(true);
+            hamburgerMenu.parentNode.replaceChild(newHamburger, hamburgerMenu);
+            
             // Hamburger menu click handler
-            hamburgerMenu.addEventListener('click', (e) => {
+            newHamburger.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Hamburger menu clicked');
-                sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
-                document.body.classList.toggle('sidebar-open');
-            });
-            
+                        console.log('Hamburger menu clicked');
+                        sidebar.classList.toggle('active');
+                        overlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+                    });
+                
             // Overlay click handler
             overlay.addEventListener('click', () => {
-                console.log('Overlay clicked');
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-                document.body.classList.remove('sidebar-open');
+                    console.log('Overlay clicked');
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                document.body.style.overflow = '';
             });
             
             // Close sidebar when clicking outside
             document.addEventListener('click', (event) => {
                 if (!sidebar.contains(event.target) && 
-                    !hamburgerMenu.contains(event.target) && 
+                    !newHamburger.contains(event.target) && 
                     sidebar.classList.contains('active')) {
                     sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                    document.body.classList.remove('sidebar-open');
+                        overlay.classList.remove('active');
+                    document.body.style.overflow = '';
                 }
             });
             
             // Close sidebar on window resize
             window.addEventListener('resize', () => {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-                document.body.classList.remove('sidebar-open');
+                if (sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
             });
         }
         
