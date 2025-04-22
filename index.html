@@ -3662,25 +3662,33 @@ END:VCALENDAR`;
 
         document.addEventListener('DOMContentLoaded', function() {
             const scrollToTodayButton = document.getElementById('scrollToToday');
-            const todayViewElement = document.querySelector('.today-view');
-
-            if (todayViewElement) {
-                const todayViewPosition = todayViewElement.offsetTop;
-
-                window.addEventListener('scroll', function() {
-                    if (window.scrollY > todayViewPosition) {
+            
+            // Use the matches container as reference point
+            function updateScrollButtonVisibility() {
+                const matchesContainer = document.getElementById('matchesContainer');
+                if (matchesContainer) {
+                    const containerTop = matchesContainer.offsetTop;
+                    const containerBottom = containerTop + matchesContainer.offsetHeight;
+                    
+                    if (window.scrollY > containerTop + 200) { // Add offset to show button after scrolling a bit
                         scrollToTodayButton.classList.add('visible');
                     } else {
                         scrollToTodayButton.classList.remove('visible');
                     }
-                });
-
-                scrollToTodayButton.addEventListener('click', function() {
-                    window.scrollTo({ top: todayViewPosition, behavior: 'smooth' });
-                });
-            } else {
-                console.error('Element with class "today-view" not found.');
+                }
             }
+
+            window.addEventListener('scroll', updateScrollButtonVisibility);
+
+            scrollToTodayButton.addEventListener('click', function() {
+                const matchesContainer = document.getElementById('matchesContainer');
+                if (matchesContainer) {
+                    window.scrollTo({ 
+                        top: matchesContainer.offsetTop, 
+                        behavior: 'smooth' 
+                    });
+                }
+            });
         });
     </script>
 </body>
