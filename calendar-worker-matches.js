@@ -249,36 +249,25 @@ const matchEvents = data.items
     const fixtureId = extractField('GFAS-Ref');
     const result = extractField('Result');
 
-    // Extract team names and match details
-    let homeTeam = '', awayTeam = '', sex = '';
+    // Extract team names and match details (incl. scores)
+    let homeTeam = '', awayTeam = '', sex = '', homeScore = '', awayScore = '';
     
     // Populate the sex based on team name
     if (team) {
         const teamLower = team.toLowerCase();
         if (teamLower.includes('ladies')) {
             sex = 'Ladies';
-            console.log(`Team "${team}" contains "ladies", setting sex to "Ladies"`);
         } else if (teamLower.includes('girls')) {
             sex = 'Girls';
-            console.log(`Team "${team}" contains "girls", setting sex to "Girls"`);
         } else if (teamLower.includes('men')) {
             sex = 'Men';
-            console.log(`Team "${team}" contains "men", setting sex to "Men"`);
         } else if (teamLower.includes('boys')) {
             sex = 'Boys';
-            console.log(`Team "${team}" contains "boys", setting sex to "Boys"`);
         } else {
             sex = 'Unknown';
             console.log(`Team "${team}" does not contain any known sex identifier, setting sex to "Unknown"`);
         }
     }
-
-    // Check for result in summary (WIN, LOSS, DRAW) & know which team listing format to use for parsing
-    //const resultMatch = summary.match(/\*([^*]+)\*/);
-    //if (resultMatch && resultMatch[1]) {
-    //''  result = resultMatch[1].trim() || '';
-    //  console.log(`Found result of the match: "${result}"`);
-    //}
 
     // Try to extract from the Teams field in the description
     const teamsSection = description.split('Teams:')[1];
@@ -286,7 +275,10 @@ const matchEvents = data.items
         console.log(`🔄 Found Teams section in description: "${teamsSection}"`);
         
         if (result) {
-          // Pull teams out from the score listing format
+          // Pull teams and scores out from the score listing : format in the data is:
+          // Teams:
+          // Team 1 [4-0]
+          // Team 2 [3-11]
           const teamLines = teamsSection.split('\n')
               .map(line => line.trim())
               .filter(line => line && (line.includes('[') || line.includes(']')));
@@ -294,14 +286,29 @@ const matchEvents = data.items
           console.log('Team lines with scores:', teamLines);
         
           if (teamLines.length >= 2) {
-              // Format with scores
-              homeTeam = teamLines[0].split('[')[0].trim();
-              awayTeam = teamLines[1].split('[')[0].trim();
-              console.log(`✅ Extracted teams from scored format: Home: "${homeTeam}", Away: "${awayTeam}"`);
+              // Single regex to capture team name and score
+              const teamScoreRegex = /^(.*?)\s*(?:\[(\d+-\d+)\])?$/;
+              
+              // Extract home team and score
+              const homeMatchScore = teamLines[0].match(teamScoreRegex);
+              const awayMatchScore = teamLines[1].match(teamScoreRegex);
+              
+              if (homeMatchScore && awayMatchScore) {
+                  homeTeam = homeMatchScore[1].trim();
+                  awayTeam = awayMatchScore[1].trim();
+                  homeScore = homeMatchScore[2] || null;
+                  awayScore = awayMatchScore[2] || null;
+                  
+                  console.log(`✅ Extracted match restult details:
+                      Home: "${homeTeam}" ${homeScore ? `[${homeScore}]` : ''}
+                      Away: "${awayTeam}" ${awayScore ? `[${awayScore}]` : ''}`);
+              } else {
+                  console.log('❌ Failed to parse team names and scores');
+              }
           } 
         } else {
           // Pull teams out from the fixture vs listing format
-          console.log(`❌ Trying to match teams on one line (vs) - PARSING: "${teamsSection}"`);
+          console.log(`🔄 Trying to match teams on one line (vs) - PARSING: "${teamsSection}"`);
           const trimmedLine = teamsSection.trim(); // remove leading/trailing whitespace
           const teamsMatch = trimmedLine.match(/(.+?)\s+vs\s+(.+)/i);
           if (teamsMatch && teamsMatch[1] && teamsMatch[2]) {
@@ -313,8 +320,7 @@ const matchEvents = data.items
           }
         } 
     } else {
-          console.log('No Teams section found in description : USING TEAM VARIABLE & EXTRACTING OPPONENT FROM SUMMARY');
-
+          console.log('⚠️ No Teams section found in description : USING TEAM VARIABLE & EXTRACTING OPPONENT FROM SUMMARY');
           // If we still don't have team names, we have a team name but no home/away teams yet, use the team name based on the Where field
           if (team && (!homeTeam || !awayTeam)) {
             console.log(`Using Team field "${team}" based on Where field "${where}"`);
@@ -340,77 +346,6 @@ const matchEvents = data.items
               }
             }  
           }
-    }
-
-    // Extract scores if available
-    let homeScore = '', awayScore = '';
-    if (result) {
-      // Look for scores in the description
-      // The format in the data is:
-      // Teams:
-      // Grange Naomh Colmcille CLG [4-0]
-      // Wolfe Tones [3-11]
-      // or
-      // Teams:
-      // Na Piarsaigh Eanach Mor [0-10]
-      // Grange Naomh Colmcille CLG [2-9]
-      
-      console.log(`Found result of the match: "${result}" - processing for scores`);
-      if (teamsSection) {
-        // Split by newlines to get each team line
-        const teamLines = teamsSection.split('\n')
-          .map(line => line.trim())
-          .filter(line => line && line.includes('[') && line.includes(']'));
-        
-        console.log(`Found ${teamLines.length} team lines with scores:`, teamLines);
-        
-        if (teamLines.length >= 2) {
-          // Extract scores from each line
-          const scoreRegex = /\[([0-9]-[0-9]+|[0-9]+-[0-9]+)\]/;
-          
-          // First team line
-          const firstTeamMatch = teamLines[0].match(scoreRegex);
-          const secondTeamMatch = teamLines[1].match(scoreRegex);
-          
-          if (firstTeamMatch && firstTeamMatch[1] && secondTeamMatch && secondTeamMatch[1]) {
-            const firstTeamScore = firstTeamMatch[1].trim();
-            const secondTeamScore = secondTeamMatch[1].trim();
-            
-            console.log(`Extracted raw scores - First: "${firstTeamScore}", Second: "${secondTeamScore}"`);
-            
-            // Validate score format
-            const isValidScore = (score) => /^\d+-\d+$/.test(score);
-            
-            if (isValidScore(firstTeamScore) && isValidScore(secondTeamScore)) {
-              // Determine which score belongs to which team
-              if (teamLines[0].toLowerCase().includes('grange')) {
-                homeScore = firstTeamScore;
-                awayScore = secondTeamScore;
-                console.log('First team is Grange (home)');
-              } else if (teamLines[1].toLowerCase().includes('grange')) {
-                awayScore = firstTeamScore;
-                homeScore = secondTeamScore;
-                console.log('Second team is Grange (home)');
-              } else {
-                // If Grange isn't mentioned, use the order in the description
-                homeScore = firstTeamScore;
-                awayScore = secondTeamScore;
-                console.log('No Grange found, using order from description');
-              }
-              
-              console.log(`Final scores - Home: "${homeScore}", Away: "${awayScore}"`);
-            } else {
-              console.log(`Invalid score format detected - First: "${firstTeamScore}", Second: "${secondTeamScore}"`);
-            }
-          } else {
-            console.log('Could not extract valid scores from team lines');
-          }
-        } else {
-          console.log('Not enough team lines with scores found');
-        }
-      } else {
-        console.log('No Teams section found in description');
-      }
     }
 
     // Format times
