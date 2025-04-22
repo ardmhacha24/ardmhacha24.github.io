@@ -1309,6 +1309,37 @@
             padding-top: 1rem;
             border-top: 1px solid var(--border);
         }
+
+        /* Match statistics header styling */
+        .team-stats h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Color styling for icons in statistics */
+        .team-stat-item i.stat-icon {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .team-stat-item i.stat-icon.win {
+            color: #28a745; /* Green for wins */
+        }
+
+        .team-stat-item i.stat-icon.loss {
+            color: #dc3545; /* Red for losses */
+        }
+
+        .team-stat-item i.stat-icon.draw {
+            color: #ffc107; /* Yellow for draws */
+        }
+
+        .team-stat-item i.stat-icon.upcoming {
+            color: #17a2b8; /* Blue for upcoming matches */
+        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
