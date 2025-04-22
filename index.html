@@ -296,8 +296,9 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             padding: 1rem;
             border-radius: 8px;
-            max-height: 80vh; /* Limit height to 80% of viewport */
-            overflow-y: auto; /* Enable scrolling if content overflows */
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(0); /* Ensure it stays in view */
         }
 
         .controls-toggle {
