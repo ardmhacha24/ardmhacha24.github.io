@@ -1341,6 +1341,11 @@
         .team-stat-item i.stat-icon.upcoming {
             color: #17a2b8; /* Blue for upcoming matches */
         }
+
+        /* Add CSS class for hidden state */
+        .hidden {
+            display: none;
+        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -3579,6 +3584,25 @@ END:VCALENDAR`;
             }
         }
         // ... existing code ...
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterToggle = document.getElementById('filterToggle');
+            const controls = document.querySelector('.controls');
+
+            if (filterToggle && controls) {
+                filterToggle.addEventListener('click', function() {
+                    controls.classList.toggle('hidden');
+                    const icon = filterToggle.querySelector('i');
+                    if (controls.classList.contains('hidden')) {
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                    } else {
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
