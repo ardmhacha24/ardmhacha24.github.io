@@ -1364,7 +1364,7 @@
         </button>
         <img src="/assets/IMG_9120-WHITE.png" alt="Grange Naomh Colmcille CLG Logo" class="header-logo">
         <div class="header-text">
-            <h1>Grange Naomh Colmcille CLG</h1>
+        <h1>Grange Naomh Colmcille CLG</h1>
             <p>Fixtures & Results 2025</p>
         </div>
         <button id="filterToggle" class="filter-toggle">
@@ -2716,7 +2716,6 @@ END:VCALENDAR`;
         toggleButton.innerHTML = '<i class="fas fa-chevron-up"></i>';
         controls.appendChild(toggleButton);
         
-        // Function to toggle controls
         function toggleControls() {
             isManuallyCollapsed = !isManuallyCollapsed;
             controls.classList.toggle('collapsed');
@@ -2725,15 +2724,13 @@ END:VCALENDAR`;
                 '<i class="fas fa-chevron-down"></i>' : 
                 '<i class="fas fa-chevron-up"></i>';
         }
-
-        // Event listener for the toggle button
+        
         toggleButton.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             toggleControls();
         });
-
-        // Scroll event listener
+        
         window.addEventListener('scroll', () => {
             if (isManuallyCollapsed) return; // Don't auto-collapse if manually toggled
             
@@ -2744,6 +2741,8 @@ END:VCALENDAR`;
             } else {
                 controls.classList.remove('collapsed');
             }
+            
+            lastScrollTop = scrollTop;
         });
 
         // Service Worker Registration
