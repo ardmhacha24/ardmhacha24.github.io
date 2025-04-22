@@ -3662,19 +3662,25 @@ END:VCALENDAR`;
 
         document.addEventListener('DOMContentLoaded', function() {
             const scrollToTodayButton = document.getElementById('scrollToToday');
-            const todayViewPosition = document.querySelector('.today-view').offsetTop;
+            const todayViewElement = document.querySelector('.today-view');
 
-            window.addEventListener('scroll', function() {
-              if (window.scrollY > todayViewPosition) {
-                scrollToTodayButton.classList.add('visible');
-              } else {
-                scrollToTodayButton.classList.remove('visible');
-              }
-            });
+            if (todayViewElement) {
+                const todayViewPosition = todayViewElement.offsetTop;
 
-            scrollToTodayButton.addEventListener('click', function() {
-              window.scrollTo({ top: todayViewPosition, behavior: 'smooth' });
-            });
+                window.addEventListener('scroll', function() {
+                    if (window.scrollY > todayViewPosition) {
+                        scrollToTodayButton.classList.add('visible');
+                    } else {
+                        scrollToTodayButton.classList.remove('visible');
+                    }
+                });
+
+                scrollToTodayButton.addEventListener('click', function() {
+                    window.scrollTo({ top: todayViewPosition, behavior: 'smooth' });
+                });
+            } else {
+                console.error('Element with class "today-view" not found.');
+            }
         });
     </script>
 </body>
