@@ -3608,6 +3608,17 @@ END:VCALENDAR`;
                 console.error('Filter toggle button or controls not found');
             }
         });
+
+        // CSS to make the filter toggle button sticky
+        const style = document.createElement('style');
+        style.innerHTML = `
+            #filterToggle {
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
