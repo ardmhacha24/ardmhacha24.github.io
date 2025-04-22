@@ -1350,6 +1350,8 @@
     <!-- Add these scripts after your existing scripts -->
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
+    <!-- Add SweetAlert2 for popups -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <header>
@@ -1383,19 +1385,19 @@
                     <span class="team-stat-value" id="sidebarTotalCount">0</span>
                 </div>
                 <div class="team-stat-item">
-                    <i class="fas fa-check-circle stat-icon"></i>
+                    <i class="fas fa-check-circle stat-icon win"></i>
                     <span class="team-stat-label">Wins</span>
-                    <span class="team-stat-value win" id="sidebarWinCount">0</span>
+                    <button class="team-stat-value win" data-stat="wins" onclick="showStatDetails('wins')">0</button>
                 </div>
                 <div class="team-stat-item">
-                    <i class="fas fa-times-circle stat-icon"></i>
+                    <i class="fas fa-times-circle stat-icon loss"></i>
                     <span class="team-stat-label">Losses</span>
-                    <span class="team-stat-value loss" id="sidebarLossCount">0</span>
+                    <button class="team-stat-value loss" data-stat="losses" onclick="showStatDetails('losses')">0</button>
                 </div>
                 <div class="team-stat-item">
-                    <i class="fas fa-minus-circle stat-icon"></i>
+                    <i class="fas fa-minus-circle stat-icon draw"></i>
                     <span class="team-stat-label">Draws</span>
-                    <span class="team-stat-value draw" id="sidebarDrawCount">0</span>
+                    <button class="team-stat-value draw" data-stat="draws" onclick="showStatDetails('draws')">0</button>
                 </div>
                 <div class="team-stat-item">
                     <i class="fas fa-calendar-alt stat-icon"></i>
@@ -3576,6 +3578,31 @@ END:VCALENDAR`;
             }
         }
         // ... existing code ...
+
+        // JavaScript function to show match details in a popup
+        function showStatDetails(statType) {
+            const filteredMatches = matches.filter(match => {
+                if (statType === 'wins') return match.Result === 'WIN';
+                if (statType === 'losses') return match.Result === 'LOSS';
+                if (statType === 'draws') return match.Result === 'DRAW';
+                return false;
+            });
+
+            const matchDetails = filteredMatches.map(match => `
+                <div>
+                    <strong>${match.Team}</strong> vs ${match['Away Team']}<br>
+                    Date: ${match.Date}, Venue: ${match.Venue}
+                </div>
+            `).join('');
+
+            Swal.fire({
+                title: `${statType.charAt(0).toUpperCase() + statType.slice(1)} Details`,
+                html: matchDetails || 'No matches found',
+                width: '600px',
+                padding: '1rem',
+                backdrop: true
+            });
+        }
     </script>
 </body>
 </html>
