@@ -2490,63 +2490,57 @@ END:VCALENDAR`;
         
         // Initialize sidebar toggle functionality
         function initSidebarToggle() {
-            console.log('Initializing sidebar toggle...');
+            // Cache DOM elements
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
             const sidebar = document.querySelector('.sidebar');
-            const hamburgerMenu = document.getElementById('hamburgerMenu');
             const overlay = document.querySelector('.sidebar-overlay');
-            
-            if (!sidebar || !hamburgerMenu || !overlay) {
-                console.error('Required sidebar elements not found:', { 
-                    sidebar: !!sidebar, 
-                    hamburgerMenu: !!hamburgerMenu, 
-                    overlay: !!overlay 
+            const body = document.body;
+
+            // Check if required elements exist
+            if (!hamburgerMenu || !sidebar || !overlay) {
+                console.error('Required sidebar elements not found:', {
+                    hamburgerMenu: !!hamburgerMenu,
+                    sidebar: !!sidebar,
+                    overlay: !!overlay
                 });
                 return;
             }
-            
-            // Initialize sidebar as closed
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            
-            // Remove any existing event listeners
+
+            // Set initialization flag to prevent re-initialization
+            if (sidebar.dataset.initialized === 'true') {
+                return;
+            }
+            sidebar.dataset.initialized = 'true';
+
+            // Clone and replace elements to remove existing event listeners
             const newHamburger = hamburgerMenu.cloneNode(true);
             hamburgerMenu.parentNode.replaceChild(newHamburger, hamburgerMenu);
-            
-            // Hamburger menu click handler
-            newHamburger.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Hamburger menu clicked');
+
+            const newOverlay = overlay.cloneNode(true);
+            overlay.parentNode.replaceChild(newOverlay, overlay);
+
+            // Add click event listeners
+            newHamburger.addEventListener('click', () => {
                 sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
-                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+                newOverlay.classList.toggle('active');
+                newHamburger.classList.toggle('active');
+                body.classList.toggle('no-scroll');
             });
-            
-            // Overlay click handler
-            overlay.addEventListener('click', () => {
-                console.log('Overlay clicked');
+
+            newOverlay.addEventListener('click', () => {
                 sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-                document.body.style.overflow = '';
+                newOverlay.classList.remove('active');
+                newHamburger.classList.remove('active');
+                body.classList.remove('no-scroll');
             });
-            
-            // Close sidebar when clicking outside
-            document.addEventListener('click', (event) => {
-                if (!sidebar.contains(event.target) && 
-                    !newHamburger.contains(event.target) && 
-                    sidebar.classList.contains('active')) {
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            });
-            
-            // Close sidebar on window resize
+
+            // Close sidebar on window resize if width > 768px
             window.addEventListener('resize', () => {
-                if (sidebar.classList.contains('active')) {
+                if (window.innerWidth > 768) {
                     sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                    document.body.style.overflow = '';
+                    newOverlay.classList.remove('active');
+                    newHamburger.classList.remove('active');
+                    body.classList.remove('no-scroll');
                 }
             });
         }
@@ -2725,6 +2719,7 @@ END:VCALENDAR`;
         
         window.addEventListener('scroll', () => {
             if (isManuallyCollapsed) return; // Don't auto-collapse if manually toggled
+            
             
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             
@@ -3586,53 +3581,52 @@ END:VCALENDAR`;
             
             const hamburgerMenu = document.querySelector('.hamburger-menu');
             const sidebar = document.querySelector('.sidebar');
-            const sidebarOverlay = document.querySelector('.sidebar-overlay');
-            
-            if (!hamburgerMenu || !sidebar || !sidebarOverlay) {
+            const overlay = document.querySelector('.sidebar-overlay');
+            const body = document.body;
+
+            if (!hamburgerMenu || !sidebar || !overlay) {
                 console.error('Required sidebar elements not found:', {
                     hamburgerMenu: !!hamburgerMenu,
                     sidebar: !!sidebar,
-                    sidebarOverlay: !!sidebarOverlay
+                    overlay: !!overlay
                 });
                 return;
             }
 
-            // Remove any existing event listeners
+            // Remove existing event listeners by cloning and replacing elements
             const newHamburger = hamburgerMenu.cloneNode(true);
             hamburgerMenu.parentNode.replaceChild(newHamburger, hamburgerMenu);
             
-            const newOverlay = sidebarOverlay.cloneNode(true);
-            sidebarOverlay.parentNode.replaceChild(newOverlay, sidebarOverlay);
+            const newOverlay = overlay.cloneNode(true);
+            overlay.parentNode.replaceChild(newOverlay, overlay);
 
-            // Add fresh event listeners
+            // Add event listeners to new elements
             newHamburger.addEventListener('click', () => {
                 sidebar.classList.toggle('active');
-                sidebarOverlay.classList.toggle('active');
+                newOverlay.classList.toggle('active');
+                body.classList.toggle('no-scroll');
                 newHamburger.classList.toggle('active');
-                document.body.classList.toggle('sidebar-open');
             });
 
             newOverlay.addEventListener('click', () => {
                 sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
+                newOverlay.classList.remove('active');
+                body.classList.remove('no-scroll');
                 newHamburger.classList.remove('active');
-                document.body.classList.remove('sidebar-open');
             });
 
             // Handle window resize
-            const handleResize = () => {
+            window.addEventListener('resize', () => {
                 if (window.innerWidth > 768) {
                     sidebar.classList.remove('active');
-                    sidebarOverlay.classList.remove('active');
+                    newOverlay.classList.remove('active');
+                    body.classList.remove('no-scroll');
                     newHamburger.classList.remove('active');
-                    document.body.classList.remove('sidebar-open');
                 }
-            };
+            });
 
-            window.addEventListener('resize', handleResize);
-            
-            sidebarInitialized = true;
-            console.log('Sidebar initialization complete');
+            // Set initialization flag
+            window.sidebarInitialized = true;
         }
         // ... existing code ...
     </script>
