@@ -44,18 +44,19 @@
             min-height: 100vh;
         }
         
+        /* Header styles */
         header {
-            background-color: var(--primary);
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            width: 100%;
             display: flex;
-            flex-direction: row;
             align-items: center;
-            justify-content: space-between;
-            gap: 2rem;
+            padding: 1rem;
+            background-color: #1a1a1a;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 80px;
         }
         
         .header-logo {
@@ -74,48 +75,44 @@
             margin-bottom: 0.5rem;
         }
         
+        /* Main content layout */
         .main-content {
-            display: flex;
-            flex: 1;
-            width: 100%;
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+            transition: margin-left 0.3s ease-in-out;
         }
         
         /* Sidebar Styles */
-        .sidebar {
-            position: fixed;
-            left: 0;
-                top: 0;
-            width: 300px;
-            height: 100vh;
-            background: #fff;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            transition: transform 0.3s ease-in-out;
-            overflow-y: auto;
-            padding: 20px;
-                transform: translateX(-100%);
-            }
-            
-        .sidebar.active {
-            transform: translateX(0);
-        }
-        
         .sidebar-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
             display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
         }
         
         .sidebar-overlay.active {
             display: block;
-            opacity: 1;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 80px; /* Height of header */
+            left: -300px;
+            width: 300px;
+            height: calc(100vh - 80px);
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            transition: transform 0.3s ease-in-out;
+            overflow-y: auto;
+        }
+        
+        .sidebar.active {
+            transform: translateX(300px);
         }
         
         /* Hamburger Menu Styles */
@@ -123,11 +120,18 @@
             background: none;
             border: none;
             color: white;
-            font-size: 24px;
+            font-size: 1.5rem;
             cursor: pointer;
-            padding: 10px;
+            padding: 0.5rem;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             z-index: 1001;
-            display: block; /* Always show hamburger */
+        }
+        
+        .hamburger-menu:hover {
+            opacity: 0.8;
         }
         
         @media (min-width: 993px) {
@@ -2492,15 +2496,11 @@ END:VCALENDAR`;
         function initSidebarToggle() {
             console.log('Initializing sidebar toggle...');
             const sidebar = document.querySelector('.sidebar');
-            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
             const overlay = document.querySelector('.sidebar-overlay');
             
             if (!sidebar || !hamburgerMenu || !overlay) {
-                console.error('Required sidebar elements not found:', { 
-                    sidebar: !!sidebar, 
-                    hamburgerMenu: !!hamburgerMenu, 
-                    overlay: !!overlay 
-                });
+                console.error('Required sidebar elements not found');
                 return;
             }
             
@@ -2508,46 +2508,40 @@ END:VCALENDAR`;
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             
-            // Remove any existing event listeners
-            const newHamburger = hamburgerMenu.cloneNode(true);
-            hamburgerMenu.parentNode.replaceChild(newHamburger, hamburgerMenu);
-            
             // Hamburger menu click handler
-            newHamburger.addEventListener('click', (e) => {
+            hamburgerMenu.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                        console.log('Hamburger menu clicked');
-                        sidebar.classList.toggle('active');
-                        overlay.classList.toggle('active');
-                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
-                    });
-                
+                console.log('Hamburger menu clicked');
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open');
+            });
+            
             // Overlay click handler
             overlay.addEventListener('click', () => {
-                    console.log('Overlay clicked');
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                document.body.style.overflow = '';
+                console.log('Overlay clicked');
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
             });
             
             // Close sidebar when clicking outside
             document.addEventListener('click', (event) => {
                 if (!sidebar.contains(event.target) && 
-                    !newHamburger.contains(event.target) && 
+                    !hamburgerMenu.contains(event.target) && 
                     sidebar.classList.contains('active')) {
                     sidebar.classList.remove('active');
-                        overlay.classList.remove('active');
-                    document.body.style.overflow = '';
+                    overlay.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
                 }
             });
             
             // Close sidebar on window resize
             window.addEventListener('resize', () => {
-                if (sidebar.classList.contains('active')) {
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
             });
         }
         
