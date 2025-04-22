@@ -3579,11 +3579,13 @@ END:VCALENDAR`;
                 return;
             }
             
+            // Cache DOM elements
             const hamburgerMenu = document.querySelector('.hamburger-menu');
             const sidebar = document.querySelector('.sidebar');
             const overlay = document.querySelector('.sidebar-overlay');
             const body = document.body;
 
+            // Check if required elements exist
             if (!hamburgerMenu || !sidebar || !overlay) {
                 console.error('Required sidebar elements not found:', {
                     hamburgerMenu: !!hamburgerMenu,
@@ -3593,40 +3595,57 @@ END:VCALENDAR`;
                 return;
             }
 
-            // Remove existing event listeners by cloning and replacing elements
+            // Initialize sidebar state based on window size
+            const isMobile = window.innerWidth <= 992;
+            if (isMobile) {
+                sidebar.classList.add('collapsed');
+                hamburgerMenu.classList.add('active');
+            }
+
+            // Clone and replace elements to remove existing event listeners
             const newHamburger = hamburgerMenu.cloneNode(true);
             hamburgerMenu.parentNode.replaceChild(newHamburger, hamburgerMenu);
-            
+
             const newOverlay = overlay.cloneNode(true);
             overlay.parentNode.replaceChild(newOverlay, overlay);
 
-            // Add event listeners to new elements
+            // Hamburger menu click handler
             newHamburger.addEventListener('click', () => {
-                sidebar.classList.toggle('active');
-                newOverlay.classList.toggle('active');
-                body.classList.toggle('no-scroll');
+                console.log('Hamburger menu clicked');
+                sidebar.classList.toggle('collapsed');
                 newHamburger.classList.toggle('active');
+                newOverlay.classList.toggle('active');
+                body.classList.toggle('sidebar-open');
+                body.classList.toggle('no-scroll');
             });
 
+            // Overlay click handler
             newOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('active');
-                newOverlay.classList.remove('active');
-                body.classList.remove('no-scroll');
+                console.log('Overlay clicked');
+                sidebar.classList.add('collapsed');
                 newHamburger.classList.remove('active');
+                newOverlay.classList.remove('active');
+                body.classList.remove('sidebar-open');
+                body.classList.remove('no-scroll');
             });
 
-            // Handle window resize
+            // Window resize handler
             window.addEventListener('resize', () => {
-                if (window.innerWidth > 768) {
-                    sidebar.classList.remove('active');
-                    newOverlay.classList.remove('active');
-                    body.classList.remove('no-scroll');
+                const isMobile = window.innerWidth <= 992;
+                if (isMobile) {
+                    sidebar.classList.add('collapsed');
+                    newHamburger.classList.add('active');
+                } else {
+                    sidebar.classList.remove('collapsed');
                     newHamburger.classList.remove('active');
+                    newOverlay.classList.remove('active');
+                    body.classList.remove('sidebar-open');
+                    body.classList.remove('no-scroll');
                 }
             });
 
-            // Set initialization flag
-            window.sidebarInitialized = true;
+            sidebarInitialized = true;
+            console.log('Sidebar initialization complete');
         }
         // ... existing code ...
     </script>
