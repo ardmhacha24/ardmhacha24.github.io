@@ -144,6 +144,7 @@
         
         .team-selector {
             width: 100%;
+            margin-bottom: 1rem;
         }
         
         #sidebarTeamFilter {
@@ -151,6 +152,87 @@
             padding: 0.5rem;
             border: 1px solid var(--border);
             border-radius: 4px;
+            background-color: white;
+            font-size: 0.95rem;
+        }
+        
+        .team-stats {
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .team-stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .team-stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .team-stat-label {
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
+        .team-stat-value {
+            font-weight: 600;
+        }
+        
+        .team-stat-value.win {
+            color: #155724;
+        }
+        
+        .team-stat-value.loss {
+            color: #721c24;
+        }
+        
+        .team-stat-value.draw {
+            color: #856404;
+        }
+        
+        .team-upcoming {
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .team-upcoming h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+        
+        .upcoming-match {
+            padding: 0.75rem;
+            background-color: var(--light-bg);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .upcoming-match-date {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .upcoming-match-teams {
+            font-size: 0.9rem;
+        }
+        
+        .upcoming-match-venue {
+            font-size: 0.85rem;
+            color: var(--light-text);
+            margin-top: 0.25rem;
         }
         
         /* Main content layout */
