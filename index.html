@@ -288,14 +288,16 @@
         
         .controls {
             position: fixed;
-            top: 50px; /* Adjust vertical position */
-            width: 90%; /* Adjust width */
-            left: 5%; /* Center horizontally */
+            top: 50px;
+            width: 90%;
+            left: 5%;
             z-index: 1000;
             background-color: white;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             padding: 1rem;
             border-radius: 8px;
+            max-height: 80vh; /* Limit height to 80% of viewport */
+            overflow-y: auto; /* Enable scrolling if content overflows */
         }
 
         .controls-toggle {
