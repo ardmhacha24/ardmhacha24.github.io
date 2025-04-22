@@ -44,272 +44,125 @@
             min-height: 100vh;
         }
         
+        /* Header styles */
         header {
-            background-color: var(--primary);
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            width: 100%;
             display: flex;
-            flex-direction: row;
             align-items: center;
-            justify-content: space-between;
-            gap: 2rem;
-        }
-        
-        .header-logo {
-            max-width: 80px;
-            height: auto;
-            flex-shrink: 0;
-        }
-        
-        .header-text {
-            flex: 1;
-            text-align: center;
-        }
-        
-        header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .main-content {
-            display: flex;
-            flex: 1;
-            width: 100%;
-        }
-        
-        /* Sidebar Styles */
-        .sidebar {
-            position: fixed;
-            left: 0;
-                top: 0;
-            width: 300px;
-            height: 100vh;
-            background: #fff;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            transition: transform 0.3s ease-in-out;
-            overflow-y: auto;
-            padding: 20px;
-                transform: translateX(-100%);
-            }
-            
-        .sidebar.active {
-            transform: translateX(0);
-        }
-        
-        .sidebar-overlay {
+            padding: 1rem;
+            background-color: #1a1a1a;
+            color: white;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
+            right: 0;
+            z-index: 1000;
+            height: 80px;
         }
         
-        .sidebar-overlay.active {
-            display: block;
-            opacity: 1;
+        .header-logo {
+            height: 60px;
+            margin-right: 1rem;
         }
         
-        /* Hamburger Menu Styles */
+        .header-text {
+            flex-grow: 1;
+        }
+        
+        .header-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .header-text p {
+            margin: 0;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        /* Hamburger menu */
         .hamburger-menu {
             background: none;
             border: none;
             color: white;
-            font-size: 24px;
+            font-size: 1.5rem;
             cursor: pointer;
-            padding: 10px;
+            padding: 0.5rem;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             z-index: 1001;
-            display: block; /* Always show hamburger */
         }
         
-        @media (min-width: 993px) {
-            .sidebar {
-                transform: translateX(0);
-            }
-            
-            .hamburger-menu {
-                display: none;
-            }
-            
-            .content-area {
-                margin-left: 300px;
-            }
+        .hamburger-menu:hover {
+            opacity: 0.8;
         }
         
-        @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
+        /* Sidebar styles */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            display: none;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 80px; /* Height of header */
+            left: -300px;
+            width: 300px;
+            height: calc(100vh - 80px);
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            transition: transform 0.3s ease-in-out;
+            overflow-y: auto;
+        }
+        
+        .sidebar.active {
+            transform: translateX(300px);
+        }
+        
+        /* Main content layout */
+        .main-content {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+            transition: margin-left 0.3s ease-in-out;
         }
         
         .content-area {
-            flex: 1;
             padding: 1rem;
-            width: 100%;
-            transition: margin-left 0.3s ease;
+            transition: margin-left 0.3s ease-in-out;
         }
         
-        .content-area.expanded {
-            max-width: 100%;
-        }
-        
-        .sidebar-header {
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 1rem;
-        }
-        
-        .sidebar-header h2 {
-            color: var(--primary);
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .team-selector {
-            margin-bottom: 1rem;
-        }
-        
-        .team-selector select {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid var(--border);
-            border-radius: 0.25rem;
-            font-size: 0.95rem;
-        }
-        
-        .team-stats {
-            margin-bottom: 1.5rem;
-        }
-        
-        .team-stat-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .team-stat-item:last-child {
-            border-bottom: none;
-        }
-        
-        .team-stat-label {
-            color: var(--light-text);
-            font-size: 0.9rem;
-        }
-        
-        .team-stat-value {
-            font-weight: 600;
-        }
-        
-        .team-stat-value.win {
-            color: #155724;
-        }
-        
-        .team-stat-value.loss {
-            color: #721c24;
-        }
-        
-        .team-stat-value.draw {
-            color: #856404;
-        }
-        
-        .team-upcoming {
-            margin-top: 1.5rem;
-        }
-        
-        .team-upcoming h3 {
-            font-size: 1rem;
-            margin-bottom: 0.75rem;
-            color: var(--primary);
-        }
-        
-        .upcoming-match {
-            padding: 0.75rem;
-            background-color: var(--light-bg);
-            border-radius: 0.25rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .upcoming-match-date {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .upcoming-match-teams {
-            font-size: 0.9rem;
-        }
-        
-        .upcoming-match-venue {
-            font-size: 0.85rem;
-            color: var(--light-text);
-            margin-top: 0.25rem;
-        }
-        
-        @media (max-width: 992px) {
-            .main-content {
-                flex-direction: column;
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-text h1 {
+                font-size: 1.25rem;
             }
             
+            .header-text p {
+                font-size: 0.875rem;
+            }
+            
+            .header-logo {
+                height: 50px;
+            }
+
             .sidebar {
-                width: 100%;
-                max-height: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100vh;
-                z-index: 1000;
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
+                left: -300px;
             }
-            
+
             .sidebar.active {
-                transform: translateX(0);
-            }
-            
-            .sidebar.collapsed {
-                transform: translateX(-100%);
-            }
-            
-            .content-area {
-                max-width: 100%;
-                margin-top: 60px; /* Space for the toggle button */
-            }
-            
-            .sidebar-toggle {
-                top: 15px;
-                left: 15px;
-                transform: none;
-                width: 40px;
-                height: 40px;
-            }
-            
-            .sidebar.collapsed + .sidebar-toggle {
-                left: 15px;
-                transform: none;
-            }
-            
-            body.sidebar-open {
-                overflow: hidden;
-            }
-            
-            .content-area {
-                max-width: 100%;
+                transform: translateX(300px);
             }
         }
         
