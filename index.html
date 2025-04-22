@@ -1347,30 +1347,6 @@
         .hidden {
             display: none;
         }
-
-        .scroll-to-today {
-          position: fixed;
-          bottom: 20px;
-          right: 20px;
-          width: 50px;
-          height: 50px;
-          background-color: var(--primary-color);
-          color: white;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-          cursor: pointer;
-          transition: opacity 0.3s ease;
-          opacity: 0;
-          visibility: hidden;
-          z-index: 1000;
-        }
-        .scroll-to-today.visible {
-          opacity: 1;
-          visibility: visible;
-        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1504,10 +1480,6 @@
         <p>Get notified about upcoming matches!</p>
         <button class="allow-btn">Allow Notifications</button>
         <button class="deny-btn">No Thanks</button>
-    </div>
-    
-    <div class="scroll-to-today" id="scrollToToday">
-      <i class="fas fa-arrow-up"></i>
     </div>
     
     <script>
@@ -3659,37 +3631,6 @@ END:VCALENDAR`;
             }
         `;
         document.head.appendChild(filterToggleStyle);
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const scrollToTodayButton = document.getElementById('scrollToToday');
-            
-            // Use the matches container as reference point
-            function updateScrollButtonVisibility() {
-                const matchesContainer = document.getElementById('matchesContainer');
-                if (matchesContainer) {
-                    const containerTop = matchesContainer.offsetTop;
-                    const containerBottom = containerTop + matchesContainer.offsetHeight;
-                    
-                    if (window.scrollY > containerTop + 200) { // Add offset to show button after scrolling a bit
-                        scrollToTodayButton.classList.add('visible');
-                    } else {
-                        scrollToTodayButton.classList.remove('visible');
-                    }
-                }
-            }
-
-            window.addEventListener('scroll', updateScrollButtonVisibility);
-
-            scrollToTodayButton.addEventListener('click', function() {
-                const matchesContainer = document.getElementById('matchesContainer');
-                if (matchesContainer) {
-                    window.scrollTo({ 
-                        top: matchesContainer.offsetTop, 
-                        behavior: 'smooth' 
-                    });
-                }
-            });
-        });
     </script>
 </body>
 </html>
