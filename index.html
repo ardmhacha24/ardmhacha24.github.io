@@ -125,8 +125,8 @@
             z-index: 999;
             transition: transform 0.3s ease-in-out;
             overflow-y: auto;
-        }
-        
+            }
+            
         .sidebar.active {
             transform: translateX(300px);
         }
@@ -250,13 +250,13 @@
             margin-top: 80px;
             min-height: calc(100vh - 80px);
             transition: margin-left 0.3s ease-in-out;
-        }
-        
+            }
+            
         .content-area {
             padding: 1rem;
             transition: margin-left 0.3s ease-in-out;
-        }
-        
+            }
+            
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .header-text h1 {
@@ -270,11 +270,11 @@
             .header-logo {
                 height: 50px;
             }
-
+            
             .sidebar {
                 left: -300px;
             }
-
+            
             .sidebar.active {
                 transform: translateX(300px);
             }
@@ -1701,8 +1701,8 @@
                     (!sortedDates[sortedDates.indexOf(date) + 1] || 
                      parseDate(sortedDates[sortedDates.indexOf(date) + 1]) > today)) {
                         fragment.appendChild(todayMarker.cloneNode(true));
-                    }
-                });
+                }
+            });
             }
             
             // Clear the container and append the fragment in one operation
@@ -2527,8 +2527,8 @@ END:VCALENDAR`;
                     sidebar.classList.remove('active');
                     overlay.classList.remove('active');
                 document.body.style.overflow = '';
-            });
-            
+                });
+                
             // Close sidebar when clicking outside
             document.addEventListener('click', (event) => {
                 if (!sidebar.contains(event.target) && 
@@ -2537,16 +2537,16 @@ END:VCALENDAR`;
                     sidebar.classList.remove('active');
                         overlay.classList.remove('active');
                     document.body.style.overflow = '';
-                }
+                    }
             });
-            
+                
             // Close sidebar on window resize
             window.addEventListener('resize', () => {
                 if (sidebar.classList.contains('active')) {
                     sidebar.classList.remove('active');
                     overlay.classList.remove('active');
                     document.body.style.overflow = '';
-                }
+            }
             });
         }
         
@@ -3576,125 +3576,6 @@ END:VCALENDAR`;
             }
         }
         // ... existing code ...
-
-        // Mapping of similar team names to a canonical name
-        const teamNameMapping = {
-            "Team A": "Team A",
-            "Team A1": "Team A",
-            "Team B": "Team B",
-            "Team B1": "Team B",
-            // Add more mappings as needed
-        };
-
-        // Function to update team statistics
-        function updateTeamStats(teamName) {
-            console.log('Updating team stats for:', teamName);
-            const stats = {
-                total: 0,
-                wins: 0,
-                losses: 0,
-                draws: 0,
-                upcoming: 0
-            };
-            
-            // Get all non-training matches for the selected team
-            const teamMatches = matches.filter(match => {
-                const canonicalName = teamNameMapping[match.Team] || match.Team;
-                return canonicalName === teamName && !match.isTraining;
-            });
-            
-            console.log('Filtered matches for stats:', teamMatches);
-            
-            // Count each match only once
-            teamMatches.forEach(match => {
-                stats.total++;
-                
-                if (match.Result === 'WIN') {
-                    stats.wins++;
-                } else if (match.Result === 'LOSS') {
-                    stats.losses++;
-                } else if (match.Result === 'DRAW') {
-                    stats.draws++;
-                } else if (match.Result === '---' || !match.Result) {
-                    stats.upcoming++;
-                }
-            });
-            
-            console.log('Calculated stats:', stats);
-            
-            // Update sidebar stats
-            const totalCount = document.getElementById('sidebarTotalCount');
-            const winCount = document.getElementById('sidebarWinCount');
-            const lossCount = document.getElementById('sidebarLossCount');
-            const drawCount = document.getElementById('sidebarDrawCount');
-            const upcomingCount = document.getElementById('sidebarUpcomingCount');
-            
-            if (totalCount) totalCount.textContent = stats.total;
-            if (winCount) winCount.textContent = stats.wins;
-            if (lossCount) lossCount.textContent = stats.losses;
-            if (drawCount) drawCount.textContent = stats.draws;
-            if (upcomingCount) upcomingCount.textContent = stats.upcoming;
-            
-            // Update upcoming matches and training sessions
-            updateUpcomingMatches(teamName);
-            updateUpcomingTraining(teamName);
-        }
-
-        // Function to update upcoming matches
-        function updateUpcomingMatches(teamName) {
-            const teamMatches = matches.filter(match => {
-                const canonicalName = teamNameMapping[match.Team] || match.Team;
-                return canonicalName === teamName && !match.isTraining && (!match.Result || match.Result === '---');
-            });
-            
-            // Sort and display upcoming matches
-            const upcomingMatchesList = document.getElementById('upcomingMatchesList');
-            upcomingMatchesList.innerHTML = '';
-            
-            if (teamMatches.length === 0) {
-                upcomingMatchesList.innerHTML = '<p>No upcoming matches</p>';
-                return;
-            }
-            
-            teamMatches.sort((a, b) => parseDate(a.Date) - parseDate(b.Date)).slice(0, 3).forEach(match => {
-                const matchElement = document.createElement('div');
-                matchElement.className = 'upcoming-match';
-                matchElement.innerHTML = `
-                    <div class="upcoming-match-date">${formatDate(match.Date)}</div>
-                    <div class="upcoming-match-teams">${match['Home Team']} vs ${match['Away Team']}</div>
-                    <div class="upcoming-match-venue">${match.Venue} - ${match.Time}</div>
-                `;
-                upcomingMatchesList.appendChild(matchElement);
-            });
-        }
-
-        // Function to update upcoming training sessions
-        function updateUpcomingTraining(teamName) {
-            const teamMatches = matches.filter(match => {
-                const canonicalName = teamNameMapping[match.Team] || match.Team;
-                return canonicalName === teamName && match.isTraining;
-            });
-            
-            // Sort and display upcoming training sessions
-            const upcomingTrainingList = document.getElementById('upcomingTrainingList');
-            upcomingTrainingList.innerHTML = '';
-            
-            if (teamMatches.length === 0) {
-                upcomingTrainingList.innerHTML = '<p>No upcoming training sessions</p>';
-                return;
-            }
-            
-            teamMatches.sort((a, b) => parseDate(a.Date) - parseDate(b.Date)).slice(0, 3).forEach(session => {
-                const sessionElement = document.createElement('div');
-                sessionElement.className = 'upcoming-match';
-                sessionElement.innerHTML = `
-                    <div class="upcoming-match-date">${formatDate(session.Date)}</div>
-                    <div class="upcoming-match-teams">${session.Team} Training</div>
-                    <div class="upcoming-match-venue">${session.Venue} - ${session.Time}</div>
-                `;
-                upcomingTrainingList.appendChild(sessionElement);
-            });
-        }
     </script>
 </body>
 </html>
