@@ -3576,6 +3576,65 @@ END:VCALENDAR`;
             }
         }
         // ... existing code ...
+
+        let sidebarInitialized = false;
+        function initSidebarToggle() {
+            if (sidebarInitialized) {
+                console.log('Sidebar already initialized, skipping...');
+                return;
+            }
+            
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarOverlay = document.querySelector('.sidebar-overlay');
+            
+            if (!hamburgerMenu || !sidebar || !sidebarOverlay) {
+                console.error('Required sidebar elements not found:', {
+                    hamburgerMenu: !!hamburgerMenu,
+                    sidebar: !!sidebar,
+                    sidebarOverlay: !!sidebarOverlay
+                });
+                return;
+            }
+
+            // Remove any existing event listeners
+            const newHamburger = hamburgerMenu.cloneNode(true);
+            hamburgerMenu.parentNode.replaceChild(newHamburger, hamburgerMenu);
+            
+            const newOverlay = sidebarOverlay.cloneNode(true);
+            sidebarOverlay.parentNode.replaceChild(newOverlay, sidebarOverlay);
+
+            // Add fresh event listeners
+            newHamburger.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+                newHamburger.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open');
+            });
+
+            newOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                newHamburger.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            });
+
+            // Handle window resize
+            const handleResize = () => {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    newHamburger.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
+                }
+            };
+
+            window.addEventListener('resize', handleResize);
+            
+            sidebarInitialized = true;
+            console.log('Sidebar initialization complete');
+        }
+        // ... existing code ...
     </script>
 </body>
 </html>
