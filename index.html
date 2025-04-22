@@ -3591,16 +3591,21 @@ END:VCALENDAR`;
 
             if (filterToggle && controls) {
                 filterToggle.addEventListener('click', function() {
+                    console.log('Filter toggle button clicked');
                     controls.classList.toggle('hidden');
                     const icon = filterToggle.querySelector('i');
                     if (controls.classList.contains('hidden')) {
+                        console.log('Hiding controls');
                         icon.classList.remove('fa-chevron-down');
                         icon.classList.add('fa-chevron-up');
                     } else {
+                        console.log('Showing controls');
                         icon.classList.remove('fa-chevron-up');
                         icon.classList.add('fa-chevron-down');
                     }
                 });
+            } else {
+                console.error('Filter toggle button or controls not found');
             }
         });
     </script>
