@@ -3610,15 +3610,15 @@ END:VCALENDAR`;
         });
 
         // CSS to make the filter toggle button sticky
-        const style = document.createElement('style');
-        style.innerHTML = `
+        const filterToggleStyle = document.createElement('style');
+        filterToggleStyle.innerHTML = `
             #filterToggle {
                 position: sticky;
                 top: 0;
                 z-index: 1000;
             }
         `;
-        document.head.appendChild(style);
+        document.head.appendChild(filterToggleStyle);
     </script>
 </body>
 </html>
