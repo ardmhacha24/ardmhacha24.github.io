@@ -287,15 +287,15 @@
         }
         
         .controls {
-            background: white;
+            position: fixed; /* Ensure the filter section is fixed */
+            top: 0; /* Position it at the top of the viewport */
+            width: 100%; /* Full width */
+            z-index: 1000; /* Ensure it is above other content */
+            background-color: white; /* Background color for visibility */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
             padding: 1rem;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
         }
