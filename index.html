@@ -167,6 +167,7 @@
         .team-stat-item {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 0.5rem 0;
             border-bottom: 1px solid var(--border);
         }
@@ -185,15 +186,24 @@
         }
         
         .team-stat-value.win {
-            color: #155724;
+            color: #28a745; /* Green for wins */
+            background-color: #d4edda; /* Light green background */
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
         }
         
         .team-stat-value.loss {
-            color: #721c24;
+            color: #dc3545; /* Red for losses */
+            background-color: #f8d7da; /* Light red background */
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
         }
         
         .team-stat-value.draw {
-            color: #856404;
+            color: #ffc107; /* Yellow for draws */
+            background-color: #fff3cd; /* Light yellow background */
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
         }
         
         .team-upcoming {
