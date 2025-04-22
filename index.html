@@ -3607,7 +3607,13 @@ END:VCALENDAR`;
 
                 // Add scroll event listener to close the filter section when scrolling down
                 window.addEventListener('scroll', function() {
-                    if (!controls.classList.contains('hidden')) {
+                    if (window.scrollY === 0) {
+                        console.log('Scrolled to top, showing controls');
+                        controls.classList.remove('hidden');
+                        const icon = filterToggle.querySelector('i');
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                    } else if (!controls.classList.contains('hidden')) {
                         console.log('Scrolling down, hiding controls');
                         controls.classList.add('hidden');
                         const icon = filterToggle.querySelector('i');
