@@ -334,18 +334,9 @@
         }
 
         .controls.collapsed {
-            position: fixed;
-            top: 50px;
-            width: 90%;
-            left: 5%;
-            z-index: 1000;
-            background-color: white;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            padding: 1rem;
-            border-radius: 8px;
-            max-height: 90vh;
-            overflow-y: auto;
-            transform: translateY(0);
+            padding: 0.5rem;
+            max-height: 60px;
+            overflow: hidden;
         }
 
         .controls.collapsed .filter-row {
@@ -2727,7 +2718,7 @@ END:VCALENDAR`;
         
         function toggleControls() {
             isManuallyCollapsed = !isManuallyCollapsed;
-            controls.classList.toggle('collapsed');
+            //controls.classList.toggle('collapsed');
             // Update toggle button icon
             toggleButton.innerHTML = isManuallyCollapsed ? 
                 '<i class="fas fa-chevron-down"></i>' : 
