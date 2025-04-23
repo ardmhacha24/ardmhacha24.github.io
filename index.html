@@ -2747,30 +2747,61 @@ END:VCALENDAR`;
         function toggleControls() {
             isManuallyCollapsed = !isManuallyCollapsed;
             controls.classList.toggle('collapsed');
-            // Update toggle button icon
-            toggleButton.innerHTML = isManuallyCollapsed ? 
-                '<i class="fas fa-chevron-down"></i>' : 
-                '<i class="fas fa-chevron-up"></i>';
+            
+            // Update icon
+            const icon = toggleButton.querySelector('i');
+            if (icon) {
+                icon.className = controls.classList.contains('collapsed') ? 
+                    'fas fa-chevron-down' : 'fas fa-chevron-up';
+            }
+            
+            // Ensure filter row visibility matches the collapsed state
+            if (filterRow) {
+                filterRow.style.opacity = controls.classList.contains('collapsed') ? '0' : '1';
+                filterRow.style.visibility = controls.classList.contains('collapsed') ? 'hidden' : 'visible';
+            }
         }
-        
+
+        // Add click event listener to toggle button
         toggleButton.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             toggleControls();
         });
-        
+
+        // Update scroll event listener
         window.addEventListener('scroll', () => {
-            if (isManuallyCollapsed) return; // Don't auto-collapse if manually toggled
-            
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             
-            if (scrollTop > controlsHeight) {
-                controls.classList.add('collapsed');
-            } else {
-                controls.classList.remove('collapsed');
+            // Only auto-collapse if not manually toggled
+            if (!isManuallyCollapsed) {
+                if (scrollTop > controlsHeight + 100) { // Add some buffer
+                    if (!controls.classList.contains('collapsed')) {
+                        controls.classList.add('collapsed');
+                        if (filterRow) {
+                            filterRow.style.opacity = '0';
+                            filterRow.style.visibility = 'hidden';
+                        }
+                    }
+                } else {
+                    if (controls.classList.contains('collapsed')) {
+                        controls.classList.remove('collapsed');
+                        if (filterRow) {
+                            filterRow.style.opacity = '1';
+                            filterRow.style.visibility = 'visible';
+                        }
+                    }
+                }
             }
             
             lastScrollTop = scrollTop;
+        });
+
+        // Reset manual collapse when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!controls.contains(e.target) && !toggleButton.contains(e.target)) {
+                isManuallyCollapsed = false;
+            }
         });
 
         // Service Worker Registration
