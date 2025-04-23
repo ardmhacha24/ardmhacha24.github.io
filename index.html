@@ -49,7 +49,7 @@
             display: flex;
             align-items: center;
             padding: 1rem;
-            background-color: var(--primary); /* Use primary color from the main site */
+            background-color: var(--primary);
             color: white;
             position: fixed;
             top: 0;
@@ -71,12 +71,50 @@
         .header-text h1 {
             margin: 0;
             font-size: 1.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .header-text p {
             margin: 0;
             font-size: 1rem;
             opacity: 0.8;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .header-text h1 {
+                font-size: 1.1rem;
+            }
+            
+            .header-text p {
+                font-size: 0.875rem;
+            }
+            
+            .header-logo {
+                height: 45px;
+            }
+        }
+        
+        @media (min-width: 481px) and (max-width: 768px) {
+            .header-text h1 {
+                font-size: 1.3rem;
+            }
+            
+            .header-logo {
+                height: 50px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .header-text h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header-logo {
+                height: 60px;
+            }
         }
         
         /* Hamburger menu */
