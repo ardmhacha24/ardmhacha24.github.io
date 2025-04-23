@@ -2718,7 +2718,7 @@ END:VCALENDAR`;
         
         function toggleControls() {
             isManuallyCollapsed = !isManuallyCollapsed;
-            //controls.classList.toggle('collapsed');
+            controls.classList.toggle('collapsed');
             // Update toggle button icon
             toggleButton.innerHTML = isManuallyCollapsed ? 
                 '<i class="fas fa-chevron-down"></i>' : 
@@ -2737,7 +2737,8 @@ END:VCALENDAR`;
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             
             if (scrollTop > controlsHeight) {
-                controls.classList.add('collapsed');
+                //controls.classList.add('collapsed');
+                controls.classList.toggle('collapsed'); // testing this to see if works 
             } else {
                 controls.classList.remove('collapsed');
             }
