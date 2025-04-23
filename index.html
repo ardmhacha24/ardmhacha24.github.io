@@ -2704,47 +2704,6 @@ END:VCALENDAR`;
         // Start the app when the DOM is loaded
         document.addEventListener('DOMContentLoaded', init);
 
-        // Add scroll handling for controls
-        let lastScrollTop = 0;
-        const controls = document.querySelector('.controls');
-        const controlsHeight = controls.offsetHeight;
-        let isManuallyCollapsed = false;
-        
-        // Add toggle button to controls
-        const toggleButton = document.createElement('button');
-        toggleButton.className = 'controls-toggle';
-        toggleButton.innerHTML = '<i class="fas fa-chevron-up"></i>';
-        controls.appendChild(toggleButton);
-        
-        function toggleControls() {
-            isManuallyCollapsed = !isManuallyCollapsed;
-            controls.classList.toggle('collapsed');
-            // Update toggle button icon
-            toggleButton.innerHTML = isManuallyCollapsed ? 
-                '<i class="fas fa-chevron-down"></i>' : 
-                '<i class="fas fa-chevron-up"></i>';
-        }
-        
-        toggleButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleControls();
-        });
-        
-        window.addEventListener('scroll', () => {
-            if (isManuallyCollapsed) return; // Don't auto-collapse if manually toggled
-            
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            if (scrollTop > controlsHeight) {
-                controls.classList.add('collapsed');
-            } else {
-                controls.classList.remove('collapsed');
-            }
-            
-            lastScrollTop = scrollTop;
-        });
-
         // Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -3590,6 +3549,11 @@ END:VCALENDAR`;
             const controls = document.querySelector('.controls');
             const filterToggle = document.getElementById('filterToggle');
 
+            if (!controls || !filterToggle) {
+                console.error('Controls section or filter toggle button not found.');
+                return;
+            }
+    
             // Set initial state: hidden
             controls.classList.add('hidden');
             let isManuallyCollapsed = false;
@@ -3603,7 +3567,6 @@ END:VCALENDAR`;
             function toggleControlsManually() {
                 // Always make sure controls are visible
                 controls.classList.remove('hidden');
-
                 const isCollapsed = controls.classList.contains('collapsed');
                 controls.classList.toggle('collapsed');
                 isManuallyCollapsed = !isCollapsed;
