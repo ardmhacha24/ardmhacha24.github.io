@@ -1355,6 +1355,27 @@
         .hidden {
             display: none;
         }
+
+        #scrollToTodayBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            font-size: 0.9rem;
+            transition: opacity 0.3s ease;
+        }
+
+        #scrollToTodayBtn:hover {
+            background: #004d00; /* Optional hover effect */
+        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1764,6 +1785,23 @@
                     console.log('Today marker not found');
                 }
             }, 300);
+
+            // Add the button to the DOM if not already added
+            if (!document.getElementById('scrollToTodayBtn')) {
+                const scrollToTodayBtn = document.createElement('button');
+                scrollToTodayBtn.id = 'scrollToTodayBtn';
+                scrollToTodayBtn.innerHTML = '<i class="fas fa-calendar-day"></i> Today';
+                scrollToTodayBtn.className = 'scroll-to-today-btn';
+                document.body.appendChild(scrollToTodayBtn);
+
+                // Scroll back to today marker when clicked
+                scrollToTodayBtn.addEventListener('click', () => {
+                    const todayMarker = document.getElementById('todayMarker');
+                    if (todayMarker) {
+                        todayMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+            }
             
             console.log('Matches displayed:', filteredMatches.length);
         }
@@ -3670,6 +3708,15 @@ END:VCALENDAR`;
                     controls.classList.add('hidden');
                     controls.classList.remove('collapsed');
                     isManuallyExpanded = false;
+                }
+
+                // toggle scroll-to-today button visibility
+                const todayMarker = document.getElementById('todayMarker');
+                const scrollToTodayBtn = document.getElementById('scrollToTodayBtn');
+                if (todayMarker && scrollToTodayBtn) {
+                    const rect = todayMarker.getBoundingClientRect();
+                    const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+                    scrollToTodayBtn.style.display = isVisible ? 'none' : 'block';
                 }
             });
 
