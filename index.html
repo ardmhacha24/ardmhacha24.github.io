@@ -1796,6 +1796,7 @@
                     dateFormat: "D M d Y",
                     onChange: function(selectedDates) {
                         displayMatches();
+                        updateFilterAlert();
                     }
                 });
                 
@@ -3649,9 +3650,12 @@ END:VCALENDAR`;
         function updateFilterAlert() {
             const filterAlert = document.getElementById('filterAlert');
             const searchInput = document.getElementById('searchInput');
-            const dateFilter = document.getElementById('dateFilter');
-            
-            if (searchInput.value || (dateFilter && dateFilter.value)) {
+            const dateInput = document.getElementById('dateRange');
+
+            const hasSearch = searchInput && searchInput.value.trim().length > 0;
+            const hasDate = dateInput && dateInput._flatpickr && dateInput._flatpickr.selectedDates.length === 2;
+
+            if (hasSearch || hasDate) {
                 filterAlert.style.display = 'block';
             } else {
                 filterAlert.style.display = 'none';
@@ -3660,9 +3664,9 @@ END:VCALENDAR`;
 
         // Call updateFilterAlert when filters change
         document.getElementById('searchInput').addEventListener('input', updateFilterAlert);
-        const dateFilter = document.getElementById('dateFilter');
-        if (dateFilter) {
-            dateFilter.addEventListener('change', updateFilterAlert);
+        const dateInput = document.getElementById('dateRange');
+        if (dateInput && dateInput._flatpickr) {
+            dateInput._flatpickr.clear();
         }
 
         // Add event listener to reset button
