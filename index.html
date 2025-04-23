@@ -1726,6 +1726,7 @@
             matchContainer.innerHTML = '';
             matchContainer.appendChild(fragment);
             
+<<<<<<< HEAD
             // Scroll to today marker after a brief delay to ensure DOM is updated
             setTimeout(() => {
                 const todayMarker = document.getElementById('todayMarker');
@@ -1739,6 +1740,16 @@
                     console.log('Today marker not found');
                 }
             }, 300);
+=======
+            // Use requestAnimationFrame for smooth scrolling
+            requestAnimationFrame(() => {
+                const todayMarker = document.querySelector('.today-marker');
+                if (todayMarker) {
+                    todayMarker.style.display = 'block';
+                    todayMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+>>>>>>> parent of 359ddf2 (Update index.html)
             
             console.log('Matches displayed:', filteredMatches.length);
         }
