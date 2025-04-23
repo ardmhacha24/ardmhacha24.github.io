@@ -1723,14 +1723,22 @@
             matchContainer.innerHTML = '';
             matchContainer.appendChild(fragment);
             
-            // Use requestAnimationFrame for smooth scrolling
-            requestAnimationFrame(() => {
+            // Scroll to today marker after a short delay to ensure DOM is updated
+            setTimeout(() => {
                 const todayMarker = document.querySelector('.today-marker');
                 if (todayMarker) {
-                    todayMarker.style.display = 'block';
-                    todayMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    todayMarker.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center'
+                    });
                 }
-            });
+            }, 100);
+            
+            // Make today marker visible
+            const todayMarker = document.querySelector('.today-marker');
+            if (todayMarker) {
+                todayMarker.style.display = 'block';
+            }
             
             console.log('Matches displayed:', filteredMatches.length);
         }
