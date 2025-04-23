@@ -1483,7 +1483,8 @@
     </div>
     
     <div id="filterAlert" style="display: none; position: fixed; top: 25px; left: 50%; transform: translateX(-50%); background-color: #f8f9fa; color: #333; padding: 8px 15px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); z-index: 1001; transition: opacity 0.3s ease;">
-        A Filter is applied!
+        <span>A Filter is applied!</span>
+        <button id="clearFiltersBtn" style="background: none; border: none; color: #666; margin-left: 10px; cursor: pointer; font-size: 14px; padding: 0 5px; transition: color 0.2s ease;">&times;</button>
     </div>
 
     <script>
@@ -3709,6 +3710,34 @@ END:VCALENDAR`;
                 updateFilterAlert();
             });
         }
+
+        // Add clear filters functionality
+        document.getElementById('clearFiltersBtn').addEventListener('click', function() {
+            // Clear search input
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            
+            // Clear date range
+            const dateInput = document.getElementById('dateRange');
+            if (dateInput && dateInput._flatpickr) {
+                dateInput._flatpickr.clear();
+            }
+            
+            // Update display
+            displayMatches();
+            updateFilterAlert();
+        });
+
+        // Add hover effect for the clear button
+        const clearBtn = document.getElementById('clearFiltersBtn');
+        clearBtn.addEventListener('mouseover', function() {
+            this.style.color = '#000';
+        });
+        clearBtn.addEventListener('mouseout', function() {
+            this.style.color = '#666';
+        });
     </script>
 </body>
 </html>
