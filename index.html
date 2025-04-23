@@ -1482,13 +1482,15 @@
         <button class="deny-btn">No Thanks</button>
     </div>
     
-    <div id="filterAlert" style="display: none; position: fixed; top: 25px; left: 50%; transform: translateX(-50%); background-color: #f8f9fa; color: #333; padding: 8px 15px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); z-index: 1001; transition: opacity 0.3s ease; display: flex; align-items: center; gap: 10px;">
-        <span>A Filter is applied!</span>
-        <button id="clearFiltersBtn" class="reset-btn" style="background-color: var(--light-bg); color: var(--text); border: 1px solid var(--border); padding: 0.5rem; border-radius: 0.25rem; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; transition: all 0.2s ease; flex-shrink: 0;">
-            <i class="fas fa-times"></i>
-        </button>
+    <div id="filterAlert" style="position: fixed; top: 25px; left: 50%; transform: translateX(-50%); background-color: #f8f9fa; color: #333; padding: 8px 15px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); z-index: 1001; transition: opacity 0.3s ease; display: none;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span>A Filter is applied!</span>
+            <button id="clearFiltersBtn" class="reset-btn" style="background-color: var(--light-bg); color: var(--text); border: 1px solid var(--border); padding: 0.5rem; border-radius: 0.25rem; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; transition: all 0.2s ease; flex-shrink: 0;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
     </div>
-
+    
     <script>
         // Parse the CSV data and store it in a global variable
         let matches = [];
@@ -1692,23 +1694,23 @@
                 
                 // Insert today marker before today's date
                 if (currentDate.toDateString() === today.toDateString()) {
-                    const todayMarker = document.createElement('div');
-                    todayMarker.className = 'today-marker';
-                    todayMarker.innerHTML = '<span>Today</span>';
+            const todayMarker = document.createElement('div');
+            todayMarker.className = 'today-marker';
+            todayMarker.innerHTML = '<span>Today</span>';
                     fragment.appendChild(todayMarker);
                 }
-
+            
                 const dateHeader = document.createElement('div');
                 dateHeader.className = 'date-header';
                 dateHeader.textContent = formatDate(date);
                 fragment.appendChild(dateHeader);
-
+                
                 // First display matches
                 groupedMatches[date].matches.forEach(match => {
                     const matchCard = createMatchCard(match);
                     fragment.appendChild(matchCard);
                 });
-
+                
                 // Then display training events
                 groupedMatches[date].training.forEach(match => {
                     const matchCard = createMatchCard(match);
