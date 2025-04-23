@@ -3590,19 +3590,20 @@ END:VCALENDAR`;
             const controls = document.querySelector('.controls');
             const filterToggle = document.getElementById('filterToggle');
 
-            // Start in hidden state
+            // Set initial state: hidden
             controls.classList.add('hidden');
+            let isManuallyCollapsed = false;
 
-            // Add toggle button inside controls
+            // Create and add internal toggle button
             const toggleButton = document.createElement('button');
             toggleButton.className = 'controls-toggle';
             toggleButton.innerHTML = '<i class="fas fa-chevron-up"></i>';
             controls.appendChild(toggleButton);
 
-            let isManuallyCollapsed = false;
-
-             // Toggle internal chevron
             function toggleControlsManually() {
+                // Always make sure controls are visible
+                controls.classList.remove('hidden');
+
                 const isCollapsed = controls.classList.contains('collapsed');
                 controls.classList.toggle('collapsed');
                 isManuallyCollapsed = !isCollapsed;
@@ -3618,7 +3619,7 @@ END:VCALENDAR`;
                 toggleControlsManually();
             });
 
-            // Scroll: Show controls in collapsed mode
+            // Scroll reveals collapsed controls (if hidden)
             window.addEventListener('scroll', () => {
                 if (controls.classList.contains('hidden')) {
                     controls.classList.remove('hidden');
@@ -3630,7 +3631,7 @@ END:VCALENDAR`;
                 }
             });
 
-            // Click top-right chevron: Always show full controls
+            // Top chevron always fully expands
             if (filterToggle) {
                 filterToggle.addEventListener('click', function () {
                     controls.classList.remove('hidden');
