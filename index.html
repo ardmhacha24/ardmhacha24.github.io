@@ -3651,7 +3651,7 @@ END:VCALENDAR`;
             const searchInput = document.getElementById('searchInput');
             const dateFilter = document.getElementById('dateFilter');
             
-            if (searchInput.value || dateFilter.value) {
+            if (searchInput.value || (dateFilter && dateFilter.value)) {
                 filterAlert.style.display = 'block';
             } else {
                 filterAlert.style.display = 'none';
@@ -3660,7 +3660,10 @@ END:VCALENDAR`;
 
         // Call updateFilterAlert when filters change
         document.getElementById('searchInput').addEventListener('input', updateFilterAlert);
-        document.getElementById('dateFilter').addEventListener('change', updateFilterAlert);
+        const dateFilter = document.getElementById('dateFilter');
+        if (dateFilter) {
+            dateFilter.addEventListener('change', updateFilterAlert);
+        }
     </script>
 </body>
 </html>
