@@ -3565,11 +3565,10 @@ END:VCALENDAR`;
             controls.appendChild(toggleButton);
 
             function toggleControlsManually() {
-                // Always make sure controls are visible
+                const wasCollapsed = controls.classList.contains('collapsed');
                 controls.classList.remove('hidden');
-                const isCollapsed = controls.classList.contains('collapsed');
                 controls.classList.toggle('collapsed');
-                isManuallyCollapsed = !isCollapsed;
+                isManuallyExpanded = true;
 
                 toggleButton.innerHTML = isManuallyCollapsed
                     ? '<i class="fas fa-chevron-down"></i>'
@@ -3584,13 +3583,10 @@ END:VCALENDAR`;
 
             // Scroll reveals collapsed controls (if hidden)
             window.addEventListener('scroll', () => {
-                if (controls.classList.contains('hidden')) {
-                    controls.classList.remove('hidden');
-                    controls.classList.add('collapsed');
-                    toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i>';
-                } else if (!isManuallyCollapsed) {
-                    controls.classList.add('collapsed');
-                    toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i>';
+                if (!controls.classList.contains('hidden')) {
+                    controls.classList.add('hidden');
+                    controls.classList.remove('collapsed');
+                    isManuallyExpanded = false;
                 }
             });
 
@@ -3599,7 +3595,7 @@ END:VCALENDAR`;
                 filterToggle.addEventListener('click', function () {
                     controls.classList.remove('hidden');
                     controls.classList.remove('collapsed');
-                    isManuallyCollapsed = false;
+                    isManuallyCollapsed = true;
 
                     const icon = filterToggle.querySelector('i');
                     icon.classList.remove('fa-chevron-up');
