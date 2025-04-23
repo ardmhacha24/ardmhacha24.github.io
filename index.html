@@ -3591,26 +3591,21 @@ END:VCALENDAR`;
             const controls = document.querySelector('.controls');
 
             if (filterToggle && controls) {
-                filterToggle.addEventListener('click', function() {
+                filterToggle.addEventListener('click', function () {
                     console.log('Filter toggle button clicked');
-                    controls.classList.toggle('hidden');
+                    controls.classList.remove('hidden');
+                    controls.classList.remove('collapsed');
+                    isManuallyCollapsed = false;
+
                     const icon = filterToggle.querySelector('i');
-                    if (controls.classList.contains('hidden')) {
-                        console.log('Hiding controls');
-                        icon.classList.remove('fa-chevron-down');
-                        icon.classList.add('fa-chevron-up');
-                    } else {
-                        console.log('Showing controls');
-                        icon.classList.remove('fa-chevron-up');
-                        icon.classList.add('fa-chevron-down');
-                    }
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
                 });
 
-                // Add scroll event listener to close the filter section when scrolling down
-                window.addEventListener('scroll', function() {
-                    if (!controls.classList.contains('hidden')) {
-                        console.log('Scrolling down, hiding controls');
-                        controls.classList.add('hidden');
+                // Scroll collapse behavior
+                window.addEventListener('scroll', function () {
+                    if (!isManuallyCollapsed && !controls.classList.contains('collapsed')) {
+                        controls.classList.add('collapsed');
                         const icon = filterToggle.querySelector('i');
                         icon.classList.remove('fa-chevron-down');
                         icon.classList.add('fa-chevron-up');
@@ -3620,7 +3615,7 @@ END:VCALENDAR`;
                 console.error('Filter toggle button or controls not found');
             }
         });
-
+            
         // CSS to make the filter toggle button sticky
         const filterToggleStyle = document.createElement('style');
         filterToggleStyle.innerHTML = `
