@@ -1482,6 +1482,10 @@
         <button class="deny-btn">No Thanks</button>
     </div>
     
+    <div id="filterAlert" style="display: none; position: fixed; top: 10px; right: 10px; background-color: #ffcc00; color: black; padding: 10px; border-radius: 5px; z-index: 1001;">
+        Filter is applied!
+    </div>
+
     <script>
         // Parse the CSV data and store it in a global variable
         let matches = [];
@@ -3640,6 +3644,23 @@ END:VCALENDAR`;
             }
         `;
         document.head.appendChild(filterToggleStyle);
+
+        // Existing script
+        function updateFilterAlert() {
+            const filterAlert = document.getElementById('filterAlert');
+            const searchInput = document.getElementById('searchInput');
+            const dateFilter = document.getElementById('dateFilter');
+            
+            if (searchInput.value || dateFilter.value) {
+                filterAlert.style.display = 'block';
+            } else {
+                filterAlert.style.display = 'none';
+            }
+        }
+
+        // Call updateFilterAlert when filters change
+        document.getElementById('searchInput').addEventListener('input', updateFilterAlert);
+        document.getElementById('dateFilter').addEventListener('change', updateFilterAlert);
     </script>
 </body>
 </html>
