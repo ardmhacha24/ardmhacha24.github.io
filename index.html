@@ -1371,6 +1371,34 @@
           opacity: 1;
           visibility: visible;
         }
+
+        .today-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .today-button:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+
+        .today-button i {
+            font-size: 20px;
+        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1532,15 +1560,16 @@
         
         // Extract unique teams, competitions for filters
         function extractFilterOptions() {
-            console.log('Extracting filter options...');
             const teams = new Set();
-            const competitions = new Map(); // Changed to Map to store sex with competition
+            const competitions = new Map();
             
             matches.forEach(match => {
-                if (match.Team) teams.add(match.Team);
-                if (match.Competition) {
-                    // Store competition with its sex category
-                    competitions.set(match.Competition, match.Sex);
+                // Only add team if it's not a training session
+                if (!match.isTraining) {
+                    if (match.Team) teams.add(match.Team);
+                    if (match.Competition) {
+                        competitions.set(match.Competition, match.Sex);
+                    }
                 }
             });
             
@@ -1548,17 +1577,14 @@
                 teams: Array.from(teams).sort(),
                 competitions: Array.from(competitions.entries())
                     .sort((a, b) => {
-                        // First sort by sex
                         const sexOrder = { 'Men': 1, 'Ladies': 2, 'Boys': 3, 'Girls': 4 };
                         const sexA = sexOrder[a[1]] || 999;
                         const sexB = sexOrder[b[1]] || 999;
                         if (sexA !== sexB) return sexA - sexB;
-                        // Then sort by competition name
                         return a[0].localeCompare(b[0]);
                     })
             };
             
-            console.log('Filter options:', options);
             return options;
         }
         
@@ -2498,16 +2524,11 @@ END:VCALENDAR`;
                 newTeamFilter.remove(1);
             }
             
-            // Get unique teams
-            const teams = new Set();
-            matches.forEach(match => {
-                if (match.Team) teams.add(match.Team);
-            });
-            
-            console.log('Found teams:', Array.from(teams));
+            // Get unique teams from the filter options
+            const options = extractFilterOptions();
             
             // Add team options
-            Array.from(teams).sort().forEach(team => {
+            options.teams.forEach(team => {
                 const option = document.createElement('option');
                 option.value = team;
                 option.textContent = team;
@@ -2763,10 +2784,11 @@ END:VCALENDAR`;
             if (isManuallyCollapsed) return; // Don't auto-collapse if manually toggled
             
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollThreshold = controlsHeight * 1.5; // Increased threshold
             
-            if (scrollTop > controlsHeight) {
+            if (scrollTop > scrollThreshold && !controls.classList.contains('collapsed')) {
                 controls.classList.add('collapsed');
-            } else {
+            } else if (scrollTop < scrollThreshold && controls.classList.contains('collapsed')) {
                 controls.classList.remove('collapsed');
             }
             
@@ -3366,17 +3388,7 @@ END:VCALENDAR`;
         }
 
         function updateTeamStats(teamName) {
-            console.log('******Updating team stats for:', teamName);
-            
-            console.log('First 30 matches in dataset:', matches.slice(0, 30).map(m => ({
-                Date: m.Date,
-                Team: m.Team,
-                Competition: m.Competition,
-                'Home Team': m['Home Team'],
-                'Away Team': m['Away Team'],
-                isTraining: m.isTraining,
-                Result: m.Result
-            })));
+            console.log('Updating team stats for:', teamName);
             
             const stats = {
                 total: 0,
@@ -3390,8 +3402,6 @@ END:VCALENDAR`;
             const teamMatches = teamName === 'all' 
                 ? matches.filter(match => !match.isTraining)
                 : matches.filter(match => match.Team === teamName && !match.isTraining);
-            
-            console.log('******Filtered matches for stats:', teamMatches);
             
             // Count each match only once
             teamMatches.forEach(match => {
@@ -3407,8 +3417,6 @@ END:VCALENDAR`;
                     stats.upcoming++;
                 }
             });
-            
-            console.log('********Calculated stats:', stats);
             
             // Update sidebar stats
             const totalCount = document.getElementById('sidebarTotalCount');
@@ -3446,16 +3454,11 @@ END:VCALENDAR`;
                 newTeamFilter.remove(1);
             }
             
-            // Get unique teams
-            const teams = new Set();
-            matches.forEach(match => {
-                if (match.Team) teams.add(match.Team);
-            });
-            
-            console.log('Found teams:', Array.from(teams));
+            // Get unique teams from the filter options
+            const options = extractFilterOptions();
             
             // Add team options
-            Array.from(teams).sort().forEach(team => {
+            options.teams.forEach(team => {
                 const option = document.createElement('option');
                 option.value = team;
                 option.textContent = team;
@@ -3689,6 +3692,10 @@ END:VCALENDAR`;
                     });
                 }
             });
+        });
+
+        document.getElementById('scrollToToday').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     </script>
 </body>
