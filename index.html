@@ -1785,23 +1785,6 @@
                     console.log('Today marker not found');
                 }
             }, 300);
-
-            // Add the button to the DOM if not already added
-            if (!document.getElementById('scrollToTodayBtn')) {
-                const scrollToTodayBtn = document.createElement('button');
-                scrollToTodayBtn.id = 'scrollToTodayBtn';
-                scrollToTodayBtn.innerHTML = '<i class="fas fa-calendar-day"></i> Today';
-                scrollToTodayBtn.className = 'scroll-to-today-btn';
-                document.body.appendChild(scrollToTodayBtn);
-
-                // Scroll back to today marker when clicked
-                scrollToTodayBtn.addEventListener('click', () => {
-                    const todayMarker = document.getElementById('todayMarker');
-                    if (todayMarker) {
-                        todayMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                });
-            }
             
             console.log('Matches displayed:', filteredMatches.length);
         }
@@ -2397,61 +2380,6 @@ END:VCALENDAR`;
                 if (e.key === 'Escape') closePopup();
             });
         }
-        
-        /*
-        // Function to update team statistics in the sidebar
-        function updateTeamStats(teamName) {
-            console.log('!!!!!!!!!!Updating team stats for:', teamName);
-            const stats = {
-                total: 0,
-                wins: 0,
-                losses: 0,
-                draws: 0,
-                upcoming: 0
-            };
-            
-            // Get all non-training matches for the selected team
-            const teamMatches = teamName === 'all' 
-                ? matches.filter(match => !match.isTraining)
-                : matches.filter(match => match.Team === teamName && !match.isTraining);
-            
-            console.log('!!!!!!!!!!Filtered matches for stats:', teamMatches);
-            
-            // Count each match only once
-            teamMatches.forEach(match => {
-                stats.total++;
-                
-                if (match.Result === 'WIN') {
-                    stats.wins++;
-                } else if (match.Result === 'LOSS') {
-                    stats.losses++;
-                } else if (match.Result === 'DRAW') {
-                    stats.draws++;
-                } else if (match.Result === '---' || !match.Result) {
-                    stats.upcoming++;
-                }
-            });
-            
-            console.log('!!!!!!!!!!Calculated stats:', stats);
-            
-            // Update sidebar stats
-            const totalCount = document.getElementById('sidebarTotalCount');
-            const winCount = document.getElementById('sidebarWinCount');
-            const lossCount = document.getElementById('sidebarLossCount');
-            const drawCount = document.getElementById('sidebarDrawCount');
-            const upcomingCount = document.getElementById('sidebarUpcomingCount');
-            
-            if (totalCount) totalCount.textContent = stats.total;
-            if (winCount) winCount.textContent = stats.wins;
-            if (lossCount) lossCount.textContent = stats.losses;
-            if (drawCount) drawCount.textContent = stats.draws;
-            if (upcomingCount) upcomingCount.textContent = stats.upcoming;
-            
-            // Update upcoming matches and training sessions
-            updateUpcomingMatches(teamName);
-            updateUpcomingTraining(teamName);
-        }
-        */
 
         // Add new function for upcoming training sessions
         function updateUpcomingTraining(teamName) {
@@ -3629,6 +3557,9 @@ END:VCALENDAR`;
                 
                 // Display initial matches
                 displayMatches();
+
+                //add today button
+                initScrollToTodayButton();  
                 
                 uiInitialized = true;
                 console.log('UI initialization complete');
@@ -3715,7 +3646,7 @@ END:VCALENDAR`;
                 const scrollToTodayBtn = document.getElementById('scrollToTodayBtn');
                 if (todayMarker && scrollToTodayBtn) {
                     const rect = todayMarker.getBoundingClientRect();
-                    const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+                    const isVisible = rect.bottom > 0 && rect.top < window.innerHeight;;
                     scrollToTodayBtn.style.display = isVisible ? 'none' : 'block';
                 }
             });
@@ -3818,6 +3749,22 @@ END:VCALENDAR`;
         clearBtn.addEventListener('mouseout', function() {
             this.style.color = '#666';
         });
+
+        function initScrollToTodayButton() {
+            if (document.getElementById('scrollToTodayBtn')) return; // Already added
+            const scrollToTodayBtn = document.createElement('button');
+            scrollToTodayBtn.id = 'scrollToTodayBtn';
+            scrollToTodayBtn.innerHTML = '<i class="fas fa-calendar-day"></i> Today';
+            scrollToTodayBtn.className = 'scroll-to-today-btn';
+            document.body.appendChild(scrollToTodayBtn);
+
+            scrollToTodayBtn.addEventListener('click', () => {
+                const todayMarker = document.getElementById('todayMarker');
+                if (todayMarker) {
+                    todayMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
     </script>
 </body>
 </html>
