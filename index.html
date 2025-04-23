@@ -1694,15 +1694,17 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             console.log('Today:', today);
+            const todayDateStr = today.toDateString();
             let todayMarkerInserted = false;
             
             // Loop through dates and matches
             sortedDates.forEach(date => {
                 const currentDate = parseDate(date);
+                const isToday = currentDate.toDateString() === todayDateStr;
                 console.log('Checking date:', currentDate);
                 
                 // Insert the "Today" marker before the next upcoming date
-                if (currentDate.toDateString() > today.toDateString() && !todayMarkerInserted) {
+                if (currentDate > today && !todayMarkerInserted) {
                     console.log('Inserting today marker for date:', currentDate);
                     const todayMarker = document.createElement('div');
                     todayMarker.className = 'today-marker';
@@ -1730,18 +1732,18 @@
                 });
 
                 // Fallback: if today matches exist but nothing upcoming yet, insert here
-                if (isToday && !todayInserted) {
+                if (isToday && !todayMarkerInserted) {
                     const todayMarker = document.createElement('div');
                     todayMarker.className = 'today-marker';
                     todayMarker.innerHTML = '<span>Today</span>';
                     todayMarker.id = 'todayMarker';
                     matchContainer.appendChild(todayMarker);
-                    todayInserted = true;
+                    todayMarkerInserted = true;
                 }
             });
             
             // If all dates are in the past, add today marker at the end
-            if (!todayInserted) {
+            if (!todayMarkerInserted) {
                 const todayMarker = document.createElement('div');
                 todayMarker.className = 'today-marker';
                 todayMarker.innerHTML = '<span>Today</span>';
