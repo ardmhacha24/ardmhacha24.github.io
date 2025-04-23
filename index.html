@@ -1701,7 +1701,7 @@
                 const currentDate = parseDate(date);
                 console.log('Checking date:', currentDate);
                 
-                // Check if this is today's date
+                // Insert the "Today" marker before the next upcoming date
                 if (currentDate.toDateString() > today.toDateString() && !todayMarkerInserted) {
                     console.log('Inserting today marker for date:', currentDate);
                     const todayMarker = document.createElement('div');
