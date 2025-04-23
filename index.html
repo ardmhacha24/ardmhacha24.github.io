@@ -1347,6 +1347,30 @@
         .hidden {
             display: none;
         }
+
+        .scroll-to-today {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          width: 50px;
+          height: 50px;
+          background-color: var(--primary-color);
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+          cursor: pointer;
+          transition: opacity 0.3s ease;
+          opacity: 0;
+          visibility: hidden;
+          z-index: 1000;
+        }
+        .scroll-to-today.visible {
+          opacity: 1;
+          visibility: visible;
+        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1480,6 +1504,10 @@
         <p>Get notified about upcoming matches!</p>
         <button class="allow-btn">Allow Notifications</button>
         <button class="deny-btn">No Thanks</button>
+    </div>
+    
+    <div class="scroll-to-today" id="scrollToToday">
+      <i class="fas fa-arrow-up"></i>
     </div>
     
     <script>
@@ -2316,6 +2344,61 @@ END:VCALENDAR`;
             });
         }
         
+        /*
+        // Function to update team statistics in the sidebar
+        function updateTeamStats(teamName) {
+            console.log('!!!!!!!!!!Updating team stats for:', teamName);
+            const stats = {
+                total: 0,
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                upcoming: 0
+            };
+            
+            // Get all non-training matches for the selected team
+            const teamMatches = teamName === 'all' 
+                ? matches.filter(match => !match.isTraining)
+                : matches.filter(match => match.Team === teamName && !match.isTraining);
+            
+            console.log('!!!!!!!!!!Filtered matches for stats:', teamMatches);
+            
+            // Count each match only once
+            teamMatches.forEach(match => {
+                stats.total++;
+                
+                if (match.Result === 'WIN') {
+                    stats.wins++;
+                } else if (match.Result === 'LOSS') {
+                    stats.losses++;
+                } else if (match.Result === 'DRAW') {
+                    stats.draws++;
+                } else if (match.Result === '---' || !match.Result) {
+                    stats.upcoming++;
+                }
+            });
+            
+            console.log('!!!!!!!!!!Calculated stats:', stats);
+            
+            // Update sidebar stats
+            const totalCount = document.getElementById('sidebarTotalCount');
+            const winCount = document.getElementById('sidebarWinCount');
+            const lossCount = document.getElementById('sidebarLossCount');
+            const drawCount = document.getElementById('sidebarDrawCount');
+            const upcomingCount = document.getElementById('sidebarUpcomingCount');
+            
+            if (totalCount) totalCount.textContent = stats.total;
+            if (winCount) winCount.textContent = stats.wins;
+            if (lossCount) lossCount.textContent = stats.losses;
+            if (drawCount) drawCount.textContent = stats.draws;
+            if (upcomingCount) upcomingCount.textContent = stats.upcoming;
+            
+            // Update upcoming matches and training sessions
+            updateUpcomingMatches(teamName);
+            updateUpcomingTraining(teamName);
+        }
+        */
+
         // Add new function for upcoming training sessions
         function updateUpcomingTraining(teamName) {
             const teamMatches = teamName === 'all' 
@@ -2685,7 +2768,8 @@ END:VCALENDAR`;
                 //controls.classList.add('collapsed');
                 controls.classList.toggle('collapsed');
             } else {
-                controls.classList.remove('collapsed');
+                //controls.classList.remove('collapsed');
+                controls.classList.toggle('collapsed');
             }
             
             lastScrollTop = scrollTop;
@@ -3577,6 +3661,37 @@ END:VCALENDAR`;
             }
         `;
         document.head.appendChild(filterToggleStyle);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrollToTodayButton = document.getElementById('scrollToToday');
+            
+            // Use the matches container as reference point
+            function updateScrollButtonVisibility() {
+                const matchesContainer = document.getElementById('matchesContainer');
+                if (matchesContainer) {
+                    const containerTop = matchesContainer.offsetTop;
+                    const containerBottom = containerTop + matchesContainer.offsetHeight;
+                    
+                    if (window.scrollY > containerTop + 200) { // Add offset to show button after scrolling a bit
+                        scrollToTodayButton.classList.add('visible');
+                    } else {
+                        scrollToTodayButton.classList.remove('visible');
+                    }
+                }
+            }
+
+            window.addEventListener('scroll', updateScrollButtonVisibility);
+
+            scrollToTodayButton.addEventListener('click', function() {
+                const matchesContainer = document.getElementById('matchesContainer');
+                if (matchesContainer) {
+                    window.scrollTo({ 
+                        top: matchesContainer.offsetTop, 
+                        behavior: 'smooth' 
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>
