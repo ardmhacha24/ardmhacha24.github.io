@@ -1669,76 +1669,76 @@
                 noResults.className = 'no-results';
                 noResults.innerHTML = `
                     <p><b>LOADING......</b></p>
-                        <p>No matches found for the selected filters.</p>
-                        <p>Try changing your filter options.</p>
+                    <p>No matches found for the selected filters.</p>
+                    <p>Try changing your filter options.</p>
                 `;
                 fragment.appendChild(noResults);
             } else {
-            // Group matches by date
-            const groupedMatches = groupMatchesByDate(filteredMatches);
-            
-            // Sort dates chronologically
-            const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
-                const dateA = parseDate(a);
-                const dateB = parseDate(b);
-                return dateA - dateB;
-            });
+                // Group matches by date
+                const groupedMatches = groupMatchesByDate(filteredMatches);
                 
-            // Get today's date for comparison
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-                
-            // Loop through dates and matches
-            sortedDates.forEach(date => {
-                const currentDate = parseDate(date);
-                
-                // Insert today marker before today's date
-                if (currentDate.toDateString() === today.toDateString()) {
-            const todayMarker = document.createElement('div');
-            todayMarker.className = 'today-marker';
-            todayMarker.innerHTML = '<span>Today</span>';
-                    fragment.appendChild(todayMarker);
-                }
-            
-                const dateHeader = document.createElement('div');
-                dateHeader.className = 'date-header';
-                dateHeader.textContent = formatDate(date);
-                fragment.appendChild(dateHeader);
-                
-                // First display matches
-                groupedMatches[date].matches.forEach(match => {
-                    const matchCard = createMatchCard(match);
-                    fragment.appendChild(matchCard);
+                // Sort dates chronologically
+                const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
+                    const dateA = parseDate(a);
+                    const dateB = parseDate(b);
+                    return dateA - dateB;
                 });
                 
-                // Then display training events
-                groupedMatches[date].training.forEach(match => {
-                    const matchCard = createMatchCard(match);
-                    fragment.appendChild(matchCard);
+                // Get today's date for comparison
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                let todayMarkerInserted = false;
+                
+                // Loop through dates and matches
+                sortedDates.forEach(date => {
+                    const currentDate = parseDate(date);
+                    
+                    // Check if this is today's date
+                    if (currentDate.toDateString() === today.toDateString() && !todayMarkerInserted) {
+                        const todayMarker = document.createElement('div');
+                        todayMarker.className = 'today-marker';
+                        todayMarker.innerHTML = '<span>Today</span>';
+                        todayMarker.id = 'todayMarker';
+                        fragment.appendChild(todayMarker);
+                        todayMarkerInserted = true;
+                    }
+                    
+                    const dateHeader = document.createElement('div');
+                    dateHeader.className = 'date-header';
+                    dateHeader.textContent = formatDate(date);
+                    fragment.appendChild(dateHeader);
+                    
+                    // Display matches for this date
+                    groupedMatches[date].matches.forEach(match => {
+                        const matchCard = createMatchCard(match);
+                        fragment.appendChild(matchCard);
+                    });
+                    
+                    // Display training events for this date
+                    groupedMatches[date].training.forEach(match => {
+                        const matchCard = createMatchCard(match);
+                        fragment.appendChild(matchCard);
+                    });
                 });
-            });
             }
             
-            // Clear the container and append the fragment in one operation
+            // Clear the container and append the fragment
             matchContainer.innerHTML = '';
             matchContainer.appendChild(fragment);
             
-            // Scroll to today marker after a short delay to ensure DOM is updated
+            // Scroll to today marker after a brief delay to ensure DOM is updated
             setTimeout(() => {
-                const todayMarker = document.querySelector('.today-marker');
+                const todayMarker = document.getElementById('todayMarker');
                 if (todayMarker) {
+                    console.log('Scrolling to today marker');
                     todayMarker.scrollIntoView({ 
                         behavior: 'smooth', 
-                        block: 'center'
+                        block: 'center' 
                     });
+                } else {
+                    console.log('Today marker not found');
                 }
-            }, 100);
-            
-            // Make today marker visible
-            const todayMarker = document.querySelector('.today-marker');
-            if (todayMarker) {
-                todayMarker.style.display = 'block';
-            }
+            }, 300);
             
             console.log('Matches displayed:', filteredMatches.length);
         }
