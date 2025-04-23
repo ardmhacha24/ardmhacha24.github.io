@@ -3628,6 +3628,22 @@ END:VCALENDAR`;
                     controls.classList.add('collapsed');
                     toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i>';
                 }
+            });
+
+            // Click top-right chevron: Always show full controls
+            if (filterToggle) {
+                filterToggle.addEventListener('click', function () {
+                    controls.classList.remove('hidden');
+                    controls.classList.remove('collapsed');
+                    isManuallyCollapsed = false;
+
+                    const icon = filterToggle.querySelector('i');
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+
+                    toggleButton.innerHTML = '<i class="fas fa-chevron-up"></i>';
+                });
+            }
         });
             
         // CSS to make the filter toggle button sticky
