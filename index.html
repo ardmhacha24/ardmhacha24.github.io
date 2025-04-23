@@ -1660,71 +1660,64 @@
             console.log('Displaying matches...');
             const filteredMatches = filterMatches();
             const matchContainer = document.getElementById('matchContainer');
-            
-            // Create a document fragment to batch DOM operations
-            const fragment = document.createDocumentFragment();
+            matchContainer.innerHTML = '';
             
             if (filteredMatches.length === 0) {
-                const noResults = document.createElement('div');
-                noResults.className = 'no-results';
-                noResults.innerHTML = `
-                    <p><b>LOADING......</b></p>
-                    <p>No matches found for the selected filters.</p>
-                    <p>Try changing your filter options.</p>
+                matchContainer.innerHTML = `
+                    <div class="no-results">
+                        <p>No matches found for the selected filters.</p>
+                        <p>Try changing your filter options.</p>
+                    </div>
                 `;
-                fragment.appendChild(noResults);
-            } else {
-                // Group matches by date
-                const groupedMatches = groupMatchesByDate(filteredMatches);
-                
-                // Sort dates chronologically
-                const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
-                    const dateA = parseDate(a);
-                    const dateB = parseDate(b);
-                    return dateA - dateB;
-                });
-                
-                // Get today's date for comparison
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                let todayMarkerInserted = false;
-                
-                // Loop through dates and matches
-                sortedDates.forEach(date => {
-                    const currentDate = parseDate(date);
-                    
-                    // Check if this is today's date
-                    if (currentDate.toDateString() === today.toDateString() && !todayMarkerInserted) {
-                        const todayMarker = document.createElement('div');
-                        todayMarker.className = 'today-marker';
-                        todayMarker.innerHTML = '<span>Today</span>';
-                        todayMarker.id = 'todayMarker';
-                        fragment.appendChild(todayMarker);
-                        todayMarkerInserted = true;
-                    }
-                    
-                    const dateHeader = document.createElement('div');
-                    dateHeader.className = 'date-header';
-                    dateHeader.textContent = formatDate(date);
-                    fragment.appendChild(dateHeader);
-                    
-                    // Display matches for this date
-                    groupedMatches[date].matches.forEach(match => {
-                        const matchCard = createMatchCard(match);
-                        fragment.appendChild(matchCard);
-                    });
-                    
-                    // Display training events for this date
-                    groupedMatches[date].training.forEach(match => {
-                        const matchCard = createMatchCard(match);
-                        fragment.appendChild(matchCard);
-                    });
-                });
+                return;
             }
             
-            // Clear the container and append the fragment
-            matchContainer.innerHTML = '';
-            matchContainer.appendChild(fragment);
+            // Group matches by date
+            const groupedMatches = groupMatchesByDate(filteredMatches);
+            
+            // Sort dates chronologically
+            const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
+                const dateA = parseDate(a);
+                const dateB = parseDate(b);
+                return dateA - dateB;
+            });
+            
+            // Get today's date for comparison
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let todayMarkerInserted = false;
+            
+            // Loop through dates and matches
+            sortedDates.forEach(date => {
+                const currentDate = parseDate(date);
+                
+                // Check if this is today's date
+                if (currentDate.toDateString() === today.toDateString() && !todayMarkerInserted) {
+                    const todayMarker = document.createElement('div');
+                    todayMarker.className = 'today-marker';
+                    todayMarker.innerHTML = '<span>Today</span>';
+                    todayMarker.id = 'todayMarker';
+                    matchContainer.appendChild(todayMarker);
+                    todayMarkerInserted = true;
+                }
+                
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'date-header';
+                dateHeader.textContent = formatDate(date);
+                matchContainer.appendChild(dateHeader);
+                
+                // Display matches for this date
+                groupedMatches[date].matches.forEach(match => {
+                    const matchCard = createMatchCard(match);
+                    matchContainer.appendChild(matchCard);
+                });
+                
+                // Display training events for this date
+                groupedMatches[date].training.forEach(match => {
+                    const matchCard = createMatchCard(match);
+                    matchContainer.appendChild(matchCard);
+                });
+            });
             
             // Scroll to today marker after a brief delay to ensure DOM is updated
             setTimeout(() => {
