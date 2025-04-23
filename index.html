@@ -3664,6 +3664,25 @@ END:VCALENDAR`;
         if (dateFilter) {
             dateFilter.addEventListener('change', updateFilterAlert);
         }
+
+        // Add event listener to reset button
+        const resetSearchBtn = document.getElementById('resetSearch');
+        if (resetSearchBtn) {
+            resetSearchBtn.addEventListener('click', () => {
+                document.getElementById('searchInput').value = '';
+                updateFilterAlert();
+            });
+        }
+
+        const resetDateBtn = document.getElementById('resetDate');
+        if (resetDateBtn) {
+            resetDateBtn.addEventListener('click', () => {
+                if (dateFilter) {
+                    dateFilter.value = '';
+                }
+                updateFilterAlert();
+            });
+        }
     </script>
 </body>
 </html>
