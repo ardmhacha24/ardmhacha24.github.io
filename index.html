@@ -1794,8 +1794,13 @@
                 flatpickr("#dateRange", {
                     mode: "range",
                     dateFormat: "D M d Y",
-                    onChange: function(selectedDates) {
+                    onChange: function(selectedDates, dateStr, instance) {
+                        console.log('Date changed:', selectedDates);
                         displayMatches();
+                        updateFilterAlert();
+                    },
+                    onClose: function(selectedDates, dateStr, instance) {
+                        console.log('Date picker closed:', selectedDates);
                         updateFilterAlert();
                     }
                 });
@@ -3092,8 +3097,14 @@ END:VCALENDAR`;
                 flatpickr("#dateRange", {
                     mode: "range",
                     dateFormat: "D M d Y",
-                    onChange: function(selectedDates) {
+                    onChange: function(selectedDates, dateStr, instance) {
+                        console.log('Date changed:', selectedDates);
                         displayMatches();
+                        updateFilterAlert();
+                    },
+                    onClose: function(selectedDates, dateStr, instance) {
+                        console.log('Date picker closed:', selectedDates);
+                        updateFilterAlert();
                     }
                 });
                 
@@ -3511,8 +3522,14 @@ END:VCALENDAR`;
                 flatpickr("#dateRange", {
                     mode: "range",
                     dateFormat: "D M d Y",
-                    onChange: function(selectedDates) {
+                    onChange: function(selectedDates, dateStr, instance) {
+                        console.log('Date changed:', selectedDates);
                         displayMatches();
+                        updateFilterAlert();
+                    },
+                    onClose: function(selectedDates, dateStr, instance) {
+                        console.log('Date picker closed:', selectedDates);
+                        updateFilterAlert();
                     }
                 });
                 
@@ -3648,16 +3665,24 @@ END:VCALENDAR`;
 
         // Existing script
         function updateFilterAlert() {
+            console.log('Updating filter alert');
             const filterAlert = document.getElementById('filterAlert');
             const searchInput = document.getElementById('searchInput');
             const dateInput = document.getElementById('dateRange');
 
             const hasSearch = searchInput && searchInput.value.trim().length > 0;
-            const hasDate = dateInput && dateInput._flatpickr && dateInput._flatpickr.selectedDates.length > 0;
+            const hasDate = dateInput && dateInput._flatpickr && dateInput._flatpickr.selectedDates && dateInput._flatpickr.selectedDates.length > 0;
+
+            console.log('Has search:', hasSearch);
+            console.log('Has date:', hasDate);
+            console.log('Date input value:', dateInput ? dateInput.value : 'no date input');
+            console.log('Flatpickr dates:', dateInput && dateInput._flatpickr ? dateInput._flatpickr.selectedDates : 'no flatpickr');
 
             if (hasSearch || hasDate) {
+                console.log('Showing filter alert');
                 filterAlert.style.display = 'block';
             } else {
+                console.log('Hiding filter alert');
                 filterAlert.style.display = 'none';
             }
         }
