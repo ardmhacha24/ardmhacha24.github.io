@@ -2765,11 +2765,9 @@ END:VCALENDAR`;
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             
             if (scrollTop > controlsHeight) {
-                //controls.classList.add('collapsed');
-                controls.classList.toggle('collapsed');
+                controls.classList.add('collapsed');
             } else {
-                //controls.classList.remove('collapsed');
-                controls.classList.toggle('collapsed');
+                controls.classList.remove('collapsed');
             }
             
             lastScrollTop = scrollTop;
