@@ -1684,38 +1684,34 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
                 
-            // Create a container for today's date marker
-            const todayMarker = document.createElement('div');
-            todayMarker.className = 'today-marker';
-            todayMarker.innerHTML = '<span>Today</span>';
-                todayMarker.style.display = 'none';
-            
             // Loop through dates and matches
             sortedDates.forEach(date => {
+                const currentDate = parseDate(date);
+                
+                // Insert today marker before today's date
+                if (currentDate.toDateString() === today.toDateString()) {
+                    const todayMarker = document.createElement('div');
+                    todayMarker.className = 'today-marker';
+                    todayMarker.innerHTML = '<span>Today</span>';
+                    fragment.appendChild(todayMarker);
+                }
+
                 const dateHeader = document.createElement('div');
                 dateHeader.className = 'date-header';
                 dateHeader.textContent = formatDate(date);
-                    fragment.appendChild(dateHeader);
-                
+                fragment.appendChild(dateHeader);
+
                 // First display matches
                 groupedMatches[date].matches.forEach(match => {
                     const matchCard = createMatchCard(match);
-                        fragment.appendChild(matchCard);
+                    fragment.appendChild(matchCard);
                 });
-                
+
                 // Then display training events
                 groupedMatches[date].training.forEach(match => {
                     const matchCard = createMatchCard(match);
-                        fragment.appendChild(matchCard);
+                    fragment.appendChild(matchCard);
                 });
-                
-                // Insert today marker after the appropriate date
-                const currentDate = parseDate(date);
-                if (currentDate <= today && 
-                    (!sortedDates[sortedDates.indexOf(date) + 1] || 
-                     parseDate(sortedDates[sortedDates.indexOf(date) + 1]) > today)) {
-                        fragment.appendChild(todayMarker.cloneNode(true));
-                }
             });
             }
             
