@@ -2737,10 +2737,11 @@ END:VCALENDAR`;
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             
             if (scrollTop > controlsHeight) {
+                //controls.classList.add('collapsed');
                 controls.classList.toggle('collapsed');
-            } else {
-                controls.classList.remove('collapsed');
-            }
+            } //else {
+              //  controls.classList.remove('collapsed');
+            //}
             
             lastScrollTop = scrollTop;
         });
