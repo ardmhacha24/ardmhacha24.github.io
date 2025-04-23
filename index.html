@@ -3571,85 +3571,89 @@ END:VCALENDAR`;
         document.addEventListener('DOMContentLoaded', function() {
             const controls = document.querySelector('.controls');
             const filterToggle = document.getElementById('filterToggle');
+            let isManuallyToggled = false;
 
             if (!controls || !filterToggle) {
                 console.error('Controls section or filter toggle button not found.');
                 return;
             }
-    
+
             // Set initial state: hidden
             controls.classList.add('hidden');
-            let isManuallyCollapsed = false;
-
-            // Create and add internal toggle button
-            const toggleButton = document.createElement('button');
-            toggleButton.className = 'controls-toggle';
-            toggleButton.innerHTML = '<i class="fas fa-chevron-up"></i>';
-            controls.appendChild(toggleButton);
-
-            // Manual toggle of collapsed/expanded (only used when visible)
-            function toggleControlsManually() {
-                const isCollapsed = controls.classList.contains('collapsed');
-                controls.classList.toggle('collapsed');
-                isManuallyExpanded = !isCollapsed;
-
-                toggleButton.innerHTML = isCollapsed
-                    ? '<i class="fas fa-chevron-up"></i>'
-                    : '<i class="fas fa-chevron-down"></i>';
-            }
-
-            toggleButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleControlsManually();
-            });
 
             // Toggle visibility of controls from top chevron
-            filterToggle.addEventListener('click', function () {
+            filterToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                isManuallyToggled = true;
+                
                 const isHidden = controls.classList.contains('hidden');
-
                 if (isHidden) {
-                    // Show fully expanded
                     controls.classList.remove('hidden');
                     controls.classList.remove('collapsed');
-                    isManuallyExpanded = true;
-
                     const icon = filterToggle.querySelector('i');
                     icon.classList.remove('fa-chevron-up');
                     icon.classList.add('fa-chevron-down');
-
-                    toggleButton.innerHTML = '<i class="fas fa-chevron-up"></i>';
                 } else {
-                    // Hide completely
                     controls.classList.add('hidden');
                     controls.classList.remove('collapsed');
-                    isManuallyExpanded = false;
-
                     const icon = filterToggle.querySelector('i');
                     icon.classList.remove('fa-chevron-down');
                     icon.classList.add('fa-chevron-up');
                 }
             });
 
-            // Hide on scroll
+            // Prevent controls from closing when clicking inside
+            controls.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // Hide on scroll only if not manually toggled
+            let scrollTimeout;
             window.addEventListener('scroll', () => {
-                if (!controls.classList.contains('hidden')) {
-                    controls.classList.add('hidden');
-                    controls.classList.remove('collapsed');
-                    isManuallyExpanded = false;
+                if (!isManuallyToggled) {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        if (!controls.classList.contains('hidden')) {
+                            controls.classList.add('hidden');
+                            controls.classList.remove('collapsed');
+                            const icon = filterToggle.querySelector('i');
+                            icon.classList.remove('fa-chevron-down');
+                            icon.classList.add('fa-chevron-up');
+                        }
+                    }, 150); // Add a small delay to prevent immediate hiding
                 }
             });
 
-            // Hide on click outside
-            document.addEventListener('click', function (event) {
+            // Handle clicks outside
+            document.addEventListener('click', function(event) {
                 const isClickInsideControls = controls.contains(event.target);
                 const isClickOnToggle = filterToggle.contains(event.target);
+                const isClickOnDatePicker = event.target.closest('.flatpickr-calendar');
 
-                if (!isClickInsideControls && !isClickOnToggle) {
+                // Don't close if clicking inside controls, on toggle, or on date picker
+                if (!isClickInsideControls && !isClickOnToggle && !isClickOnDatePicker) {
                     controls.classList.add('hidden');
                     controls.classList.remove('collapsed');
-                    isManuallyExpanded = false;
+                    const icon = filterToggle.querySelector('i');
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                    isManuallyToggled = false;
                 }
+            });
+
+            // Reset manual toggle when controls are hidden
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.target.classList.contains('hidden')) {
+                        isManuallyToggled = false;
+                    }
+                });
+            });
+
+            observer.observe(controls, {
+                attributes: true,
+                attributeFilter: ['class']
             });
         });
             
