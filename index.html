@@ -733,11 +733,26 @@
         .metadata {
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
+            align-items: center;
             font-size: 0.85rem;
             color: var(--light-text);
+            text-align: center;
         }
         
+        .meta-top {
+            display: inline;
+            white-space: nowrap;
+        }
+
+        .meta-bottom {
+            margin-top: 2px;
+            font-style: italic;
+        }
+
+        .metadata strong {
+            font-weight: 600;
+        }
+
         .venue {
             font-weight: 500;
         }
@@ -1974,8 +1989,14 @@
             if (!value) return null;
             const span = document.createElement('span');
             span.className = className;
+
+
             if (label) {
-            span.textContent = `${label}: ${value}`;
+                const labelEl = document.createElement('strong');
+                labelEl.textContent = `${label}: `;
+                span.appendChild(labelEl);
+                span.append(` ${value}:`);  // value follows label in normal weight
+                //span.textContent = `${label}: ${value}`;
             } else {
                 span.textContent = `${value}` || '';
             }
@@ -2085,7 +2106,6 @@
             matchInfo.appendChild(sex);
             matchHeader.appendChild(matchHeaderMain);
             matchHeader.appendChild(matchInfo);
-            
             homeTeam.appendChild(homeTeamName);
             awayTeam.appendChild(awayTeamName);
             
