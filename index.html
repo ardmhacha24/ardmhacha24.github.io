@@ -697,6 +697,7 @@
         .match-card.training {
             border-left: 5px solid var(--shadow-leftbar-training);
             box-shadow: 0 1px 3px var(--shadow-training);
+            background-color: #f8f9fa;
         }
         
         .match-header {
@@ -2973,11 +2974,6 @@ END:VCALENDAR`;
         // Add styles for the enhanced training cards
         const style = document.createElement('style');
         style.textContent = `
-            .match-card.training {
-                border-left: 4px solid #4a90e2;
-                background-color: #f8f9fa;
-            }
-            
             .match-card.training .match-header {
                 display: flex;
                 justify-content: space-between;
