@@ -1974,7 +1974,11 @@
             if (!value) return null;
             const span = document.createElement('span');
             span.className = className;
+            if (label) {
             span.textContent = `${label}: ${value}`;
+            } else {
+                span.textContent = `${label}: ${value}`;
+            }
             return span;
         }
         
@@ -2060,7 +2064,7 @@
 
             // Add time if it exists
             if (match.Time) {
-                const time = createSpanIfValue('time', 'Time', match.Time);
+                const time = createSpanIfValue('time', '', match.Time);
                 metaTop.appendChild(time);
             }
             
