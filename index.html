@@ -1356,12 +1356,6 @@
             display: none;
         }
 
-        .referee {
-            font-style: italic;
-            color: var(--light-text);
-            font-size: 0.85rem;
-        }
-
         #scrollToTodayBtn {
             position: fixed;
             bottom: 20px;
@@ -2083,13 +2077,6 @@
             
             metadata.appendChild(venue);
             metadata.appendChild(time);
-
-            if (match.Referee) {
-                const referee = document.createElement('span');
-                referee.className = 'referee';
-                referee.textContent = `Ref: ${match.Referee}`;
-                metadata.appendChild(referee);
-            }
             
             if (match.Result && match.Result !== '---') {
                 const badge = document.createElement('span');
