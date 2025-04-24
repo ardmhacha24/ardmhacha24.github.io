@@ -1715,17 +1715,15 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             console.log('Today:', today);
-            const todayDateStr = today.toDateString();
             let todayMarkerInserted = false;
             
             // Loop through dates and matches
             sortedDates.forEach(date => {
                 const currentDate = parseDate(date);
-                const isToday = currentDate.toDateString() === todayDateStr;
                 console.log('Checking date:', currentDate);
                 
-                // Insert the "Today" marker before the next upcoming date
-                if (currentDate > today && !todayMarkerInserted) {
+                // Insert the today marker before today's matches
+                if (currentDate.toDateString() === today.toDateString() && !todayMarkerInserted) {
                     console.log('Inserting today marker for date:', currentDate);
                     const todayMarker = document.createElement('div');
                     todayMarker.className = 'today-marker';
@@ -1751,27 +1749,8 @@
                     const matchCard = createMatchCard(match);
                     matchContainer.appendChild(matchCard);
                 });
-
-                // Fallback: if today matches exist but nothing upcoming yet, insert here
-                if (isToday && !todayMarkerInserted) {
-                    const todayMarker = document.createElement('div');
-                    todayMarker.className = 'today-marker';
-                    todayMarker.innerHTML = '<span>Today</span>';
-                    todayMarker.id = 'todayMarker';
-                    matchContainer.appendChild(todayMarker);
-                    todayMarkerInserted = true;
-                }
             });
             
-            // If all dates are in the past, add today marker at the end
-            if (!todayMarkerInserted) {
-                const todayMarker = document.createElement('div');
-                todayMarker.className = 'today-marker';
-                todayMarker.innerHTML = '<span>Today</span>';
-                todayMarker.id = 'todayMarker';
-                matchContainer.appendChild(todayMarker);
-            }
-
             // Scroll to today marker after a brief delay to ensure DOM is updated
             setTimeout(() => {
                 const todayMarker = document.getElementById('todayMarker');
