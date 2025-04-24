@@ -1376,17 +1376,6 @@
         #scrollToTodayBtn:hover {
             background: #004d00; /* Optional hover effect */
         }
-
-        /* CSS for venue and referee */
-        .venue-referee {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0.5rem;
-        }
-        .venue, .referee {
-            font-size: 0.9rem;
-            color: var(--light-text);
-        }
     </style>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -2039,37 +2028,65 @@
             awayTeamName.className = 'team-name';
             awayTeamName.textContent = match['Away Team'] || '';
             
-            // New container for venue and referee
-            const venueRefereeContainer = document.createElement('div');
-            venueRefereeContainer.className = 'venue-referee';
+            const metadata = document.createElement('div');
+            metadata.className = 'metadata';
             
             const venue = document.createElement('span');
             venue.className = 'venue';
             venue.textContent = match.Venue || '';
             
-            const referee = document.createElement('span');
-            referee.className = 'referee';
-            referee.textContent = match.Referee || '';
+            const time = document.createElement('span');
+            time.className = 'time';
+            time.textContent = match.Time || '';
             
-            // Append elements
-            venueRefereeContainer.appendChild(venue);
-            venueRefereeContainer.appendChild(referee);
-            
+            // Assemble the elements
             matchHeaderMain.appendChild(teamCategory);
             matchHeaderMain.appendChild(competition);
-            matchHeader.appendChild(matchHeaderMain);
-            matchHeader.appendChild(matchInfo);
             matchInfo.appendChild(round);
             matchInfo.appendChild(sex);
+            matchHeader.appendChild(matchHeaderMain);
+            matchHeader.appendChild(matchInfo);
             
             homeTeam.appendChild(homeTeamName);
             awayTeam.appendChild(awayTeamName);
+            
+            // Add scores or vs text
+            if (match.Result && match.Result !== '---' && 
+                match['Home Score'] && match['Home Score'] !== '---' && 
+                match['Away Score'] && match['Away Score'] !== '---') {
+                const homeScore = document.createElement('span');
+                homeScore.className = 'score';
+                homeScore.textContent = match['Home Score'];
+                
+                const awayScore = document.createElement('span');
+                awayScore.className = 'score';
+                awayScore.textContent = match['Away Score'];
+                
+                scoreContainer.appendChild(homeScore);
+                scoreContainer.appendChild(awayScore);
+            } else {
+                const vs = document.createElement('span');
+                vs.className = 'vs';
+                vs.textContent = 'vs';
+                scoreContainer.appendChild(vs);
+            }
+            
             teams.appendChild(homeTeam);
             teams.appendChild(scoreContainer);
             teams.appendChild(awayTeam);
             
+            metadata.appendChild(venue);
+            metadata.appendChild(time);
+            
+            if (match.Result && match.Result !== '---') {
+                const badge = document.createElement('span');
+                badge.className = `badge ${match.Result.toLowerCase()}`;
+                badge.textContent = match.Result;
+                metadata.appendChild(badge);
+            }
+            
             matchContent.appendChild(teams);
-            matchContent.appendChild(venueRefereeContainer);
+            matchContent.appendChild(metadata);
             
             matchCard.appendChild(matchHeader);
             matchCard.appendChild(matchContent);
