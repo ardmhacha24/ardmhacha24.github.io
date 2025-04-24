@@ -1990,13 +1990,11 @@
             const span = document.createElement('span');
             span.className = className;
 
-
             if (label) {
                 const labelEl = document.createElement('strong');
                 labelEl.textContent = `${label}: `;
                 span.appendChild(labelEl);
-                span.append(` ${value}:`);  // value follows label in normal weight
-                //span.textContent = `${label}: ${value}`;
+                span.append(` ${value}`);
             } else {
                 span.textContent = `${value}` || '';
             }
