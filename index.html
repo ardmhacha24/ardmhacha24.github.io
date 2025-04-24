@@ -34,6 +34,12 @@
             --gogames-text: #5c4084;
             --training: #4a90e2;
             --training-text: #ffffff;
+            --shadow-win: rgba(40, 167, 69, 0.2);
+            --shadow-loss: rgba(220, 53, 69, 0.2);
+            --shadow-draw: rgba(255, 193, 7, 0.2);
+            --shadow-upcoming: rgba(108, 117, 125, 0.2);
+            --shadow-training: rgba(74, 144, 226, 0.25);
+            --shadow-gogames: rgba(92, 64, 130, 0.25);
         }
         
         * {
@@ -676,6 +682,10 @@
         .match-card.gogames {
             border-left: 5px solid purple;
         }
+
+        .match-card.training {
+            border-left: 5px solid #4285f4;
+        }
         
         .match-header {
             display: flex;
@@ -1278,16 +1288,6 @@
         .notification-prompt .deny-btn {
             background: var(--light-bg);
             color: var(--text);
-        }
-        
-        /* Add training event styles */
-        .match-card.training {
-            background-color: #f0f8ff;
-            border-left: 5px solid #4285f4;
-        }
-        
-        .match-card.training {
-            border-left: 4px solid #4a90e2;
         }
         
         .match-card.training .match-header {
