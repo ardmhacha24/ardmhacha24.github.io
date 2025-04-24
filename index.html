@@ -32,6 +32,8 @@
             --upcoming-text: #383d41;
             --gogames: #e8ddf3;
             --gogames-text: #5c4084;
+            --training: #4a90e2;
+            --training-text: #ffffff;
         }
         
         * {
@@ -1276,22 +1278,14 @@
         }
         
         .badge.training {
-            background-color: #4285f4;
-            color: white;
+            background-color: var(--training);
+            color: var(--training-text);
         }
 
         .match-card.training {
             border-left: 4px solid #4a90e2;
         }
         
-        .match-card.training .badge.training {
-            background-color: #4a90e2;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-        }
-
         .match-card.training .match-header {
             display: flex;
             justify-content: space-between;
