@@ -1996,7 +1996,8 @@
                 span.appendChild(labelEl);
                 span.append(`${value}`);
             } else {
-                span.textContent = `${value}` || '';
+                span.append(`${value}`)
+                //span.textContent = `${value}` || '';
             }
             return span;
         }
