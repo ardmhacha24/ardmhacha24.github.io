@@ -2000,7 +2000,7 @@
             matchCard.className = 'match-card';
             
             // Apply Go Games class if applicable
-            if (isGoGame(match)) {
+            if (isGoGame(match) && isPastMatch(match)) {
                 matchCard.classList.add('gogames');
             }
 
