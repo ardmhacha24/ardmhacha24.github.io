@@ -40,6 +40,12 @@
             --shadow-upcoming: rgba(108, 117, 125, 0.2);
             --shadow-training: rgba(74, 144, 226, 0.25);
             --shadow-gogames: rgba(92, 64, 130, 0.25);
+            --shadow-leftbar-win: green;
+            --shadow-leftbar-loss: red;
+            --shadow-leftbar-draw: orange;
+            --shadow-leftbar-upcoming: gray;
+            --shadow-leftbar-training: #4285f4;
+            --shadow-leftbar-gogames: purple;
         }
         
         * {
@@ -664,33 +670,33 @@
         }
         
         .match-card.win {
-            border-left: 5px solid green;
-            box-shadow: 0 1px 3px 0 var(--shadow-win)
+            border-left: 5px solid var(--shadow-leftbar-win)
+            box-shadow: 0 1px 3px var(--shadow-win)
         }
         
         .match-card.loss {
-            border-left: 5px solid red;
-            box-shadow: 0 1px 3px 0 var(--shadow-loss)
+            border-left: 5px solid var(--shadow-leftbar-loss)
+            box-shadow: 0 1px 3px var(--shadow-loss)
         }
         
         .match-card.draw {
-            border-left: 5px solid orange;
-            box-shadow: 0 1px 3px 0 var(--shadow-draw)
+            border-left: 5px solid var(--shadow-leftbar-draw)
+            box-shadow: 0 1px 3px var(--shadow-draw)
         }
         
         .match-card.upcoming {
-            border-left: 5px solid gray;
-            box-shadow: 0 1px 3px 0 var(--shadow-upcoming)
+            border-left: 5px solid var(--shadow-leftbar-upcoming)
+            box-shadow: 0 1px 3px var(--shadow-upcoming)
         }
 
         .match-card.gogames {
-            border-left: 5px solid purple;
-            box-shadow: 0 1px 3px 0 var(--shadow-gogames)
+            border-left: 5px solid var(--shadow-leftbar-gogames)
+            box-shadow: 0 1px 3px var(--shadow-gogames)
         }
 
         .match-card.training {
-            border-left: 5px solid #4285f4;
-            box-shadow: 0 1px 3px 0 var(--shadow-training)
+            border-left: 5px solid var(--shadow-leftbar-training)
+            box-shadow: 0 1px 3px var(--shadow-training)
         }
         
         .match-header {
