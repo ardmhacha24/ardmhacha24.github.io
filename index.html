@@ -1969,6 +1969,15 @@
             return months[monthStr];
         }
         
+        // Helper to create a <span> only if value exists : used in createMatchCard()
+        function createSpanIfValue(className, label, value) {
+            if (!value) return null;
+            const span = document.createElement('span');
+            span.className = className;
+            span.textContent = `${label}: ${value}`;
+            return span;
+        }
+        
         // Create a match card element
         function createMatchCard(match) {
             const matchCard = document.createElement('div');
@@ -2030,18 +2039,40 @@
             
             const metadata = document.createElement('div');
             metadata.className = 'metadata';
+            const metaTop = document.createElement('div');
+            metaTop.className = 'meta-top';
+            const metaBottom = document.createElement('div');
+            metaBottom.className = 'meta-bottom';
             
-            const venue = document.createElement('span');
-            venue.className = 'venue';
-            venue.textContent = match.Venue ? `Venue: ${match.Venue}` : '';
+            // Add venue if it exists
+            if (match.Venue) {
+                const venue = createSpanIfValue('venue', 'Venue', match.Venue);
+                metaTop.appendChild(venue);
+            }
 
-            const referee = document.createElement('span');
-            referee.className = 'referee';
-            referee.textContent = match.Referee ? `Ref: ${match.Referee}` : '';
+            // Add a separator ONLY if both venue AND referee exist
+            if (match.Venue && match.Referee) {
+                const separator = document.createElement('span');
+                separator.className = 'separator';
+                separator.textContent = ' | ';
+                metaTop.appendChild(separator);
+            }
 
-            const time = document.createElement('span');
-            time.className = 'time';
-            time.textContent = match.Time || '';
+            // Add referee if it exists
+            if (match.Referee) {
+                const referee = createSpanIfValue('referee', 'Referee', match.Referee);
+                metaTop.appendChild(referee);
+            }
+
+            // Add time if it exists
+            if (match.Time) {
+                const time = createSpanIfValue('time', 'Time', match.Time);
+                metaBottom.appendChild(time);
+            }
+
+            // Append to metadata
+            metadata.appendChild(metaTop);
+            metadata.appendChild(metaBottom);
 
             // Assemble the elements
             matchHeaderMain.appendChild(teamCategory);
@@ -2079,10 +2110,6 @@
             teams.appendChild(scoreContainer);
             teams.appendChild(awayTeam);
             
-            metadata.appendChild(venue);
-            metadata.appendChild(referee);
-            metadata.appendChild(time);
-            
             if (match.Result && match.Result !== '---') {
                 const badge = document.createElement('span');
                 badge.className = `badge ${match.Result.toLowerCase()}`;
@@ -2092,7 +2119,6 @@
             
             matchContent.appendChild(teams);
             matchContent.appendChild(metadata);
-            
             matchCard.appendChild(matchHeader);
             matchCard.appendChild(matchContent);
             
