@@ -23,9 +23,15 @@
             --light-text: #666;
             --border: #ddd;
             --win: #d4edda;
+            --win-text: #155724;
             --loss: #f8d7da;
+            --loss-text: #721c24;
             --draw: #fff3cd;
+            --draw-text: #856404;
             --upcoming: #e2e3e5;
+            --upcoming-text: #383d41;
+            --gogames: #e8ddf3;
+            --gogames-text: #5c4084;
         }
         
         * {
@@ -764,34 +770,27 @@
         
         .badge.win {
             background-color: var(--win);
-            color: #155724;
+            color: var(--win-text);
         }
         
         .badge.loss {
             background-color: var(--loss);
-            color: #721c24;
+            color: var(--loss-text);
         }
         
         .badge.draw {
             background-color: var(--draw);
-            color: #856404;
+            color: var(--draw-text);
         }
         
         .badge.upcoming {
             background-color: var(--upcoming);
-            color: #383d41;
+            color: var(--upcoming-text);
         }
 
         .badge.gogames {
-            background-color: #d6eaff; /* Soft blue */
-            color: #004080;            /* Deep blue text */
-            border: 1px solid #b3d8ff;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            background-color: var(--gogames); /* Soft blue */
+            color: var(--gogames-text);            /* Deep blue text */
         }
         
         .no-results {
