@@ -1999,7 +1999,12 @@
             const matchCard = document.createElement('div');
             matchCard.className = 'match-card';
             
-            // Add result class if available
+            // Apply Go Games class if applicable
+            if (isGoGame(match)) {
+                matchCard.classList.add('gogames');
+            }
+
+            // Apply result class or fallback to upcoming for future matches
             if (match.Result && match.Result !== '---') {
                 matchCard.classList.add(match.Result.toLowerCase());
             } else {
