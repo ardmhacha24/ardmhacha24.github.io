@@ -1977,7 +1977,7 @@
             if (label) {
             span.textContent = `${label}: ${value}`;
             } else {
-                span.textContent = `${label}: ${value}`;
+                span.textContent = `${value}` || '';
             }
             return span;
         }
