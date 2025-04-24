@@ -2103,13 +2103,15 @@
             teams.appendChild(scoreContainer);
             teams.appendChild(awayTeam);
             
-
+            const badge = document.createElement('span');
             if (match.Result && match.Result !== '---') {
-                const badge = document.createElement('span');
                 badge.className = `badge ${match.Result.toLowerCase()}`;
                 badge.textContent = match.Result;
-                metadata.appendChild(badge);
+            } else {
+                badge.className = 'badge upcoming';
+                badge.textContent = 'UPCOMING';
             }
+            metadata.appendChild(badge);
             
             matchContent.appendChild(teams);
             matchContent.appendChild(metadata);
