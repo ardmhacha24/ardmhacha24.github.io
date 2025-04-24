@@ -781,6 +781,18 @@
             background-color: var(--upcoming);
             color: #383d41;
         }
+
+        .badge.gogames {
+            background-color: #d6eaff; /* Soft blue */
+            color: #004080;            /* Deep blue text */
+            border: 1px solid #b3d8ff;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
         
         .no-results {
             background-color: white;
@@ -1971,6 +1983,19 @@
             }
             return span;
         }
+
+        // Helper to detect Go Games and apply needed filtering
+        function isGoGame(match) {
+            return match.Competition && /go[- ]?games/i.test(match.Competition);
+        }
+        
+        // Helper to if match is in the past (aka should have happened)
+        function isPastMatch(match) {
+            const matchDate = parseDate(match.Date);
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            return matchDate < now;
+        }
         
         // Create a match card element
         function createMatchCard(match) {
@@ -2059,7 +2084,7 @@
             }
             
             // Add referee if it exists
-            if (match.Referee) {
+            if (match.Referee && !isGoGame(match)) {
                 const referee = createSpanIfValue('referee', 'Referee', match.Referee);
                 metaBottom.appendChild(referee);
             }
@@ -2103,15 +2128,31 @@
             teams.appendChild(scoreContainer);
             teams.appendChild(awayTeam);
             
+            // Badge Logic
             const badge = document.createElement('span');
-            if (match.Result && match.Result !== '---') {
-                badge.className = `badge ${match.Result.toLowerCase()}`;
-                badge.textContent = match.Result;
+            if (isGoGame(match)) {
+                if (isPastMatch(match)) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge gogames';
+                    badge.textContent = 'Go-Games';
+                    metadata.appendChild(badge);
+                } else {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge upcoming';
+                    badge.textContent = 'UPCOMING';
+                    metadata.appendChild(badge);
+                }
             } else {
-                badge.className = 'badge upcoming';
-                badge.textContent = 'UPCOMING';
+                const badge = document.createElement('span');
+                if (match.Result && match.Result !== '---') {
+                    badge.className = `badge ${match.Result.toLowerCase()}`;
+                    badge.textContent = match.Result;
+                } else {
+                    badge.className = 'badge upcoming';
+                    badge.textContent = 'UPCOMING';
+                }
+                metadata.appendChild(badge);
             }
-            metadata.appendChild(badge);
             
             matchContent.appendChild(teams);
             matchContent.appendChild(metadata);
