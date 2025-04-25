@@ -3178,10 +3178,13 @@ END:VCALENDAR`;
                 
                 // Populate team filter and initialize stats
                 populateSidebarTeamFilter();
+<<<<<<< HEAD
 
                 //buildTeamTagMap(matches);
                 //populateTeamDropdown();
                 //§updateTeamStats('');
+=======
+>>>>>>> parent of 4aa32ac (testing logic for left bar)
                 
                 // Display initial matches
                 displayMatches();
@@ -3367,7 +3370,17 @@ END:VCALENDAR`;
         }
 
         function updateTeamStats(teamName) {
-            console.log('Updating team stats for:', teamName);
+            console.log('******Updating team stats for:', teamName);
+            
+            console.log('First 30 matches in dataset:', matches.slice(0, 30).map(m => ({
+                Date: m.Date,
+                Team: m.Team,
+                Competition: m.Competition,
+                'Home Team': m['Home Team'],
+                'Away Team': m['Away Team'],
+                isTraining: m.isTraining,
+                Result: m.Result
+            })));
             
             const stats = {
                 total: 0,
@@ -3382,7 +3395,7 @@ END:VCALENDAR`;
                 ? matches.filter(match => !match.isTraining)
                 : matches.filter(match => match.Team === teamName && !match.isTraining);
             
-            console.log('Filtered matches for stats:', teamMatches);
+            console.log('******Filtered matches for stats:', teamMatches);
             
             // Count each match only once
             teamMatches.forEach(match => {
@@ -3399,7 +3412,7 @@ END:VCALENDAR`;
                 }
             });
             
-            console.log('Calculated stats:', stats);
+            console.log('********Calculated stats:', stats);
             
             // Update sidebar stats
             const totalCount = document.getElementById('sidebarTotalCount');
@@ -3418,82 +3431,6 @@ END:VCALENDAR`;
             updateUpcomingMatches(teamName);
             updateUpcomingTraining(teamName);
         }
-
-
-        // TESTING UPDATE ON TEAM LEFT SIDEBAR //
-        // === Team Normalization & Dropdown Logic ===
-
-
-        function normalizeTeamName(teamName) {
-            if (!teamName) return '';
-            return teamName
-                .replace(/^@[^-]+-\s*/, '')              // Remove venue prefix like "@MAGHERY - "
-                .replace(/\(\*{1,2}.*?\*{1,2}\)/g, '')   // Remove patterns like "(** Main Pitch **)"
-                .replace(/\s+/g, ' ')                   // Normalize spacing
-                .trim();                                // Remove leading/trailing spaces
-        }
-
-        const teamTagMap = {};
-        const reverseTeamLookup = {};
-
-        function buildTeamTagMap(matches) {
-            matches.forEach(match => {
-                const rawName = match.Team;
-                const normalized = normalizeTeamName(rawName);
-
-                if (!teamTagMap[normalized]) teamTagMap[normalized] = new Set();
-                teamTagMap[normalized].add(rawName);
-                reverseTeamLookup[rawName] = normalized;
-            });
-
-            // Convert Sets to Arrays for consistency
-            for (const key in teamTagMap) {
-                teamTagMap[key] = Array.from(teamTagMap[key]);
-            }
-        }
-
-        function populateTeamDropdown() {
-            const teamSelect = document.getElementById('teamSelect');
-            teamSelect.innerHTML = '';
-
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = 'All Teams';
-            teamSelect.appendChild(defaultOption);
-
-            Object.keys(teamTagMap).sort().forEach(team => {
-                const option = document.createElement('option');
-                option.value = team;
-                option.textContent = team;
-                teamSelect.appendChild(option);
-            });
-        }
-
-        function updateTeamStats(selectedTeam) {
-            const stats = { wins: 0, losses: 0, draws: 0, upcoming: 0 };
-
-            matches.forEach(match => {
-                if (!match.Team || match.isTraining) return;
-
-                const normalized = reverseTeamLookup[match.Team] || match.Team;
-                if (selectedTeam && normalized !== selectedTeam) return;
-
-                if (match.Result === 'WIN') stats.wins++;
-                else if (match.Result === 'LOSS') stats.losses++;
-                else if (match.Result === 'DRAW') stats.draws++;
-                else stats.upcoming++;
-            });
-
-            document.getElementById('sidebarWinCount').textContent = stats.wins;
-            document.getElementById('sidebarLossCount').textContent = stats.losses;
-            document.getElementById('sidebarDrawCount').textContent = stats.draws;
-            document.getElementById('sidebarUpcomingCount').textContent = stats.upcoming;
-        }
-
-
-        // TESTING UPDATE ON TEAM LEFT SIDEBAR //
-
-
 
         function populateSidebarTeamFilter() {
             console.log('Populating sidebar team filter');
@@ -3888,3 +3825,5 @@ END:VCALENDAR`;
     </script>
 </body>
 </html>
+
+
