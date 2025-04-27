@@ -3636,7 +3636,7 @@ END:VCALENDAR`;
                     });
             });
         }
-
+ 
         // Update initializeUI to not reinitialize if already done
         let uiInitialized = false;
 
@@ -3788,7 +3788,23 @@ END:VCALENDAR`;
         `;
         document.head.appendChild(filterToggleStyle);
 
-        // Existing script
+        function expandControlsIfHidden() {
+            const controls = document.querySelector('.controls');
+            const filterToggle = document.getElementById('filterToggle');
+
+            if (controls && controls.classList.contains('hidden')) {
+                console.log('Expanding controls due to filter alert click');
+                controls.classList.remove('hidden');
+                controls.classList.remove('collapsed');
+                
+                const icon = filterToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            }
+        }
+    
         function updateFilterAlert() {
             console.log('Updating filter alert');
             const filterAlert = document.getElementById('filterAlert');
