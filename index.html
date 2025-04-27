@@ -3873,6 +3873,17 @@ END:VCALENDAR`;
                 dateInput._flatpickr.clear();
             }
             
+            // Reset toggles to ON for both matches and training
+            const showMatchesToggle = document.getElementById('showMatches');
+            if (showMatchesToggle) {
+                showMatchesToggle.checked = true;
+            }
+
+            const showTrainingToggle = document.getElementById('showTraining');
+            if (showTrainingToggle) {
+                showTrainingToggle.checked = true;
+            }
+
             // Clear localStorage saved filter state
             localStorage.removeItem('mainFilterState');
 
