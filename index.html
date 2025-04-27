@@ -1722,8 +1722,8 @@
         function saveFilterState() {
             const searchInput = document.getElementById('searchInput').value.trim();
             const dateFilter = document.getElementById('dateRange').value.trim();
-            const matchesToggle = document.getElementById('matchesToggle').checked;
-            const trainingToggle = document.getElementById('trainingToggle').checked;
+            const matchesToggle = document.getElementById('showMatches').checked;
+            const trainingToggle = document.getElementById('showTraining').checked;
 
             const filterState = {
                 searchInput,
@@ -1748,10 +1748,10 @@
                 document.getElementById('dateFilter').value = dateFilter;
             }
             if (matchesToggle !== undefined) {
-                document.getElementById('matchesToggle').checked = matchesToggle;
+                document.getElementById('showMatches').checked = matchesToggle;
             }
             if (trainingToggle !== undefined) {
-                document.getElementById('trainingToggle').checked = trainingToggle;
+                document.getElementById('showTraining').checked = trainingToggle;
             }
 
             // After restoring filters, re-apply
@@ -2054,6 +2054,7 @@
                     dateFormat: "D M d Y",
                     onChange: function(selectedDates, dateStr, instance) {
                         console.log('Date changed:', selectedDates);
+                        saveFilterState();
                         displayMatches();
                         updateFilterAlert();
                     },
