@@ -1789,14 +1789,17 @@
             if (searchInput !== undefined) {
                 document.getElementById('searchInput').value = searchInput;
             }
-            if (dateFilter !== undefined) {
-                document.getElementById('dateRange').value = dateFilter;
-            }
             if (matchesToggle !== undefined) {
                 document.getElementById('showMatches').checked = matchesToggle;
             }
             if (trainingToggle !== undefined) {
                 document.getElementById('showTraining').checked = trainingToggle;
+            }
+
+            const dateInput = document.getElementById('dateRange');
+            if (dateInput && dateInput._flatpickr && dateFilter) {
+                const dates = dateFilter.split(' to ').map(dateStr => parseDate(dateStr));
+                dateInput._flatpickr.setDate(dates);
             }
 
             // Refresh the match display to match restored filters
@@ -1994,7 +1997,6 @@
                 
                 // Insert the today marker before today's matches
                 if (!todayMarkerInserted && currentDate >= today) {
-                //if (currentDate.toDateString() === today.toDateString() && !todayMarkerInserted) {
                     console.log('Inserting today marker for date:', currentDate);
                     const todayMarker = document.createElement('div');
                     todayMarker.className = 'today-marker';
@@ -2034,7 +2036,7 @@
             }
             
             // Scroll to today marker after a brief delay to ensure DOM is updated
-            setTimeout(() => {
+            requestAnimationFrame(() => {
                 const todayMarker = document.getElementById('todayMarker');
                 if (todayMarker) {
                     console.log('Scrolling to today marker');
@@ -2045,7 +2047,7 @@
                 } else {
                     console.log('Today marker not found');
                 }
-            }, 300);
+            });
             
             console.log('Matches displayed:', filteredMatches.length);
         }
@@ -2087,7 +2089,6 @@
                 // Initialize UI after data is loaded
                 console.log('Initializing UI...');
                 initializeUI();
-                restoreFilterState();
                 
                 document.getElementById('searchInput').addEventListener('input', saveFilterState);
                 document.getElementById('dateRange').addEventListener('change', saveFilterState);
@@ -3667,7 +3668,7 @@ END:VCALENDAR`;
                 // Initialize sidebar
                 initSidebarToggle();
                 
-                // Add toggle event listeners
+                /*// Add toggle event listeners
                 const showMatchesToggle = document.getElementById('showMatches');
                 const showTrainingToggle = document.getElementById('showTraining');
                 
@@ -3681,15 +3682,14 @@ END:VCALENDAR`;
                         console.log('Training toggle changed:', showTrainingToggle.checked);
                         displayMatches();
                     });
-                }
+                }*/
                 
                 // Populate team filter and initialize stats
                 populateSidebarTeamFilter();
                 // Restore filters (search text, date, toggles)
                 restoreFilterState();
                 // Display initial matches
-                displayMatches();
-
+                //displayMatches();
                 //add today button
                 initScrollToTodayButton();  
                 
