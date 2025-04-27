@@ -2751,6 +2751,7 @@ END:VCALENDAR`;
                 matchElement.className = 'upcoming-match';
                 matchElement.innerHTML = `
                     <div class="upcoming-match-date">${formatDate(match.Date)}</div>
+                    ${teamName === 'all' ? `<div class="upcoming-match-teamname">${match.NormalizedTeam || match.Team}</div>` : ''}
                     <div class="upcoming-match-teams">${match['Home Team']} vs ${match['Away Team']}</div>
                     <div class="upcoming-match-venue">${match.Venue} - ${match.Time}</div>
                 `;
