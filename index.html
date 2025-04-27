@@ -1799,8 +1799,6 @@
                 document.getElementById('showTraining').checked = trainingToggle;
             }
 
-            // After restoring filters, re-apply
-            applyFilters();
             // Refresh the match display to match restored filters
             displayMatches();
             // Spinner after quick refresh for user experience
@@ -3759,8 +3757,6 @@ END:VCALENDAR`;
                 populateSidebarTeamFilter();
                 // Restore filters (search text, date, toggles)
                 restoreFilterState();
-                // Apply the restored filter criteria
-                applyFilters(); 
                 // Display initial matches
                 displayMatches();
 
