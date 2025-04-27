@@ -1745,7 +1745,7 @@
                 document.getElementById('searchInput').value = searchInput;
             }
             if (dateFilter !== undefined) {
-                document.getElementById('dateFilter').value = dateFilter;
+                document.getElementById('dateRange').value = dateFilter;
             }
             if (matchesToggle !== undefined) {
                 document.getElementById('showMatches').checked = matchesToggle;
@@ -1756,10 +1756,13 @@
 
             // After restoring filters, re-apply
             applyFilters();
+            // Refresh the match display to match restored filters
+            displayMatches();
+            // Spinner after quick refresh for user experience
+            setTimeout(() => {
+                document.body.classList.remove('loading'); // Remove spinner after quick refresh
+            }, 300); // 0.3s spinner during restoration
         }
-
-
-
 
         // Function to format date in a more readable format
         function formatDate(dateStr) {
