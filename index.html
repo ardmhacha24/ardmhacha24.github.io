@@ -2064,6 +2064,7 @@
                 // Initialize UI after data is loaded
                 console.log('Initializing UI...');
                 initializeUI();
+                restoreFilterState();
                 
                 document.getElementById('searchInput').addEventListener('input', saveFilterState);
                 document.getElementById('dateRange').addEventListener('change', saveFilterState);
@@ -2088,47 +2089,7 @@
             }
             console.log('=== init END ===');
         }
-        
-        /*
-        // Separate UI initialization
-        function initializeUI() {
-            try {
-                console.log('Initializing UI...');
                 
-                // Initialize date picker
-                flatpickr("#dateRange", {
-                    mode: "range",
-                    dateFormat: "D M d Y",
-                    onChange: function(selectedDates, dateStr, instance) {
-                        console.log('Date changed:', selectedDates);
-                        saveFilterState();
-                        displayMatches();
-                        updateFilterAlert();
-                    },
-                    onClose: function(selectedDates, dateStr, instance) {
-                        console.log('Date picker closed:', selectedDates);
-                        updateFilterAlert();
-                    }
-                });
-                
-                // Initialize sidebar
-                initSidebarToggle();
-                
-                // Display initial matches
-                displayMatches();
-
-                populateSidebarTeamFilter();
-                restoreFilterState();
-                displayMatches();
-                
-                console.log('UI initialization complete');
-            } catch (error) {
-                console.error('Error initializing UI:', error);
-                throw error;
-            }
-        }
-        */
-        
         // Debounce function to limit search input processing
         function debounce(func, wait) {
             let timeout;
@@ -3377,60 +3338,6 @@ END:VCALENDAR`;
                 console.error('Error in fetchTrainingEvents:', error);
             }
         }
-
-        /*
-        // Separate UI initialization
-        function initializeUI() {
-            try {
-                console.log('Initializing UI...');
-                
-                // Initialize date picker
-                flatpickr("#dateRange", {
-                    mode: "range",
-                    dateFormat: "D M d Y",
-                    onChange: function(selectedDates, dateStr, instance) {
-                        console.log('Date changed:', selectedDates);
-                        displayMatches();
-                        updateFilterAlert();
-                    },
-                    onClose: function(selectedDates, dateStr, instance) {
-                        console.log('Date picker closed:', selectedDates);
-                        updateFilterAlert();
-                    }
-                });
-                
-                // Initialize sidebar
-                initSidebarToggle();
-                
-                // Add toggle event listeners
-                const showMatchesToggle = document.getElementById('showMatches');
-                const showTrainingToggle = document.getElementById('showTraining');
-                
-                if (showMatchesToggle && showTrainingToggle) {
-                    showMatchesToggle.addEventListener('change', () => {
-                        console.log('Matches toggle changed:', showMatchesToggle.checked);
-                        displayMatches();
-                    });
-                    
-                    showTrainingToggle.addEventListener('change', () => {
-                        console.log('Training toggle changed:', showTrainingToggle.checked);
-                        displayMatches();
-                    });
-                }
-                
-                // Populate team filter and initialize stats
-                populateSidebarTeamFilter();
-                
-                // Display initial matches
-                displayMatches();
-                
-                console.log('UI initialization complete');
-            } catch (error) {
-                console.error('Error initializing UI:', error);
-                throw error;
-            }
-        }
-        */
 
         // Remove any other DOMContentLoaded listeners and use just this one
         document.addEventListener('DOMContentLoaded', () => {
