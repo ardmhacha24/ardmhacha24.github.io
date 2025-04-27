@@ -3667,29 +3667,10 @@ END:VCALENDAR`;
                 
                 // Initialize sidebar
                 initSidebarToggle();
-                
-                /*// Add toggle event listeners
-                const showMatchesToggle = document.getElementById('showMatches');
-                const showTrainingToggle = document.getElementById('showTraining');
-                
-                if (showMatchesToggle && showTrainingToggle) {
-                    showMatchesToggle.addEventListener('change', () => {
-                        console.log('Matches toggle changed:', showMatchesToggle.checked);
-                        displayMatches();
-                    });
-                    
-                    showTrainingToggle.addEventListener('change', () => {
-                        console.log('Training toggle changed:', showTrainingToggle.checked);
-                        displayMatches();
-                    });
-                }*/
-                
                 // Populate team filter and initialize stats
                 populateSidebarTeamFilter();
                 // Restore filters (search text, date, toggles)
                 restoreFilterState();
-                // Display initial matches
-                //displayMatches();
                 //add today button
                 initScrollToTodayButton();  
                 
