@@ -3804,6 +3804,12 @@ END:VCALENDAR`;
                 }
             }
         }
+
+        // Add this missing block after defining expandControlsIfHidden()
+        const filterAlert = document.getElementById('filterAlert');
+        if (filterAlert) {
+            filterAlert.addEventListener('click', expandControlsIfHidden);
+        }
     
         function updateFilterAlert() {
             console.log('Updating filter alert');
