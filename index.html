@@ -3484,60 +3484,6 @@ END:VCALENDAR`;
             }
         }
 
-       /*
-       // Sidebar and Team Stats Management
-        function initSidebarToggle() {
-            const sidebar = document.querySelector('.sidebar');
-            const hamburgerMenu = document.querySelector('.hamburger-menu');
-            const overlay = document.querySelector('.sidebar-overlay');
-            
-            if (!sidebar || !hamburgerMenu || !overlay) {
-                console.error('Required sidebar elements not found');
-                return;
-            }
-            
-            // Initialize sidebar state
-            const isMobile = window.innerWidth <= 992;
-            if (isMobile) {
-                sidebar.classList.add('collapsed');
-                hamburgerMenu.classList.add('active');
-            }
-            
-            // Hamburger menu click handler
-            hamburgerMenu.addEventListener('click', () => {
-                console.log('Hamburger menu clicked');
-                sidebar.classList.toggle('collapsed');
-                hamburgerMenu.classList.toggle('active');
-                overlay.classList.toggle('active');
-                document.body.classList.toggle('sidebar-open');
-            });
-            
-            // Overlay click handler
-            overlay.addEventListener('click', () => {
-                console.log('Overlay clicked');
-                sidebar.classList.add('collapsed');
-                hamburgerMenu.classList.remove('active');
-                overlay.classList.remove('active');
-                document.body.classList.remove('sidebar-open');
-
-            });
-            
-            // Window resize handler
-            window.addEventListener('resize', () => {
-                const isMobile = window.innerWidth <= 992;
-                if (isMobile) {
-                    sidebar.classList.add('collapsed');
-                    hamburgerMenu.classList.add('active');
-                } else {
-                    sidebar.classList.remove('collapsed');
-                    hamburgerMenu.classList.remove('active');
-                    overlay.classList.remove('active');
-                    document.body.classList.remove('sidebar-open');
-                }
-            });
-        }
-        */
-
         function updateTeamStats(teamName) {
             console.log('******Updating team stats for:', teamName);
             
