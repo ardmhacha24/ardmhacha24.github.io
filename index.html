@@ -3250,7 +3250,7 @@ END:VCALENDAR`;
             }
         }
 
-        // Initialize the application
+    /*    // Initialize the application
         async function init() {
             console.log('=== init START ===');
             try {
@@ -3300,7 +3300,7 @@ END:VCALENDAR`;
             }
             console.log('=== init END ===');
         }
-
+    */
         // Separate UI initialization
         function initializeUI() {
             try {
@@ -3646,6 +3646,7 @@ END:VCALENDAR`;
         // Remove any other DOMContentLoaded listeners and use just this one
         let initializationInProgress = false;
 
+    /*
         async function init() {
             // Prevent multiple initializations
             if (initializationInProgress) {
@@ -3696,6 +3697,7 @@ END:VCALENDAR`;
                 console.log('=== init END ===');
             }
         }
+    */
 
         // Clean up multiple event listeners
         document.removeEventListener('DOMContentLoaded', init);
