@@ -1801,10 +1801,21 @@
 
             // Refresh the match display to match restored filters
             displayMatches();
+            // Explicitly update the filter banner
+            updateFilterAlert();
+            
+            // Small delay to ensure DOM fully updated
+            setTimeout(() => {
+                const todayMarker = document.getElementById('todayMarker');
+                if (todayMarker) {
+                    todayMarker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 400);  // 0.4 seconds, safe DOM ready
+            
             // Spinner after quick refresh for user experience
             setTimeout(() => {
                 document.getElementById('loadingOverlay').classList.add('hidden');
-            }, 500); // 0.5s spinner during restoration
+            }, 1000); // 1s spinner during restoration
         }
 
         // Function to format date in a more readable format
