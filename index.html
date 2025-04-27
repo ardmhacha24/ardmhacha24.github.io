@@ -2618,7 +2618,7 @@ END:VCALENDAR`;
                  .filter(match => {
                     if (!match.isTraining) return false;
 
-                    // ✅ Check training date is today or future
+                    // Check training date is today or future
                     const matchDate = parseDate(match.Date);
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
@@ -2642,14 +2642,15 @@ END:VCALENDAR`;
                 upcomingTrainingList.innerHTML = '<p>No upcoming training sessions</p>';
                 return;
              }
+            
 
+            // <div class="upcoming-match-teams">${session.NormalizedTeam} Training</div>
             upcomingTraining.forEach(session => {
                 const sessionElement = document.createElement('div');
                 sessionElement.className = 'upcoming-match';
                 sessionElement.innerHTML = `
                     <div class="upcoming-match-date">${formatDate(session.Date)}</div>
                     <div class="upcoming-match-teams">${session.Team} Training</div>
-                    <div class="upcoming-match-teams">${session.NormalizedTeam} Training</div>
                     <div class="upcoming-match-venue">${session.Venue} - ${session.Time}</div>
                 `;
                 upcomingTrainingList.appendChild(sessionElement);
