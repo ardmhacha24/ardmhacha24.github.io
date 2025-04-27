@@ -3250,57 +3250,6 @@ END:VCALENDAR`;
             }
         }
 
-    /*    // Initialize the application
-        async function init() {
-            console.log('=== init START ===');
-            try {
-                // Initialize empty matches array
-                matches = [];
-                console.log('Initialized empty matches array');
-                
-                // Wait for DOM to be fully loaded
-                if (document.readyState === 'loading') {
-                    console.log('DOM not fully loaded, waiting...');
-                    await new Promise(resolve => {
-                        document.addEventListener('DOMContentLoaded', resolve);
-                    });
-                    console.log('DOM fully loaded');
-                }
-                
-                // Fetch matches from worker
-                console.log('Starting to fetch matches from worker...');
-                const workerMatches = await fetchMatchesFromWorker();
-                console.log('Worker matches fetched:', workerMatches.length);
-                matches = workerMatches; // Replace instead of concat
-                
-                // Fetch training events
-                console.log('Starting to fetch training events...');
-                await fetchTrainingEvents();
-                console.log('Training events fetched, total matches now:', matches.length);
-                
-                // Initialize UI after data is loaded
-                console.log('Initializing UI...');
-                initializeUI();
-                
-                // Initialize search functionality
-                console.log('Initializing search functionality...');
-                initSearchAutocomplete();
-                
-                console.log('Initialization complete. Final match count:', matches.length);
-                
-            } catch (error) {
-                console.error('Error in init:', error);
-                console.error('Error stack:', error.stack);
-                document.getElementById('matchContainer').innerHTML = `
-                    <div class="no-results">
-                        <p>Error loading matches. Please try refreshing the page.</p>
-                        <p>Error details: ${error.message}</p>
-                    </div>
-                `;
-            }
-            console.log('=== init END ===');
-        }
-    */
         // Separate UI initialization
         function initializeUI() {
             try {
@@ -3589,50 +3538,7 @@ END:VCALENDAR`;
             updateUpcomingTraining(teamName);
         }
 
-       /* function populateSidebarTeamFilter() {
-            console.log('Populating sidebar team filter');
-            const teamFilter = document.getElementById('sidebarTeamFilter');
-            
-            if (!teamFilter) {
-                console.error('Team filter element not found');
-                return;
-            }
-            
-            // Remove existing event listeners
-            const newTeamFilter = teamFilter.cloneNode(true);
-            teamFilter.parentNode.replaceChild(newTeamFilter, teamFilter);
-            
-            // Clear existing options except the first one
-            while (newTeamFilter.options.length > 1) {
-                newTeamFilter.remove(1);
-            }
-            
-            // Get unique teams
-            const teams = new Set();
-            matches.forEach(match => {
-                if (match.Team) teams.add(match.Team);
-            });
-            
-            console.log('Found teams:', Array.from(teams));
-            
-            // Add team options
-            Array.from(teams).sort().forEach(team => {
-                const option = document.createElement('option');
-                option.value = team;
-                option.textContent = team;
-                newTeamFilter.appendChild(option);
-            });
-            
-            // Add single change event listener
-            newTeamFilter.addEventListener('change', function() {
-                console.log('Team filter changed to:', this.value);
-                updateTeamStats(this.value);
-            }, { once: false });
-            
-            // Initialize with 'all' teams selected
-            updateTeamStats('all');
-        }
-    */
+       
 
         // Initialize everything when the DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
@@ -3645,59 +3551,6 @@ END:VCALENDAR`;
         // ... existing code ...
         // Remove any other DOMContentLoaded listeners and use just this one
         let initializationInProgress = false;
-
-    /*
-        async function init() {
-            // Prevent multiple initializations
-            if (initializationInProgress) {
-                console.log('Initialization already in progress, skipping...');
-                return;
-            }
-            
-            initializationInProgress = true;
-            console.log('=== init START ===');
-            
-            try {
-                // Initialize empty matches array
-                matches = [];
-                console.log('Initialized empty matches array');
-                
-                // Fetch matches from worker first
-                console.log('Starting to fetch matches from worker...');
-                const workerMatches = await fetchMatchesFromWorker();
-                console.log('Worker matches fetched:', workerMatches.length);
-                matches = workerMatches; // Replace instead of concat
-                
-                // Fetch training events
-                console.log('Starting to fetch training events...');
-                await fetchTrainingEvents();
-                console.log('Training events fetched, total matches now:', matches.length);
-                
-                // Initialize UI only after all data is loaded
-                console.log('Initializing UI...');
-                initializeUI();
-                
-                // Initialize search functionality
-                console.log('Initializing search functionality...');
-                initSearchAutocomplete();
-                
-                console.log('Initialization complete. Final match count:', matches.length);
-                
-            } catch (error) {
-                console.error('Error in init:', error);
-                console.error('Error stack:', error.stack);
-                document.getElementById('matchContainer').innerHTML = `
-                    <div class="no-results">
-                        <p>Error loading matches. Please try refreshing the page.</p>
-                        <p>Error details: ${error.message}</p>
-                    </div>
-                `;
-            } finally {
-                initializationInProgress = false;
-                console.log('=== init END ===');
-            }
-        }
-    */
 
         // Clean up multiple event listeners
         document.removeEventListener('DOMContentLoaded', init);
