@@ -2613,26 +2613,43 @@ END:VCALENDAR`;
                 ? matches 
                 : matches.filter(match => match.NormalizedTeam === teamName);
             
-            // Filter upcoming training sessions
+                const processedTraining = new Set();
             const upcomingTraining = teamMatches
-                .filter(match => match.isTraining)
+                 .filter(match => {
+                    if (!match.isTraining) return false;
+
+                    // ✅ Check training date is today or future
+                    const matchDate = parseDate(match.Date);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (matchDate < today) return false;
+
+                    const trainingKey = `${match.Date}-${match.Time}-${match.Team}-${match.Venue}`;
+                    if (processedTraining.has(trainingKey)) {
+                        return false;
+                    }
+
+                    processedTraining.add(trainingKey);
+                    return true;
+                })
                 .sort((a, b) => parseDate(a.Date) - parseDate(b.Date))
                 .slice(0, 3);
-            
+    
             const upcomingTrainingList = document.getElementById('upcomingTrainingList');
             upcomingTrainingList.innerHTML = '';
-            
+    
             if (upcomingTraining.length === 0) {
                 upcomingTrainingList.innerHTML = '<p>No upcoming training sessions</p>';
                 return;
-            }
-            
+             }
+
             upcomingTraining.forEach(session => {
                 const sessionElement = document.createElement('div');
                 sessionElement.className = 'upcoming-match';
                 sessionElement.innerHTML = `
                     <div class="upcoming-match-date">${formatDate(session.Date)}</div>
                     <div class="upcoming-match-teams">${session.Team} Training</div>
+                    <div class="upcoming-match-teams">${session.NormalizedTeam} Training</div>
                     <div class="upcoming-match-venue">${session.Venue} - ${session.Time}</div>
                 `;
                 upcomingTrainingList.appendChild(sessionElement);
