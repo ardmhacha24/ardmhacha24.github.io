@@ -1360,6 +1360,73 @@
             padding-bottom: 0.5rem;
         }
 
+        /* Help Popup Styling */
+        .help-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            padding: 2rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+            z-index: 2000;
+            font-family: inherit;
+            color: #333;
+        }
+
+        .help-popup.hidden {
+            display: none;
+        }
+
+        .help-content {
+            text-align: center;
+        }
+
+        .help-content h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--win-text, #155724);;
+        }
+
+        .help-content ul {
+            text-align: left;
+            padding-left: 1rem;
+            list-style-type: disc;
+        }
+
+        .help-content li {
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .help-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+
+        .close-btn {
+            margin-top: 1rem;
+            background: var(--primary, #4a90e2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #3d7bc1;
+        }
+        
         /* Color styling for icons in statistics */
         .team-stat-item i.stat-icon {
             margin-right: 0.5rem;
@@ -1431,8 +1498,22 @@
         <button id="filterToggle" class="filter-toggle">
             <i class="fas fa-chevron-down"></i>
         </button>
+        <button id="helpButton" class="help-btn" title="Help Guide">
+            <i class="far fa-question-circle"></i>
+        </button>
     </header>
-    
+    <div id="helpPopup" class="help-popup hidden">
+        <div class="help-content">
+          <h2>Fixtures & Results - How to Use</h2>
+          <ul>
+            <li>🔍 <strong>Search:</strong> Use the search bar to find matches, teams, or competitions.</li>
+            <li>📅 <strong>Date Filter:</strong> Select a single date or a range to view specific fixtures/training.</li>
+            <li>⚡ <strong>Toggle Display:</strong> Show/hide matches and/or training schedules.</li>
+            <li>📈 <strong>Team Stats:</strong> Click the three lines (<i class="fas fa-bars"></i>) in top-right to view team statistics.</li>
+          </ul>
+          <button id="closeHelp" class="close-btn">Got it!</button>
+        </div>
+      </div>
     <div class="main-content">
         <div class="sidebar-overlay"></div>
         <div class="sidebar">
@@ -1555,6 +1636,15 @@
     <script>
         // Parse the CSV data and store it in a global variable
         let matches = [];
+        
+        // Help Popup Functionality
+        document.getElementById('helpButton').addEventListener('click', function() {
+            document.getElementById('helpPopup').classList.remove('hidden');
+        });
+
+        document.getElementById('closeHelp').addEventListener('click', function() {
+            document.getElementById('helpPopup').classList.add('hidden');
+        });
         
         // Function to format date in a more readable format
         function formatDate(dateStr) {
