@@ -2652,9 +2652,14 @@ END:VCALENDAR`;
                     if (match.isTraining) return false;
                     if (match.Result && match.Result !== '---') return false;
                     
+                    // Check match date is today or future
+                    const matchDate = parseDate(match.Date);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (matchDate < today) return false;
+                    
                     // Create a unique key for the match
                     const matchKey = `${match.Date}-${match.Time}-${match['Home Team']}-${match['Away Team']}-${match.Venue}`;
-                    
                     // Check if we've already processed this match
                     if (processedMatches.has(matchKey)) {
                         return false;
