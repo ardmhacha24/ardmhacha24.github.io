@@ -3768,8 +3768,10 @@ END:VCALENDAR`;
             document.addEventListener('click', function (event) {
                 const isClickInsideControls = controls.contains(event.target);
                 const isClickOnToggle = filterToggle.contains(event.target);
+                const filterAlert = document.getElementById('filterAlert');
+                const isClickInsideFilterAlert = filterAlert && filterAlert.contains(event.target);
 
-                if (!isClickInsideControls && !isClickOnToggle) {
+                if (!isClickInsideControls && !isClickOnToggle && !isClickInsideFilterAlert) {
                     controls.classList.add('hidden');
                     controls.classList.remove('collapsed');
                     isManuallyExpanded = false;
