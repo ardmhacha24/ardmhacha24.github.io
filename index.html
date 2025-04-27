@@ -1647,9 +1647,7 @@
             document.getElementById('helpPopup').classList.add('hidden');
         });
         
-        
-        
-        // === Team Normalization & Dropdown Logic  For LEFT STATISTICS BAR===
+        // === Team Normalization & Dropdown Logic for LEFT STATISTICS BAR ===
         function normalizeTeamName(teamName) {
             if (!teamName) return '';
             return teamName
@@ -1713,7 +1711,49 @@
             document.getElementById('sidebarUpcomingCount').textContent = stats.upcoming;
         }
 
-        
+        // === Filter State Management for user experience ===
+        function saveFilterState() {
+            const searchInput = document.getElementById('searchInput').value.trim();
+            const dateFilter = document.getElementById('dateFilter').value.trim();
+            const matchesToggle = document.getElementById('matchesToggle').checked;
+            const trainingToggle = document.getElementById('trainingToggle').checked;
+
+            const filterState = {
+                searchInput,
+                dateFilter,
+                matchesToggle,
+                trainingToggle
+            };
+
+            localStorage.setItem('mainFilterState', JSON.stringify(filterState));
+        }
+
+        function restoreFilterState() {
+            const savedState = localStorage.getItem('mainFilterState');
+            if (!savedState) return;
+
+            const { searchInput, dateFilter, matchesToggle, trainingToggle } = JSON.parse(savedState);
+
+            if (searchInput !== undefined) {
+                document.getElementById('searchInput').value = searchInput;
+            }
+            if (dateFilter !== undefined) {
+                document.getElementById('dateFilter').value = dateFilter;
+            }
+            if (matchesToggle !== undefined) {
+                document.getElementById('matchesToggle').checked = matchesToggle;
+            }
+            if (trainingToggle !== undefined) {
+                document.getElementById('trainingToggle').checked = trainingToggle;
+            }
+
+            // After restoring filters, re-apply
+            applyFilters();
+        }
+
+
+
+
         // Function to format date in a more readable format
         function formatDate(dateStr) {
             console.log('Formatting date:', dateStr);
@@ -1972,10 +2012,15 @@
                 console.log('Initializing UI...');
                 initializeUI();
                 
+                document.getElementById('searchInput').addEventListener('input', saveFilterState);
+                document.getElementById('dateRange').addEventListener('change', saveFilterState);
+                document.getElementById('showMatches').addEventListener('change', saveFilterState);
+                document.getElementById('showTraining').addEventListener('change', saveFilterState);
+                                
                 // Initialize search functionality
                 console.log('Initializing search functionality...');
                 initSearchAutocomplete();
-                
+
                 console.log('Initialization complete. Final match count:', matches.length);
 
             } catch (error) {
@@ -2015,6 +2060,10 @@
                 initSidebarToggle();
                 
                 // Display initial matches
+                displayMatches();
+
+                populateSidebarTeamFilter();
+                restoreFilterState();
                 displayMatches();
                 
                 console.log('UI initialization complete');
@@ -3828,6 +3877,9 @@ END:VCALENDAR`;
                 dateInput._flatpickr.clear();
             }
             
+            // Clear localStorage saved filter state
+            localStorage.removeItem('mainFilterState');
+
             // Update display
             displayMatches();
             updateFilterAlert();
