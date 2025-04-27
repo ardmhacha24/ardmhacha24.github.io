@@ -1993,7 +1993,8 @@
                 console.log('Checking date:', currentDate);
                 
                 // Insert the today marker before today's matches
-                if (currentDate.toDateString() === today.toDateString() && !todayMarkerInserted) {
+                if (!todayMarkerInserted && currentDate >= today) {
+                //if (currentDate.toDateString() === today.toDateString() && !todayMarkerInserted) {
                     console.log('Inserting today marker for date:', currentDate);
                     const todayMarker = document.createElement('div');
                     todayMarker.className = 'today-marker';
@@ -2020,6 +2021,17 @@
                     matchContainer.appendChild(matchCard);
                 });
             });
+            
+            
+            // If all matches are in the past and todayMarker still not inserted
+            if (!todayMarkerInserted) {
+                console.log('Inserting today marker at end');
+                const todayMarker = document.createElement('div');
+                todayMarker.className = 'today-marker';
+                todayMarker.innerHTML = '<span>Today</span>';
+                todayMarker.id = 'todayMarker';
+                matchContainer.appendChild(todayMarker);
+            }
             
             // Scroll to today marker after a brief delay to ensure DOM is updated
             setTimeout(() => {
