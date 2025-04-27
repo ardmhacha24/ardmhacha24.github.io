@@ -2644,13 +2644,12 @@ END:VCALENDAR`;
              }
             
 
-            // <div class="upcoming-match-teams">${session.NormalizedTeam} Training</div>
             upcomingTraining.forEach(session => {
                 const sessionElement = document.createElement('div');
                 sessionElement.className = 'upcoming-match';
                 sessionElement.innerHTML = `
                     <div class="upcoming-match-date">${formatDate(session.Date)}</div>
-                    <div class="upcoming-match-teams">${session.Team} Training</div>
+                    <div class="upcoming-match-teams">${session.NormalizedTeam} Training</div>
                     <div class="upcoming-match-venue">${session.Venue} - ${session.Time}</div>
                 `;
                 upcomingTrainingList.appendChild(sessionElement);
