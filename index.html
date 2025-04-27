@@ -1647,6 +1647,73 @@
             document.getElementById('helpPopup').classList.add('hidden');
         });
         
+        
+        
+        // === Team Normalization & Dropdown Logic  For LEFT STATISTICS BAR===
+        function normalizeTeamName(teamName) {
+            if (!teamName) return '';
+            return teamName
+                .replace(/^@[^-]+-\s*/, '')             // Remove venue prefix like "@MAGHERY - "
+                .replace(/\(\*{1,2}.*?\*{1,2}\)/g, '')  // Remove patterns like "(** Main Pitch **)"
+                .replace(/\s+/g, ' ')                   // Normalize spacing
+                .trim();
+        }
+
+        function buildTeamTagMap(matches) {
+            matches.forEach(match => {
+                const rawName = match.Team;
+                const normalized = normalizeTeamName(rawName);
+
+                if (!teamTagMap[normalized]) teamTagMap[normalized] = new Set();
+                teamTagMap[normalized].add(rawName);
+                reverseTeamLookup[rawName] = normalized;
+            });
+
+            // Convert Sets to Arrays for consistency
+            for (const key in teamTagMap) {
+                teamTagMap[key] = Array.from(teamTagMap[key]);
+            }
+        }
+
+        function populateTeamDropdown() {
+            const teamSelect = document.getElementById('teamSelect');
+            teamSelect.innerHTML = '';
+
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'All Teams';
+            teamSelect.appendChild(defaultOption);
+
+            Object.keys(teamTagMap).sort().forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                teamSelect.appendChild(option);
+            });
+        }
+
+        function updateTeamStats(selectedTeam) {
+            const stats = { wins: 0, losses: 0, draws: 0, upcoming: 0 };
+
+            matches.forEach(match => {
+                if (!match.Team || match.isTraining) return;
+
+                const normalized = match.NormalizedTeam || match.Team;
+                if (selectedTeam && normalized !== selectedTeam) return;
+
+                if (match.Result === 'WIN') stats.wins++;
+                else if (match.Result === 'LOSS') stats.losses++;
+                else if (match.Result === 'DRAW') stats.draws++;
+                else stats.upcoming++;
+            });
+
+            document.getElementById('sidebarWinCount').textContent = stats.wins;
+            document.getElementById('sidebarLossCount').textContent = stats.losses;
+            document.getElementById('sidebarDrawCount').textContent = stats.draws;
+            document.getElementById('sidebarUpcomingCount').textContent = stats.upcoming;
+        }
+
+        
         // Function to format date in a more readable format
         function formatDate(dateStr) {
             console.log('Formatting date:', dateStr);
@@ -1894,6 +1961,12 @@
                 console.log('Starting to fetch training events...');
                 await fetchTrainingEvents();
                 console.log('Training events fetched, total matches now:', matches.length);
+
+                // Normalize all match team names once
+                matches.forEach(match => {
+                    match.NormalizedTeam = normalizeTeamName(match.Team);
+                });
+                console.log('All matches normalized by team name for use in the left bar.');
                 
                 // Initialize UI after data is loaded
                 console.log('Initializing UI...');
@@ -1904,7 +1977,7 @@
                 initSearchAutocomplete();
                 
                 console.log('Initialization complete. Final match count:', matches.length);
-                
+
             } catch (error) {
                 console.error('Error in init:', error);
                 console.error('Error stack:', error.stack);
@@ -2538,7 +2611,7 @@ END:VCALENDAR`;
         function updateUpcomingTraining(teamName) {
             const teamMatches = teamName === 'all' 
                 ? matches 
-                : matches.filter(match => match.Team === teamName);
+                : matches.filter(match => match.NormalizedTeam === teamName);
             
             // Filter upcoming training sessions
             const upcomingTraining = teamMatches
@@ -2570,7 +2643,7 @@ END:VCALENDAR`;
         function updateUpcomingMatches(teamName) {
             const teamMatches = teamName === 'all' 
                 ? matches 
-                : matches.filter(match => match.Team === teamName);
+                : matches.filter(match => match.NormalizedTeam === teamName);
             
             // Filter upcoming matches (excluding training) and remove duplicates
             const processedMatches = new Set(); // Track processed matches
@@ -2636,7 +2709,7 @@ END:VCALENDAR`;
             // Get unique teams
             const teams = new Set();
             matches.forEach(match => {
-                if (match.Team) teams.add(match.Team);
+                if (match.NormalizedTeam) teams.add(match.NormalizedTeam);
             });
             
             console.log('Found teams:', Array.from(teams));
@@ -3516,7 +3589,7 @@ END:VCALENDAR`;
             updateUpcomingTraining(teamName);
         }
 
-        function populateSidebarTeamFilter() {
+       /* function populateSidebarTeamFilter() {
             console.log('Populating sidebar team filter');
             const teamFilter = document.getElementById('sidebarTeamFilter');
             
@@ -3559,6 +3632,7 @@ END:VCALENDAR`;
             // Initialize with 'all' teams selected
             updateTeamStats('all');
         }
+    */
 
         // Initialize everything when the DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
