@@ -1462,6 +1462,47 @@
             display: none;
         }
 
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.25rem;
+            color: #333;
+            z-index: 2000;
+            transition: opacity 0.3s ease;
+        }
+
+        #loadingOverlay.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #ccc;
+            border-top: 3px solid #4a90e2; /* Soft blue matching your color palette */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1rem;
+            color: #333;
+        }
+
         #scrollToTodayBtn {
             position: fixed;
             bottom: 20px;
@@ -1522,6 +1563,10 @@
           <button id="closeHelp" class="close-btn">Got it!</button>
         </div>
     </div>
+    <div id="loadingOverlay" class="hidden">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading filters...</div>
+      </div>
     <div class="main-content">
         <div class="sidebar-overlay"></div>
         <div class="sidebar">
@@ -1760,8 +1805,8 @@
             displayMatches();
             // Spinner after quick refresh for user experience
             setTimeout(() => {
-                document.body.classList.remove('loading'); // Remove spinner after quick refresh
-            }, 300); // 0.3s spinner during restoration
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }, 500); // 0.5s spinner during restoration
         }
 
         // Function to format date in a more readable format
@@ -2046,6 +2091,7 @@
             console.log('=== init END ===');
         }
         
+        /*
         // Separate UI initialization
         function initializeUI() {
             try {
@@ -2083,6 +2129,7 @@
                 throw error;
             }
         }
+        */
         
         // Debounce function to limit search input processing
         function debounce(func, wait) {
@@ -3333,6 +3380,7 @@ END:VCALENDAR`;
             }
         }
 
+        /*
         // Separate UI initialization
         function initializeUI() {
             try {
@@ -3384,6 +3432,7 @@ END:VCALENDAR`;
                 throw error;
             }
         }
+        */
 
         // Remove any other DOMContentLoaded listeners and use just this one
         document.addEventListener('DOMContentLoaded', () => {
@@ -3677,6 +3726,7 @@ END:VCALENDAR`;
                     dateFormat: "D M d Y",
                     onChange: function(selectedDates, dateStr, instance) {
                         console.log('Date changed:', selectedDates);
+                        saveFilterState();
                         displayMatches();
                         updateFilterAlert();
                     },
@@ -3707,7 +3757,10 @@ END:VCALENDAR`;
                 
                 // Populate team filter and initialize stats
                 populateSidebarTeamFilter();
-                
+                // Restore filters (search text, date, toggles)
+                restoreFilterState();
+                // Apply the restored filter criteria
+                applyFilters(); 
                 // Display initial matches
                 displayMatches();
 
