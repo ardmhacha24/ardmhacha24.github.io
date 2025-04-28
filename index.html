@@ -2092,8 +2092,23 @@
                 
                 document.getElementById('searchInput').addEventListener('input', saveFilterState);
                 document.getElementById('dateRange').addEventListener('change', saveFilterState);
-                document.getElementById('showMatches').addEventListener('change', saveFilterState);
-                document.getElementById('showTraining').addEventListener('change', saveFilterState);
+                
+                const showMatchesToggle = document.getElementById('showMatches');
+                if (showMatchesToggle) {
+                    showMatchesToggle.addEventListener('change', () => {
+                        saveFilterState();
+                        displayMatches();
+                        updateFilterAlert();
+                    });
+                }
+                const showTrainingToggle = document.getElementById('showTraining');
+                if (showTrainingToggle) {
+                    showTrainingToggle.addEventListener('change', () => {
+                        saveFilterState();
+                        displayMatches();
+                        updateFilterAlert();
+                    });
+                }
                                 
                 // Initialize search functionality
                 console.log('Initializing search functionality...');
