@@ -1503,6 +1503,15 @@
             color: #333;
         }
 
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         #scrollToTodayBtn {
             position: fixed;
             bottom: 20px;
@@ -1962,6 +1971,12 @@
             console.log('Displaying matches...');
             const filteredMatches = filterMatches();
             const matchContainer = document.getElementById('matchContainer');
+            
+            // Fade-in animation start
+            matchContainer.classList.remove('fade-in');
+            void matchContainer.offsetWidth; // Force reflow
+            matchContainer.classList.add('fade-in');
+             
             matchContainer.innerHTML = '';
             
             if (filteredMatches.length === 0) {
