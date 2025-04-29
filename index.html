@@ -1108,6 +1108,11 @@
         .autocomplete-suggestion.active {
             background-color: var(--light-bg);
         }
+
+        .autocomplete-suggestion strong {
+            font-weight: 600;
+            color: var(--primary); /* or a dark shade */
+        }
         
         .sidebar .upcoming-matches {
             margin-top: 1rem;
@@ -2957,15 +2962,33 @@ END:VCALENDAR`;
                 searchInput.parentNode.appendChild(suggestionsContainer);
             }
 
-            const searchableTerms = [];
+            /*const searchableTerms = [];
             matches.forEach(match => {
                 if (match.Team) searchableTerms.push(match.Team);
                 if (match['Home Team']) searchableTerms.push(match['Home Team']);
                 if (match['Away Team']) searchableTerms.push(match['Away Team']);
                 if (match.Competition) searchableTerms.push(match.Competition);
+            });*/
+
+            // Build searchable terms: Normalized Team names + Competitions
+            const searchableTerms = new Set();
+            // Add normalized team names (sidebar filter options)
+            if (typeof teamTagMap === 'object') {
+                Object.keys(teamTagMap).forEach(normalized => {
+                    if (normalized && normalized.trim().length > 0) {
+                        searchableTerms.add(normalized);
+                    }
+                });
+            }
+            // Add competition names
+            matches.forEach(match => {
+                if (match.Competition && match.Competition.trim().length > 0) {
+                    searchableTerms.add(match.Competition);
+                }
             });
 
             let debounceTimer;
+            let currentFocus = -1;
 
             searchInput.addEventListener('input', function () {
                 clearTimeout(debounceTimer);
@@ -2979,7 +3002,7 @@ END:VCALENDAR`;
                         return;
                     }
 
-                    const filtered = searchableTerms.filter(term =>
+                    const filtered = Array.from(searchableTerms).filter(term =>
                         term.toLowerCase().includes(inputVal)
                     );
 
@@ -2991,7 +3014,8 @@ END:VCALENDAR`;
                     filtered.slice(0, 10).forEach(term => {
                         const div = document.createElement('div');
                         div.classList.add('autocomplete-suggestion');
-                        div.textContent = term;
+                        const regex = new RegExp(`(${inputVal})`, 'i');
+                        div.innerHTML = term.replace(regex, '<strong>$1</strong>');
                         div.addEventListener('click', () => {
                             searchInput.value = term;
                             suggestionsContainer.style.display = 'none';
@@ -3002,12 +3026,11 @@ END:VCALENDAR`;
                     });
 
                     suggestionsContainer.style.display = 'block';
+                    currentFocus = -1; // Reset focus when rebuilding suggestions
                 }, 200);
             });
 
-            // Keyboard nav
-            let currentFocus = -1;
-
+            // Keyboard navigation
             searchInput.addEventListener('keydown', function (e) {
                 const suggestions = suggestionsContainer.querySelectorAll('.autocomplete-suggestion');
                 if (!suggestions.length) return;
@@ -3037,26 +3060,23 @@ END:VCALENDAR`;
                     items[currentFocus].classList.add('active');
                 }
             }
+        
+            document.addEventListener('click', function (e) {
+                const searchInput = document.getElementById('searchInput');
+                const suggestionsContainer = document.querySelector('.autocomplete-suggestions');
+
+                if (
+                    !searchInput.contains(e.target) &&
+                    suggestionsContainer &&
+                    !suggestionsContainer.contains(e.target)
+                ) {
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
 
             console.log('=== initSearchAutocomplete END ===');
         }
-        
-        
-        document.addEventListener('click', function (e) {
-    const searchInput = document.getElementById('searchInput');
-    const suggestionsContainer = document.querySelector('.autocomplete-suggestions');
-
-    if (
-        !searchInput.contains(e.target) &&
-        suggestionsContainer &&
-        !suggestionsContainer.contains(e.target)
-    ) {
-        suggestionsContainer.style.display = 'none';
-    }
-});
-        
-        
-        
+           
     /*    
         // Initialize search functionality with autocomplete
         function initSearchAutocomplete() {
