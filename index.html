@@ -2105,8 +2105,7 @@
                 console.log('Initializing UI...');
                 initializeUI();
                 
-                document.getElementById('searchInput').addEventListener('input', saveFilterState);
-                document.getElementById('dateRange').addEventListener('change', saveFilterState);
+               
                 
                 const showMatchesToggle = document.getElementById('showMatches');
                 if (showMatchesToggle) {
@@ -2938,12 +2937,133 @@ END:VCALENDAR`;
             });
         }
         
+        
+        
+        function initSearchAutocomplete() {
+            console.log('=== initSearchAutocomplete START ===');
+
+            const searchInput = document.getElementById('searchInput');
+            if (!searchInput) {
+                console.error('Search input not found');
+                return;
+            }
+
+            const suggestionsContainer = document.createElement('div');
+            suggestionsContainer.classList.add('autocomplete-suggestions');
+            const wrapper = searchInput.closest('.search-input-wrapper');
+            if (wrapper) {
+                wrapper.appendChild(suggestionsContainer);
+            } else {
+                searchInput.parentNode.appendChild(suggestionsContainer);
+            }
+
+            const searchableTerms = [];
+            matches.forEach(match => {
+                if (match.Team) searchableTerms.push(match.Team);
+                if (match['Home Team']) searchableTerms.push(match['Home Team']);
+                if (match['Away Team']) searchableTerms.push(match['Away Team']);
+                if (match.Competition) searchableTerms.push(match.Competition);
+            });
+
+            let debounceTimer;
+
+            searchInput.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+
+                debounceTimer = setTimeout(() => {
+                    const inputVal = this.value.trim().toLowerCase();
+                    suggestionsContainer.innerHTML = '';
+
+                    if (inputVal.length < 2) {
+                        suggestionsContainer.style.display = 'none';
+                        return;
+                    }
+
+                    const filtered = searchableTerms.filter(term =>
+                        term.toLowerCase().includes(inputVal)
+                    );
+
+                    if (filtered.length === 0) {
+                        suggestionsContainer.style.display = 'none';
+                        return;
+                    }
+
+                    filtered.slice(0, 10).forEach(term => {
+                        const div = document.createElement('div');
+                        div.classList.add('autocomplete-suggestion');
+                        div.textContent = term;
+                        div.addEventListener('click', () => {
+                            searchInput.value = term;
+                            suggestionsContainer.style.display = 'none';
+                            displayMatches();
+                            updateFilterAlert();
+                        });
+                        suggestionsContainer.appendChild(div);
+                    });
+
+                    suggestionsContainer.style.display = 'block';
+                }, 200);
+            });
+
+            // Keyboard nav
+            let currentFocus = -1;
+
+            searchInput.addEventListener('keydown', function (e) {
+                const suggestions = suggestionsContainer.querySelectorAll('.autocomplete-suggestion');
+                if (!suggestions.length) return;
+
+                if (e.key === 'ArrowDown') {
+                    currentFocus = (currentFocus + 1) % suggestions.length;
+                    updateActive(suggestions);
+                    e.preventDefault();
+                } else if (e.key === 'ArrowUp') {
+                    currentFocus = (currentFocus - 1 + suggestions.length) % suggestions.length;
+                    updateActive(suggestions);
+                    e.preventDefault();
+                } else if (e.key === 'Enter') {
+                    if (currentFocus > -1) {
+                        searchInput.value = suggestions[currentFocus].textContent;
+                        suggestionsContainer.style.display = 'none';
+                        displayMatches();
+                        updateFilterAlert();
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            function updateActive(items) {
+                items.forEach(item => item.classList.remove('active'));
+                if (items[currentFocus]) {
+                    items[currentFocus].classList.add('active');
+                }
+            }
+
+            console.log('=== initSearchAutocomplete END ===');
+        }
+        
+        
+        document.addEventListener('click', function (e) {
+    const searchInput = document.getElementById('searchInput');
+    const suggestionsContainer = document.querySelector('.autocomplete-suggestions');
+
+    if (
+        !searchInput.contains(e.target) &&
+        suggestionsContainer &&
+        !suggestionsContainer.contains(e.target)
+    ) {
+        suggestionsContainer.style.display = 'none';
+    }
+});
+        
+        
+        
+    /*    
         // Initialize search functionality with autocomplete
         function initSearchAutocomplete() {
             console.log('=== initSearchAutocomplete START ===');
+            
             const searchInput = document.getElementById('searchInput');
             console.log('Search input element:', searchInput);
-            
             if (!searchInput) {
                 console.error('Search input element not found!');
                 return;
@@ -2958,15 +3078,21 @@ END:VCALENDAR`;
             
             const suggestionsContainer = document.createElement('div');
             suggestionsContainer.className = 'autocomplete-suggestions';
+            const wrapper = searchInput.closest('.search-input-wrapper');
+            if (wrapper) {
+                wrapper.appendChild(suggestionsContainer);
+            } else {
+                searchInput.parentNode.appendChild(suggestionsContainer);
+            }
+            
+            
             searchInput.parentNode.appendChild(suggestionsContainer);
             console.log('Created new suggestions container');
-            
             let currentFocus = -1;
             
             // Create a list of all searchable terms
             const searchableTerms = new Set();
             console.log('Building searchable terms from matches...');
-            
             matches.forEach(match => {
                 if (match.Team) searchableTerms.add(match.Team);
                 if (match['Home Team']) searchableTerms.add(match['Home Team']);
@@ -2975,7 +3101,6 @@ END:VCALENDAR`;
                 if (match.Venue) searchableTerms.add(match.Venue);
                 if (match.Round) searchableTerms.add(match.Round);
             });
-            
             console.log('Total searchable terms:', searchableTerms.size);
             
             // Add input event listener with debounce for suggestions
@@ -2992,6 +3117,8 @@ END:VCALENDAR`;
                     displayMatches(); // Update display when search is cleared
                     return;
                 }
+
+                let debounceTimer;
                 
                 const matchingTerms = Array.from(searchableTerms)
                     .filter(term => term && term.toLowerCase().includes(val))
@@ -3079,6 +3206,8 @@ END:VCALENDAR`;
             
             console.log('=== initSearchAutocomplete END ===');
         }
+    */
+
 
         // Start the app when the DOM is loaded
         document.addEventListener('DOMContentLoaded', init);
@@ -3642,6 +3771,12 @@ END:VCALENDAR`;
                         updateFilterAlert();
                     }
                 });
+
+                document.getElementById('searchInput').addEventListener('input', saveFilterState);
+                if (searchInput) {
+                    searchInput.addEventListener('input', saveFilterState);
+                }
+                //document.getElementById('dateRange').addEventListener('change', saveFilterState);
                 
                 // Initialize sidebar
                 initSidebarToggle();
