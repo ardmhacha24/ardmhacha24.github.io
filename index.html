@@ -3905,12 +3905,21 @@ END:VCALENDAR`;
 
             // Hide on click outside
             document.addEventListener('click', function (event) {
+                const controls = document.querySelector('.controls');
+                const filterToggle = document.getElementById('filterToggle');
+                const filterAlert = document.getElementById('filterAlert');
+                const searchInput = document.getElementById('searchInput');
+  
                 const isClickInsideControls = controls.contains(event.target);
                 const isClickOnToggle = filterToggle.contains(event.target);
-                const filterAlert = document.getElementById('filterAlert');
                 const isClickInsideFilterAlert = filterAlert && filterAlert.contains(event.target);
+                const isClickInsideSearch = searchInput && searchInput.contains(event.target);
 
-                if (!isClickInsideControls && !isClickOnToggle && !isClickInsideFilterAlert) {
+                if (!isClickInsideControls && 
+                    !isClickOnToggle && 
+                    !isClickInsideFilterAlert &&
+                    !isClickInsideSearch
+                ) {
                     controls.classList.add('hidden');
                     controls.classList.remove('collapsed');
                     isManuallyExpanded = false;
