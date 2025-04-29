@@ -2986,11 +2986,11 @@ END:VCALENDAR`;
                     }
                 });
             }
-            // Add competition names
+            // Add competition names, home team names, away team names to search
             matches.forEach(match => {
-                if (match.Competition && match.Competition.trim().length > 0) {
-                    searchableTerms.add(match.Competition);
-                }
+                if (match.Competition && match.Competition.trim().length > 0) searchableTerms.add(match.Competition);
+                if (match['Home Team'] && match['Home Team'].trim().length > 0) searchableTerms.add(match['Home Team']);
+                if (match['Away Team'] && match['Away Team'].trim().length > 0) searchableTerms.add(match['Away Team']);
             });
 
             let debounceTimer;
