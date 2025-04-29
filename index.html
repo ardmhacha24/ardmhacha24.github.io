@@ -3007,10 +3007,14 @@ END:VCALENDAR`;
                         suggestionsContainer.style.display = 'none';
                         return;
                     }
+                    
+                    // Filter and sort terms
+                    const safeInput = inputVal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(`(${safeInput})`, 'i');
 
-                    const filtered = Array.from(searchableTerms).filter(term =>
-                        term.toLowerCase().includes(inputVal)
-                    );
+                    const filtered = Array.from(searchableTerms)
+                        .filter(term => regex.test(term))
+                        .sort((a, b) => a.localeCompare(b));
 
                     if (filtered.length === 0) {
                         suggestionsContainer.style.display = 'none';
