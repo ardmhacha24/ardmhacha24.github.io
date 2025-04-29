@@ -1703,6 +1703,8 @@
     <script>
         // Parse the CSV data and store it in a global variable
         let matches = [];
+        let teamTagMap = {};
+        let reverseTeamLookup = {};
         
         // Help Popup Functionality
         document.getElementById('helpButton').addEventListener('click', function() {
@@ -1724,6 +1726,9 @@
         }
 
         function buildTeamTagMap(matches) {
+            teamTagMap = {};
+            reverseTeamLookup = {};
+    
             matches.forEach(match => {
                 const rawName = match.Team;
                 const normalized = normalizeTeamName(rawName);
@@ -2105,12 +2110,13 @@
                     match.NormalizedTeam = normalizeTeamName(match.Team);
                 });
                 console.log('All matches normalized by team name for use in the left bar.');
+
+                // Build teamTagMap after assigning NormalizedTeam for use in the left bar & search
+                buildTeamTagMap(matches);
                 
                 // Initialize UI after data is loaded
                 console.log('Initializing UI...');
                 initializeUI();
-                
-               
                 
                 const showMatchesToggle = document.getElementById('showMatches');
                 if (showMatchesToggle) {
