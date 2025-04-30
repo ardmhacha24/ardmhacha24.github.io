@@ -3088,158 +3088,6 @@ END:VCALENDAR`;
             console.log('=== initSearchAutocomplete END ===');
         }
            
-    /*    
-        // Initialize search functionality with autocomplete
-        function initSearchAutocomplete() {
-            console.log('=== initSearchAutocomplete START ===');
-            
-            const searchInput = document.getElementById('searchInput');
-            console.log('Search input element:', searchInput);
-            if (!searchInput) {
-                console.error('Search input element not found!');
-                return;
-            }
-            
-            // Remove any existing suggestions container
-            const existingSuggestions = document.querySelector('.autocomplete-suggestions');
-            if (existingSuggestions) {
-                console.log('Removing existing suggestions container');
-                existingSuggestions.remove();
-            }
-            
-            const suggestionsContainer = document.createElement('div');
-            suggestionsContainer.className = 'autocomplete-suggestions';
-            const wrapper = searchInput.closest('.search-input-wrapper');
-            if (wrapper) {
-                wrapper.appendChild(suggestionsContainer);
-            } else {
-                searchInput.parentNode.appendChild(suggestionsContainer);
-            }
-            
-            
-            searchInput.parentNode.appendChild(suggestionsContainer);
-            console.log('Created new suggestions container');
-            let currentFocus = -1;
-            
-            // Create a list of all searchable terms
-            const searchableTerms = new Set();
-            console.log('Building searchable terms from matches...');
-            matches.forEach(match => {
-                if (match.Team) searchableTerms.add(match.Team);
-                if (match['Home Team']) searchableTerms.add(match['Home Team']);
-                if (match['Away Team']) searchableTerms.add(match['Away Team']);
-                if (match.Competition) searchableTerms.add(match.Competition);
-                if (match.Venue) searchableTerms.add(match.Venue);
-                if (match.Round) searchableTerms.add(match.Round);
-            });
-            console.log('Total searchable terms:', searchableTerms.size);
-            
-            // Add input event listener with debounce for suggestions
-            searchInput.addEventListener('input', debounce(function() {
-                console.log('=== Search Input Event ===');
-                const val = (this.value || '').toLowerCase().trim();
-                console.log('Current input value:', val);
-                
-                suggestionsContainer.innerHTML = '';
-                
-                if (val.length < 2) {
-                    console.log('Input too short, hiding suggestions');
-                    suggestionsContainer.style.display = 'none';
-                    displayMatches(); // Update display when search is cleared
-                    return;
-                }
-
-                let debounceTimer;
-                
-                const matchingTerms = Array.from(searchableTerms)
-                    .filter(term => term && term.toLowerCase().includes(val))
-                    .slice(0, 5);
-                
-                console.log('Matching suggestions:', matchingTerms);
-                
-                if (matchingTerms.length > 0) {
-                    matchingTerms.forEach(term => {
-                        const div = document.createElement('div');
-                        div.className = 'autocomplete-suggestion';
-                        div.innerHTML = term;
-                        div.addEventListener('click', function() {
-                            console.log('Suggestion clicked:', term);
-                            searchInput.value = term;
-                            suggestionsContainer.style.display = 'none';
-                            displayMatches();
-                        });
-                        suggestionsContainer.appendChild(div);
-                    });
-                    suggestionsContainer.style.display = 'block';
-                } else {
-                    console.log('No matching suggestions found');
-                    suggestionsContainer.style.display = 'none';
-                }
-                
-                displayMatches(); // Update display with search results
-                currentFocus = -1;
-            }, 300));
-            
-            // Add keyboard navigation
-            searchInput.addEventListener('keydown', function(e) {
-                console.log('=== Keyboard Event ===');
-                console.log('Key pressed:', e.key);
-                
-                const suggestions = suggestionsContainer.getElementsByClassName('autocomplete-suggestion');
-                console.log('Current suggestions count:', suggestions.length);
-                
-                if (suggestions.length > 0) {
-                    if (e.key === 'ArrowDown') {
-                        currentFocus++;
-                        if (currentFocus >= suggestions.length) currentFocus = 0;
-                        setActiveSuggestion(suggestions);
-                    } else if (e.key === 'ArrowUp') {
-                        currentFocus--;
-                        if (currentFocus < 0) currentFocus = suggestions.length - 1;
-                        setActiveSuggestion(suggestions);
-                    } else if (e.key === 'Enter' && currentFocus > -1) {
-                        e.preventDefault();
-                        const selectedTerm = suggestions[currentFocus].textContent;
-                        console.log('Selected suggestion:', selectedTerm);
-                        searchInput.value = selectedTerm;
-                        suggestionsContainer.style.display = 'none';
-                        displayMatches();
-                    }
-                }
-            });
-            
-            function setActiveSuggestion(suggestions) {
-                console.log('Setting active suggestion, current focus:', currentFocus);
-                Array.from(suggestions).forEach((s, i) => {
-                    s.classList.remove('active');
-                    if (i === currentFocus) s.classList.add('active');
-                });
-            }
-            
-            // Close suggestions when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
-                    console.log('Click outside search area, hiding suggestions');
-                    suggestionsContainer.style.display = 'none';
-                }
-            });
-            
-            // Add reset search button handler
-            const resetSearchBtn = document.getElementById('resetSearch');
-            if (resetSearchBtn) {
-                resetSearchBtn.addEventListener('click', () => {
-                    console.log('Reset search clicked');
-                    searchInput.value = '';
-                    suggestionsContainer.style.display = 'none';
-                    displayMatches();
-                });
-            }
-            
-            console.log('=== initSearchAutocomplete END ===');
-        }
-    */
-
-
         // Start the app when the DOM is loaded
         document.addEventListener('DOMContentLoaded', init);
 
@@ -3997,7 +3845,10 @@ END:VCALENDAR`;
         if (resetSearchBtn) {
             resetSearchBtn.addEventListener('click', () => {
                 document.getElementById('searchInput').value = '';
+                saveFilterState();       
+                displayMatches(); 
                 updateFilterAlert();
+                       
             });
         }
 
