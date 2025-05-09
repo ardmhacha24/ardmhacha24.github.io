@@ -686,6 +686,11 @@
             border-left: 5px solid var(--shadow-leftbar-loss);
             box-shadow: 0 1px 3px var(--shadow-loss);
         }
+
+        .match-card.conceded {
+            border-left: 5px solid #880e4f;
+            box-shadow: 0 1px 3px rgba(220, 53, 69, 0.2);
+        }
         
         .match-card.draw {
             border-left: 5px solid var(--shadow-leftbar-draw);
@@ -706,6 +711,11 @@
             border-left: 5px solid var(--shadow-leftbar-training);
             box-shadow: 0 1px 3px var(--shadow-training);
             background-color: #f0f4fa;
+        }
+
+        .match-card.postponed {
+            border-left: 5px solid #0c5460;
+            box-shadow: 0 1px 3px rgba(0, 123, 255, 0.2);
         }
         
         .match-header {
@@ -814,6 +824,11 @@
             background-color: var(--loss);
             color: var(--loss-text);
         }
+
+        .badge.conceded {
+            background-color: #fce4ec;
+            color: #880e4f;
+        }
         
         .badge.draw {
             background-color: var(--draw);
@@ -834,7 +849,12 @@
             background-color: var(--training);
             color: var(--training-text);
         }
-        
+
+        .badge.postponed {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
         .no-results {
             background-color: white;
             padding: 3rem 1rem;
@@ -2313,7 +2333,16 @@
             }
 
             // Apply result class or fallback to upcoming for future matches
+            /*
             if (match.Result && match.Result !== '---') {
+                matchCard.classList.add(match.Result.toLowerCase());
+            } else {
+                matchCard.classList.add('upcoming');
+            }
+            */
+
+            const allowedResults = ['win', 'loss', 'draw', 'postponed', 'conceded'];
+            if (allowedResults.includes(match.Result.toLowerCase())) {
                 matchCard.classList.add(match.Result.toLowerCase());
             } else {
                 matchCard.classList.add('upcoming');
@@ -2454,6 +2483,7 @@
                 }
             } else {
                 const badge = document.createElement('span');
+                /*
                 if (match.Result && match.Result !== '---') {
                     badge.className = `badge ${match.Result.toLowerCase()}`;
                     badge.textContent = match.Result;
@@ -2461,6 +2491,18 @@
                     badge.className = 'badge upcoming';
                     badge.textContent = 'UPCOMING';
                 }
+                */
+
+                if (match.Result && match.Result.trim() !== '---') {
+                    const resultClass = match.Result.toLowerCase();
+                    badge.className = `badge ${resultClass}`;
+                    badge.textContent = match.Result.toUpperCase();
+                } else {
+                    badge.className = 'badge upcoming';
+                    badge.textContent = 'UPCOMING';
+                }
+
+
                 metadata.appendChild(badge);
             }
             
@@ -3548,7 +3590,7 @@ END:VCALENDAR`;
                 ? matches.filter(match => !match.isTraining)
                 : matches.filter(match => match.Team === teamName && !match.isTraining);
             
-            console.log('******Filtered matches for stats:', teamMatches);
+            console.log('Filtered matches for stats:', teamMatches);
             
             // Count each match only once
             teamMatches.forEach(match => {
