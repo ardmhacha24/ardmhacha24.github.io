@@ -3619,6 +3619,7 @@ END:VCALENDAR`;
             
             console.log('Calculated stats:', stats);
             
+        /* 
             // Update sidebar stats
             const totalCount = document.getElementById('sidebarTotalCount');
             const winCount = document.getElementById('sidebarWinCount');
@@ -3631,6 +3632,7 @@ END:VCALENDAR`;
             if (lossCount) lossCount.textContent = stats.losses;
             if (drawCount) drawCount.textContent = stats.draws;
             if (upcomingCount) upcomingCount.textContent = stats.upcoming;
+        */
 
             document.getElementById('sidebarTotalCount').textContent = stats.total;
             document.getElementById('sidebarWinCount').textContent = stats.wins;
