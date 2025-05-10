@@ -1641,6 +1641,16 @@
                     <span class="team-stat-label">Upcoming Matches</span>
                     <span class="team-stat-value" id="sidebarUpcomingCount">0</span>
                 </div>
+                <div class="team-stat-item hidden" id="sidebarPostponedRow">
+                    <i class="fas fa-clock stat-icon" style="color: #0c5460;"></i>
+                    <span class="team-stat-label">Postponed</span>
+                    <span class="team-stat-value" id="sidebarPostponedCount">0</span>
+                </div>
+                <div class="team-stat-item hidden" id="sidebarConcededRow">
+                    <i class="fas fa-flag stat-icon" style="color: #880e4f;"></i>
+                    <span class="team-stat-label">Conceded</span>
+                    <span class="team-stat-value" id="sidebarConcededCount">0</span>
+                </div>
             </div>
             
             <div class="team-upcoming">
@@ -1783,7 +1793,7 @@
         }
 
         function updateTeamStats(selectedTeam) {
-            const stats = { wins: 0, losses: 0, draws: 0, upcoming: 0 };
+            const stats = { wins: 0, losses: 0, draws: 0, upcoming: 0, postponed: 0, conceded: 0 };
 
             matches.forEach(match => {
                 if (!match.Team || match.isTraining) return;
@@ -1794,6 +1804,8 @@
                 if (match.Result === 'WIN') stats.wins++;
                 else if (match.Result === 'LOSS') stats.losses++;
                 else if (match.Result === 'DRAW') stats.draws++;
+                else if (match.Result === 'POSTPONED') stats.postponed++;
+                else if (match.Result === 'CONCEDED') stats.conceded++;
                 else stats.upcoming++;
             });
 
@@ -1801,6 +1813,11 @@
             document.getElementById('sidebarLossCount').textContent = stats.losses;
             document.getElementById('sidebarDrawCount').textContent = stats.draws;
             document.getElementById('sidebarUpcomingCount').textContent = stats.upcoming;
+            document.getElementById('sidebarPostponedCount').textContent = stats.postponed;
+            document.getElementById('sidebarConcededCount').textContent = stats.conceded;
+
+            document.getElementById('sidebarPostponedRow').classList.toggle('hidden', stats.postponed === 0);
+            document.getElementById('sidebarConcededRow').classList.toggle('hidden', stats.conceded === 0);
         }
 
         // === Filter State Management for user experience ===
