@@ -1792,6 +1792,7 @@
             });
         }
 
+ /*     
         function updateTeamStats(selectedTeam) {
             const stats = { wins: 0, losses: 0, draws: 0, upcoming: 0, postponed: 0, conceded: 0 };
 
@@ -1819,6 +1820,7 @@
             document.getElementById('sidebarPostponedRow').classList.toggle('hidden', stats.postponed === 0);
             document.getElementById('sidebarConcededRow').classList.toggle('hidden', stats.conceded === 0);
         }
+*/
 
         // === Filter State Management for user experience ===
         function saveFilterState() {
@@ -3582,24 +3584,16 @@ END:VCALENDAR`;
         }
 
         function updateTeamStats(teamName) {
-            console.log('******Updating team stats for:', teamName);
-            
-            console.log('First 30 matches in dataset:', matches.slice(0, 30).map(m => ({
-                Date: m.Date,
-                Team: m.Team,
-                Competition: m.Competition,
-                'Home Team': m['Home Team'],
-                'Away Team': m['Away Team'],
-                isTraining: m.isTraining,
-                Result: m.Result
-            })));
+            console.log('Updating team stats for:', teamName);
             
             const stats = {
                 total: 0,
                 wins: 0,
                 losses: 0,
                 draws: 0,
-                upcoming: 0
+                upcoming: 0,
+                postponed: 0,
+                conceded: 0
             };
             
             // Get all non-training matches for the selected team
@@ -3612,19 +3606,18 @@ END:VCALENDAR`;
             // Count each match only once
             teamMatches.forEach(match => {
                 stats.total++;
+                const result = (match.Result || '').toUpperCase();
+
+                if (result === 'WIN') stats.wins++;
+                else if (result === 'LOSS') stats.losses++;
+                else if (result === 'DRAW') stats.draws++;
+                else if (result === 'POSTPONED') stats.postponed++;
+                else if (result === 'CONCEDED') stats.conceded++;
+                else stats.upcoming++;
                 
-                if (match.Result === 'WIN') {
-                    stats.wins++;
-                } else if (match.Result === 'LOSS') {
-                    stats.losses++;
-                } else if (match.Result === 'DRAW') {
-                    stats.draws++;
-                } else if (match.Result === '---' || !match.Result) {
-                    stats.upcoming++;
-                }
             });
             
-            console.log('********Calculated stats:', stats);
+            console.log('Calculated stats:', stats);
             
             // Update sidebar stats
             const totalCount = document.getElementById('sidebarTotalCount');
@@ -3638,13 +3631,22 @@ END:VCALENDAR`;
             if (lossCount) lossCount.textContent = stats.losses;
             if (drawCount) drawCount.textContent = stats.draws;
             if (upcomingCount) upcomingCount.textContent = stats.upcoming;
+
+            document.getElementById('sidebarTotalCount').textContent = stats.total;
+            document.getElementById('sidebarWinCount').textContent = stats.wins;
+            document.getElementById('sidebarLossCount').textContent = stats.losses;
+            document.getElementById('sidebarDrawCount').textContent = stats.draws;
+            document.getElementById('sidebarUpcomingCount').textContent = stats.upcoming;
+            document.getElementById('sidebarPostponedCount').textContent = stats.postponed;
+            document.getElementById('sidebarConcededCount').textContent = stats.conceded;
+
+            document.getElementById('sidebarPostponedRow').classList.toggle('hidden', stats.postponed === 0);
+            document.getElementById('sidebarConcededRow').classList.toggle('hidden', stats.conceded === 0);
             
             // Update upcoming matches and training sessions
             updateUpcomingMatches(teamName);
             updateUpcomingTraining(teamName);
         }
-
-       
 
         // Initialize everything when the DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
