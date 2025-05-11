@@ -1792,36 +1792,6 @@
             });
         }
 
- /*     
-        function updateTeamStats(selectedTeam) {
-            const stats = { wins: 0, losses: 0, draws: 0, upcoming: 0, postponed: 0, conceded: 0 };
-
-            matches.forEach(match => {
-                if (!match.Team || match.isTraining) return;
-
-                const normalized = match.NormalizedTeam || match.Team;
-                if (selectedTeam && normalized !== selectedTeam) return;
-
-                if (match.Result === 'WIN') stats.wins++;
-                else if (match.Result === 'LOSS') stats.losses++;
-                else if (match.Result === 'DRAW') stats.draws++;
-                else if (match.Result === 'POSTPONED') stats.postponed++;
-                else if (match.Result === 'CONCEDED') stats.conceded++;
-                else stats.upcoming++;
-            });
-
-            document.getElementById('sidebarWinCount').textContent = stats.wins;
-            document.getElementById('sidebarLossCount').textContent = stats.losses;
-            document.getElementById('sidebarDrawCount').textContent = stats.draws;
-            document.getElementById('sidebarUpcomingCount').textContent = stats.upcoming;
-            document.getElementById('sidebarPostponedCount').textContent = stats.postponed;
-            document.getElementById('sidebarConcededCount').textContent = stats.conceded;
-
-            document.getElementById('sidebarPostponedRow').classList.toggle('hidden', stats.postponed === 0);
-            document.getElementById('sidebarConcededRow').classList.toggle('hidden', stats.conceded === 0);
-        }
-*/
-
         // === Filter State Management for user experience ===
         function saveFilterState() {
             const searchInput = document.getElementById('searchInput').value.trim();
@@ -3619,21 +3589,6 @@ END:VCALENDAR`;
             
             console.log('Calculated stats:', stats);
             
-        /* 
-            // Update sidebar stats
-            const totalCount = document.getElementById('sidebarTotalCount');
-            const winCount = document.getElementById('sidebarWinCount');
-            const lossCount = document.getElementById('sidebarLossCount');
-            const drawCount = document.getElementById('sidebarDrawCount');
-            const upcomingCount = document.getElementById('sidebarUpcomingCount');
-            
-            if (totalCount) totalCount.textContent = stats.total;
-            if (winCount) winCount.textContent = stats.wins;
-            if (lossCount) lossCount.textContent = stats.losses;
-            if (drawCount) drawCount.textContent = stats.draws;
-            if (upcomingCount) upcomingCount.textContent = stats.upcoming;
-        */
-
             document.getElementById('sidebarTotalCount').textContent = stats.total;
             document.getElementById('sidebarWinCount').textContent = stats.wins;
             document.getElementById('sidebarLossCount').textContent = stats.losses;
