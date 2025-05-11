@@ -2932,7 +2932,8 @@ END:VCALENDAR`;
 
                     const searchInput = document.getElementById('searchInput');
                     if (searchInput) {
-                        searchInput.value = resultFilter;
+                        // Inject both team name and result into the search box
+                        searchInput.value = `${teamFilter} ${resultFilter}`;
                     }
 
                     const sidebarFilter = document.getElementById('sidebarTeamFilter');
