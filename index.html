@@ -2178,6 +2178,79 @@
             };
         }
         
+        // Heler funciton to tokenize search query
+        function tokenizeSearchQuery(searchQuery) {
+            const knownTeams = Object.keys(teamTagMap || {});
+            const lowerQuery = searchQuery.toLowerCase().trim();
+
+            // Try to match a team name at the start of the query
+            const matchedTeam = knownTeams.find(team =>
+                lowerQuery.startsWith(team.toLowerCase())
+            );
+
+            if (matchedTeam) {
+                const remaining = lowerQuery.slice(matchedTeam.length).trim();
+                const remainingTokens = remaining ? remaining.split(/\s+/) : [];
+                return { team: matchedTeam, tokens: remainingTokens };
+            }
+
+            return { team: null, tokens: lowerQuery.split(/\s+/) };
+        }
+
+
+        function filterMatches() {
+            console.log('=== filterMatches START ===');
+            const searchInput = document.getElementById('searchInput');
+            const showMatches = document.getElementById('showMatches').checked;
+            const showTraining = document.getElementById('showTraining').checked;
+
+            const searchQuery = (searchInput.value || '').toLowerCase().trim();
+            const { team, tokens } = tokenizeSearchQuery(searchQuery);
+
+            let dateRange = null;
+            const dateRangeInput = document.getElementById('dateRange');
+            if (dateRangeInput && dateRangeInput._flatpickr && dateRangeInput._flatpickr.selectedDates.length > 0) {
+                dateRange = dateRangeInput._flatpickr.selectedDates;
+            }
+
+            console.log('Filter settings:', { showMatches, showTraining, team, tokens, dateRange });
+
+            let filteredMatches = matches.filter(match => {
+                // Type filtering
+                if (!showMatches && !match.isTraining) return false;
+                if (!showTraining && match.isTraining) return false;
+
+                // Date filtering
+                if (dateRange && dateRange.length === 2) {
+                    const matchDate = parseDate(match.Date);
+                    const [startDate, endDate] = dateRange;
+                    if (matchDate < startDate || matchDate > endDate) return false;
+                }
+
+                // Search filtering
+                const searchableText = [
+                    match.Competition || '',
+                    match.Team || '',
+                    match['Home Team'] || '',
+                    match['Away Team'] || '',
+                    match.Venue || '',
+                    match.Round || '',
+                    match.Date || '',
+                    match.Time || '',
+                    match.Result || ''
+                ].join(' ').toLowerCase();
+
+                const teamMatches = !team || searchableText.includes(team.toLowerCase());
+                const tokensMatch = tokens.every(token => searchableText.includes(token));
+
+                return teamMatches && tokensMatch;
+            });
+
+            console.log('=== filterMatches END === Filtered:', filteredMatches.length);
+            return filteredMatches;
+        }
+
+        /*
         // Enhanced filter matches function to include search and date range
         function filterMatches() {
             console.log('=== filterMatches START ===');
@@ -2231,7 +2304,7 @@
                         match.Result || ''
                     ].join(' ').toLowerCase();
                     
-                    return searchableText.includes(searchQuery);
+                    return searchQuery.split(/\s+/).every(token => searchableText.includes(token));
                     });
                 console.log('Matches after search filtering:', filteredMatches.length);
                 }
@@ -2252,6 +2325,7 @@
             console.log('=== filterMatches END ===');
             return filteredMatches;
         }
+        */
         
         // Helper function to parse date strings
         function parseDate(dateStr) {
