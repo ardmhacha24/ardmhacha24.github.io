@@ -1625,7 +1625,6 @@
                 <div class="team-stat-item">
                     <i class="fas fa-check-circle stat-icon"></i>
                     <span class="team-stat-label">Wins</span>
-                    <span class="team-stat-value win" id="sidebarWinCount">0</span>
                     <span class="team-stat-value win clickable-stat" id="sidebarWinCount" data-result="WIN" data-team="">0</span>
                 </div>
                 <div class="team-stat-item">
@@ -2939,7 +2938,10 @@ END:VCALENDAR`;
                     const sidebarFilter = document.getElementById('sidebarTeamFilter');
                     if (sidebarFilter && teamFilter) {
                         sidebarFilter.value = teamFilter;
-                        updateTeamStats(teamFilter);
+
+                        // Trigger the change event manually
+                        const event = new Event('change');
+                        sidebarFilter.dispatchEvent(event);
                     }
 
                     saveFilterState();
