@@ -3025,6 +3025,11 @@ END:VCALENDAR`;
                 if (match['Away Team'] && match['Away Team'].trim().length > 0) searchableTerms.add(match['Away Team']);
             });
 
+            // Add result statuses to search
+            ['WIN', 'LOSS', 'DRAW', 'POSTPONED', 'CONCEDED', 'UPCOMING'].forEach(status => {
+                searchableTerms.add(status);
+            });
+
             let debounceTimer;
             let currentFocus = -1;
 
