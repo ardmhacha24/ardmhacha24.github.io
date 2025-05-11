@@ -1626,31 +1626,32 @@
                     <i class="fas fa-check-circle stat-icon"></i>
                     <span class="team-stat-label">Wins</span>
                     <span class="team-stat-value win" id="sidebarWinCount">0</span>
+                    <span class="team-stat-value win clickable-stat" id="sidebarWinCount" data-result="WIN" data-team="">0</span>
                 </div>
                 <div class="team-stat-item">
                     <i class="fas fa-times-circle stat-icon"></i>
                     <span class="team-stat-label">Losses</span>
-                    <span class="team-stat-value loss" id="sidebarLossCount">0</span>
+                    <span class="team-stat-value loss clickable-stat" id="sidebarLossCount" data-result="LOSS" data-team="">0</span>
                 </div>
                 <div class="team-stat-item">
                     <i class="fas fa-minus-circle stat-icon"></i>
                     <span class="team-stat-label">Draws</span>
-                    <span class="team-stat-value draw" id="sidebarDrawCount">0</span>
+                    <span class="team-stat-value draw clickable-stat" id="sidebarDrawCount" data-result=DRAW" data-team="">0</span>
                 </div>
                 <div class="team-stat-item">
                     <i class="fas fa-calendar-alt stat-icon"></i>
                     <span class="team-stat-label">Upcoming Matches</span>
-                    <span class="team-stat-value" id="sidebarUpcomingCount">0</span>
+                    <span class="team-stat-value upcoming clickable-stat" id="sidebarUpcomingCount" data-result="UPCOMING" data-team="">0</span>
                 </div>
                 <div class="team-stat-item hidden" id="sidebarPostponedRow">
                     <i class="fas fa-clock stat-icon" style="color: #0c5460;"></i>
                     <span class="team-stat-label">Postponed</span>
-                    <span class="team-stat-value" id="sidebarPostponedCount">0</span>
+                    <span class="team-stat-value postponed clickable-stat" id="sidebarPostponedCount" data-result="POSTPONED" data-team="">0</span>
                 </div>
                 <div class="team-stat-item hidden" id="sidebarConcededRow">
                     <i class="fas fa-flag stat-icon" style="color: #880e4f;"></i>
                     <span class="team-stat-label">Conceded</span>
-                    <span class="team-stat-value" id="sidebarConcededCount">0</span>
+                    <span class="team-stat-value conceded clickable-stat" id="sidebarConcededCount" data-result="CONCEDED" data-team="">0</span>
                 </div>
             </div>
             
@@ -2918,6 +2919,47 @@ END:VCALENDAR`;
             // Initialize with 'all' teams selected
             updateTeamStats('all');
         }
+
+        // Initialize sidebar clicks on the number of stats to main window
+        function setupSidebarStatClicks() {
+            const statElements = document.querySelectorAll('.clickable-stat');
+
+            statElements.forEach(el => {
+                el.addEventListener('click', () => {
+                    const resultFilter = el.dataset.result;
+                    const teamFilter = el.dataset.team;
+
+                    console.log(`Sidebar stat clicked: team=${teamFilter}, result=${resultFilter}`);
+
+                    const searchInput = document.getElementById('searchInput');
+                    if (searchInput) {
+                        searchInput.value = resultFilter;
+                    }
+
+                    const sidebarFilter = document.getElementById('sidebarTeamFilter');
+                    if (sidebarFilter && teamFilter) {
+                        sidebarFilter.value = teamFilter;
+                        updateTeamStats(teamFilter);
+                    }
+
+                    saveFilterState();
+                    displayMatches();
+                    updateFilterAlert();
+
+                    const controls = document.querySelector('.controls');
+                    if (controls) {
+                        controls.classList.remove('hidden');
+                        controls.classList.remove('collapsed');
+                    }
+
+                    // Scroll to top of main content area
+                    const matchContainer = document.getElementById('matchContainer');
+                    if (matchContainer) {
+                        matchContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        }
         
         // Initialize sidebar toggle functionality
         function initSidebarToggle() {
@@ -3604,6 +3646,14 @@ END:VCALENDAR`;
             document.getElementById('sidebarPostponedCount').textContent = stats.postponed;
             document.getElementById('sidebarConcededCount').textContent = stats.conceded;
 
+            // Update data-team attributes so each stat can trigger correct filter
+            document.getElementById('sidebarWinCount').dataset.team = teamName;
+            document.getElementById('sidebarLossCount').dataset.team = teamName;
+            document.getElementById('sidebarDrawCount').dataset.team = teamName;
+            document.getElementById('sidebarUpcomingCount').dataset.team = teamName;
+            document.getElementById('sidebarPostponedCount').dataset.team = teamName;
+            document.getElementById('sidebarConcededCount').dataset.team = teamName;
+
             document.getElementById('sidebarPostponedRow').classList.toggle('hidden', stats.postponed === 0);
             document.getElementById('sidebarConcededRow').classList.toggle('hidden', stats.conceded === 0);
             
@@ -3686,6 +3736,8 @@ END:VCALENDAR`;
                 initSidebarToggle();
                 // Populate team filter and initialize stats
                 populateSidebarTeamFilter();
+                // Initialize sidebar clicks on the number of stats to main window
+                setupSidebarStatClicks();
                 // Restore filters (search text, date, toggles)
                 restoreFilterState();
                 //add today button
