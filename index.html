@@ -487,6 +487,42 @@
         .reset-btn i {
             font-size: 0.9rem;
         }
+
+        .filter-pill-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem auto;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .filter-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            flex-grow: 1;
+        }
+
+        .filter-pill {
+            background: #e0e0e0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-pill .close {
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            line-height: 1;
+        }
         
         .calendar-btn {
             background-color: var(--primary);
@@ -1723,6 +1759,15 @@
         <button class="deny-btn">No Thanks</button>
     </div>
     
+    
+    <div id="filterAlert" class="filter-pill-bar" style="display: none;">
+        <div id="filterPillsContainer" class="filter-pills"></div>
+        <button id="clearFiltersBtn" class="reset-btn">
+            <i class="fas fa-times"></i> Clear All
+        </button>
+    </div>
+    
+    
     <div id="filterAlert" style="position: fixed; top: 25px; left: 50%; transform: translateX(-50%); background-color: #f8f9fa; color: #333; padding: 8px 15px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); z-index: 1001; transition: opacity 0.3s ease; display: none;">
         <div style="display: flex; align-items: center; gap: 10px;">
             <span>You applied a Filter!</span>
@@ -2249,6 +2294,7 @@
             console.log('=== filterMatches END === Filtered:', filteredMatches.length);
             return filteredMatches;
         }
+
 
         /*
         // Enhanced filter matches function to include search and date range
@@ -3968,7 +4014,8 @@ END:VCALENDAR`;
             filterAlert.addEventListener('click', expandControlsIfHidden);
         }
     
-        function updateFilterAlert() {
+       /* 
+       function updateFilterAlert() {
             console.log('Updating filter alert');
             const filterAlert = document.getElementById('filterAlert');
             const searchInput = document.getElementById('searchInput');
@@ -3989,6 +4036,59 @@ END:VCALENDAR`;
                 console.log('Hiding filter alert');
                 filterAlert.style.display = 'none';
             }
+        }
+        */
+
+        function updateFilterAlert() {
+            const filterAlert = document.getElementById('filterAlert');
+            const pillsContainer = document.getElementById('filterPillsContainer');
+            const searchInput = document.getElementById('searchInput');
+            const dateInput = document.getElementById('dateRange');
+            pillsContainer.innerHTML = '';
+
+            let hasFilters = false;
+
+            const searchVal = searchInput.value.trim();
+            if (searchVal) {
+                hasFilters = true;
+                const pill = document.createElement('div');
+                pill.className = 'filter-pill';
+                pill.dataset.type = 'search';
+                pill.innerHTML = `${searchVal} <span class="close">&times;</span>`;
+                pillsContainer.appendChild(pill);
+            }
+
+            if (dateInput && dateInput._flatpickr && dateInput._flatpickr.selectedDates.length > 0) {
+                hasFilters = true;
+                const start = dateInput._flatpickr.selectedDates[0];
+                const end = dateInput._flatpickr.selectedDates[1] || start;
+                const label = `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
+
+                const pill = document.createElement('div');
+                pill.className = 'filter-pill';
+                pill.dataset.type = 'date';
+                pill.innerHTML = `${label} <span class="close">&times;</span>`;
+                pillsContainer.appendChild(pill);
+            }
+
+            filterAlert.style.display = hasFilters ? 'flex' : 'none';
+
+            // Add close events to each pill
+            pillsContainer.querySelectorAll('.close').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const type = btn.parentElement.dataset.type;
+                    if (type === 'search') {
+                        searchInput.value = '';
+                    }
+                    if (type === 'date' && dateInput._flatpickr) {
+                        dateInput._flatpickr.clear();
+                    }
+
+                    saveFilterState();
+                    displayMatches();
+                    updateFilterAlert();
+                });
+            });
         }
 
         // Call updateFilterAlert when filters change
