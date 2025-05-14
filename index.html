@@ -4194,7 +4194,7 @@ END:VCALENDAR`;
                 opponent = m['Home Team'];
                 }
 
-                const display = `vs ${opponent} @ ${m.Venue || 'TBD'} ${m.Time || ''}`;
+                const display = `vs ${opponent} @ ${m.Where} ${m.Time || ''}`;
                 dateMap[m.Date][team] = display;
             });
 
