@@ -157,6 +157,7 @@
             border-bottom: 1px solid var(--border);
         }
         
+        .sidebar-header h3,
         .sidebar-header h2 {
             margin: 0 0 1rem 0;
             font-size: 1.25rem;
@@ -500,6 +501,7 @@
             align-items: center;
             gap: 0.5rem;
             white-space: nowrap;
+            width: 100%;
         }
         
         .calendar-btn:hover {
@@ -1609,7 +1611,7 @@
             <div class="sidebar-header">
                 <h3>Tools</h3>
                 <div class="upcoming-match">
-                    <div class="upcoming-match-teams">
+                    <div style="margin-bottom: 1rem;">
                     <button onclick="toggleComparison()" class="calendar-btn">
                         📊 Compare Team Fixtures
                       </button>
