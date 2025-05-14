@@ -1483,12 +1483,6 @@
             color: #17a2b8; /* Blue for upcoming matches */
         }
 
-        .calendar-btn {
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-size: 1rem;
-
         /* Add CSS class for hidden state */
         .hidden {
             display: none;
@@ -1731,8 +1725,8 @@
           
             <!-- View Toggle -->
             <div style="margin-bottom: 1rem;">
-              <button id="btnTableView" class="calendar-btn" onclick="toggleComparisonView('table')">📅 Table View</button>
-              <button id="btnCalendarView" class="calendar-btn" onclick="toggleComparisonView('calendar')">📆 Calendar View</button>
+              <button class="calendar-btn" onclick="toggleComparisonView('table')">📅 Table View</button>
+              <button class="calendar-btn" onclick="toggleComparisonView('calendar')">📆 Calendar View</button>
             </div>
           
             <div class="filters" style="margin-bottom: 1rem;">
@@ -1742,7 +1736,7 @@
               </select>
             </div>
           
-            <div id="comparisonTableContainer" style="overflow-x: auto; margin-bottom: 2rem; display: none;">
+            <div id="comparisonTableContainer" style="overflow-x: auto; margin-bottom: 2rem; display: block;">
               <table id="comparisonTable" style="width: 100%; border-collapse: collapse;">
                 <thead>
                   <tr>
@@ -1753,7 +1747,7 @@
               </table>
             </div>
           
-            <div id="calendarViewContainer" style="overflow-x: auto; display: block;">
+            <div id="calendarViewContainer" style="overflow-x: auto; display: none;">
               <table id="calendarView" style="width: 100%; border-collapse: collapse;">
                 <thead>
                   <tr>
@@ -4246,28 +4240,15 @@ END:VCALENDAR`;
         function toggleComparisonView(view) {
             const tableContainer = document.getElementById('comparisonTableContainer');
             const calendarContainer = document.getElementById('calendarViewContainer');
-            const btnTable = document.getElementById('btnTableView');
-            const btnCalendar = document.getElementById('btnCalendarView');
 
             if (view === 'table') {
             tableContainer.style.display = 'block';
             calendarContainer.style.display = 'none';
-            btnTable.classList.add('active');
-            btnCalendar.classList.remove('active');
-            } else {
+            } else if (view === 'calendar') {
             tableContainer.style.display = 'none';
             calendarContainer.style.display = 'block';
-            btnTable.classList.remove('active');
-            btnCalendar.classList.add('active');
             }
-            localStorage.setItem('fixtureCompareView', view);
         }
-
-        // Load last selected view on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedView = localStorage.getItem('fixtureCompareView') || 'calendar';
-            toggleComparisonView(savedView);
-        });
 
         function getWeekNumber(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
