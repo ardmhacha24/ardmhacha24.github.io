@@ -4183,15 +4183,21 @@ END:VCALENDAR`;
                 if (!dateMap[date]) dateMap[date] = {};
 
                 // Extract opposition logic
-                const normTeam = normalizeTeamName(m.Team || '');
-                const normHome = normalizeTeamName(m['Home Team'] || '');
-                const normAway = normalizeTeamName(m['Away Team'] || '');
-                const opponent =
-                    normHome === normTeam ? m['Away Team'] :
-                    normAway === normTeam ? m['Home Team'] : 'Unknown';
+                const team = m.NormalizedTeam;
+                const homeNorm = normalizeTeamName(m['Home Team']);
+                const awayNorm = normalizeTeamName(m['Away Team']);
+
+                let opponent;
+                if (homeNorm === team) {
+                opponent = m['Away Team'];
+                } else if (awayNorm === team) {
+                opponent = m['Home Team'];
+                } else {
+                opponent = 'Unknown';
+                }
 
                 const display = `vs ${opponent} @ ${m.Venue || 'TBD'} ${m.Time || ''}`;
-                dateMap[date][m.NormalizedTeam] = display;
+                dateMap[m.date][team] = display;
             });
 
             const sortedDates = Object.keys(dateMap).sort();
