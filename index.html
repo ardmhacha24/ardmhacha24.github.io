@@ -4127,7 +4127,7 @@ END:VCALENDAR`;
         }
 
         function renderComparisonTool(matches) {
-            const teams = [...new Set(matches.map(m => m.Team).filter(Boolean))].sort();
+            const teams = [...new Set(matches.map(m => m.NormalizedTeam).filter(Boolean))].sort();
             const teamSelector = document.getElementById('compareTeams');
             teamSelector.innerHTML = '';
             teams.forEach(team => {
@@ -4162,7 +4162,7 @@ END:VCALENDAR`;
 
             const dateMap = {};
             matches.forEach(m => {
-            if (!selectedTeams.includes(m.Team)) return;
+            if (!selectedTeams.includes(m.NormalizedTeam)) return;
             const date = m.Date;
             if (!dateMap[date]) dateMap[date] = {};
             dateMap[date][m.Team] = `${m['Home Team']} vs ${m['Away Team']} @ ${m.Venue || 'TBD'} ${m.Time || ''}`;
