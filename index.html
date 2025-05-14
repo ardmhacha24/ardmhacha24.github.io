@@ -4180,6 +4180,11 @@ END:VCALENDAR`;
 
             const dateMap = {};
             matches.forEach(m => {
+
+
+               
+
+
                 if (!selectedTeams.includes(m.NormalizedTeam)) return;
                 const date = m.Date;
                 if (!dateMap[date]) dateMap[date] = {};
@@ -4198,6 +4203,19 @@ END:VCALENDAR`;
 
                 const display = `vs ${opponent} @ ${m.Where} ${m.Time || ''}`;
                 dateMap[m.Date][normTeam] = display;
+
+                console.log('Comparing:', { normTeam, normHome, normAway });
+
+                console.log({
+                    Team: m.Team,
+                    Home: m['Home Team'],
+                    Away: m['Away Team'],
+                    Where: m.Where,
+                    normTeam,
+                    normHome,
+                    normAway
+                });
+
             });
 
             const sortedDates = Object.keys(dateMap).sort();
