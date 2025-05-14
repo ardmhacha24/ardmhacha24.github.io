@@ -4181,7 +4181,7 @@ END:VCALENDAR`;
             if (!selectedTeams.includes(m.NormalizedTeam)) return;
             const date = m.Date;
             if (!dateMap[date]) dateMap[date] = {};
-            dateMap[date][m.Team] = `${m['Home Team']} vs ${m['Away Team']} @ ${m.Venue || 'TBD'} ${m.Time || ''}`;
+            dateMap[date][m.NormalizedTeam] = `${m['Home Team']} vs ${m['Away Team']} @ ${m.Venue || 'TBD'} ${m.Time || ''}`;
             });
 
             const sortedDates = Object.keys(dateMap).sort();
