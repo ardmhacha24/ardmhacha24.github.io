@@ -1610,11 +1610,8 @@
                 <h3>Tools</h3>
                 <div class="upcoming-match">
                     <div class="upcoming-match-teams">
-                    <a href="#fixtureComparison" style="text-decoration: none; color: var(--primary); font-weight: 600;">
-                        📊 Compare Fixtures
-                    </a>
                     <button onclick="toggleComparison()" class="calendar-btn">
-                        📊 Show Fixture Comparison
+                        📊 Compate Team Fixtures
                       </button>
                     </div>
                 </div>
@@ -4250,6 +4247,11 @@ END:VCALENDAR`;
         function toggleComparison() {
             const wrapper = document.getElementById('compareWrapper');
             wrapper.classList.toggle('hidden');
+
+            if (!wrapper.classList.contains('hidden')) {
+                const section = document.getElementById('fixtureComparison');
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         function getWeekNumber(d) {
