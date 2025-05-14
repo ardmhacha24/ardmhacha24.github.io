@@ -4183,9 +4183,14 @@ END:VCALENDAR`;
                 if (!dateMap[date]) dateMap[date] = {};
 
                 // Extract opposition logic
-                const isHome = m['Home Team'] === m.NormalizedTeam;
-                const opponent = isHome ? m['Away Team'] : m['Home Team'];
-                const display = `${opponent} @ ${m.Venue || 'TBD'} ${m.Time || ''}`;
+                const normTeam = m.NormalizedTeam;
+                const normHome = normalizeTeamName(m['Home Team'] || '');
+                const normAway = normalizeTeamName(m['Away Team'] || '');
+                const opponent =
+                    normHome === normTeam ? m['Away Team'] :
+                    normAway === normTeam ? m['Home Team'] : 'Unknown';
+
+                const display = `vs ${opponent} @ ${m.Venue || 'TBD'} ${m.Time || ''}`;
                 dateMap[date][m.NormalizedTeam] = display;
             });
 
