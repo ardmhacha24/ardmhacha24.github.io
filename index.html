@@ -4154,7 +4154,9 @@ END:VCALENDAR`;
             });
 
             teamSelector.addEventListener('change', () => {
-            const selected = Array.from(teamSelector.selectedOptions).map(opt => opt.value);
+            const selected = Array.from(teamSelector.selectedOptions).map(opt =>
+                normalizeTeamName(opt.value)
+            );
             updateComparisonTable(filteredMatches, selected);
             updateCalendarView(filteredMatches, selected);
             });
@@ -4195,7 +4197,7 @@ END:VCALENDAR`;
                 }
 
                 const display = `vs ${opponent} @ ${m.Where} ${m.Time || ''}`;
-                dateMap[m.Date][team] = display;
+                dateMap[m.Date][normTeam] = display;
             });
 
             const sortedDates = Object.keys(dateMap).sort();
