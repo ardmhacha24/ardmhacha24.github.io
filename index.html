@@ -4170,35 +4170,40 @@ END:VCALENDAR`;
             tbody.innerHTML = '';
 
             selectedTeams.forEach(team => {
-            const th = document.createElement('th');
-            th.textContent = team;
-            th.style = 'border-bottom: 2px solid var(--border); padding: 0.5rem;';
-            thead.appendChild(th);
+                const th = document.createElement('th');
+                th.textContent = team;
+                th.style = 'border-bottom: 2px solid var(--border); padding: 0.5rem;';
+                thead.appendChild(th);
             });
 
             const dateMap = {};
             matches.forEach(m => {
-            if (!selectedTeams.includes(m.NormalizedTeam)) return;
-            const date = m.Date;
-            if (!dateMap[date]) dateMap[date] = {};
-            dateMap[date][m.NormalizedTeam] = `${m['Home Team']} vs ${m['Away Team']} @ ${m.Venue || 'TBD'} ${m.Time || ''}`;
+                if (!selectedTeams.includes(m.NormalizedTeam)) return;
+                const date = m.Date;
+                if (!dateMap[date]) dateMap[date] = {};
+
+                // Extract opposition logic
+                const isHome = m['Home Team'] === m.NormalizedTeam;
+                const opponent = isHome ? m['Away Team'] : m['Home Team'];
+                const display = `${opponent} @ ${m.Venue || 'TBD'} ${m.Time || ''}`;
+                dateMap[date][m.NormalizedTeam] = display;
             });
 
             const sortedDates = Object.keys(dateMap).sort();
             sortedDates.forEach(date => {
-            const tr = document.createElement('tr');
-            const tdDate = document.createElement('td');
-            tdDate.textContent = date;
-            tdDate.style = 'padding: 0.5rem; border-bottom: 1px solid var(--border);';
-            tr.appendChild(tdDate);
+                const tr = document.createElement('tr');
+                const tdDate = document.createElement('td');
+                tdDate.textContent = date;
+                tdDate.style = 'padding: 0.5rem; border-bottom: 1px solid var(--border);';
+                tr.appendChild(tdDate);
 
-            selectedTeams.forEach(team => {
+                selectedTeams.forEach(team => {
                 const td = document.createElement('td');
                 td.textContent = dateMap[date][team] || '-';
                 td.style = 'padding: 0.5rem; border-bottom: 1px solid var(--border);';
                 tr.appendChild(td);
-            });
-            tbody.appendChild(tr);
+                });
+                tbody.appendChild(tr);
             });
         }
 
