@@ -4197,7 +4197,9 @@ END:VCALENDAR`;
                 dateMap[m.Date][m.NormalizedTeam] = display;
             });
 
-            const sortedDates = Object.keys(dateMap).sort();
+            const sortedDates = Object.keys(dateMap).sort((a, b) => {
+                return new Date(a) - new Date(b);
+            });
             sortedDates.forEach(date => {
                 const tr = document.createElement('tr');
                 const tdDate = document.createElement('td');
