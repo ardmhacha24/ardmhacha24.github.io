@@ -4239,11 +4239,11 @@ END:VCALENDAR`;
 
             const calendarMap = {};
             matches.forEach(m => {
-            if (!selectedTeams.includes(m.NormalizedTeam)) return;
+            if (!selectedTeams.includes(m.Team)) return;
             const dateObj = new Date(m.Date);
             const weekStr = `${dateObj.getFullYear()}-W${getWeekNumber(dateObj)}`;
             if (!calendarMap[weekStr]) calendarMap[weekStr] = {};
-            calendarMap[weekStr][m.NormalizedTeam] = true;
+            calendarMap[weekStr][m.Team] = true;
             });
 
             const weeks = Object.keys(calendarMap).sort();
