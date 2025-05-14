@@ -4183,7 +4183,7 @@ END:VCALENDAR`;
                 if (!dateMap[date]) dateMap[date] = {};
 
                 // Extract opposition logic
-                const normTeam = m.NormalizedTeam;
+                const normTeam = normalizeTeamName(m.Team || '');
                 const normHome = normalizeTeamName(m['Home Team'] || '');
                 const normAway = normalizeTeamName(m['Away Team'] || '');
                 const opponent =
