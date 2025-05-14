@@ -4127,7 +4127,9 @@ END:VCALENDAR`;
         }
 
         function renderComparisonTool(matches) {
-            const teams = [...new Set(matches.map(m => m.NormalizedTeam).filter(Boolean))].sort();
+            const filteredMatches = matches.filter(m => !m.isTraining);
+            const teams = [...new Set(filteredMatches.map(m => m.NormalizedTeam).filter(Boolean))].sort();
+            
             const teamSelector = document.getElementById('compareTeams');
             teamSelector.innerHTML = '';
             teams.forEach(team => {
@@ -4139,8 +4141,8 @@ END:VCALENDAR`;
 
             teamSelector.addEventListener('change', () => {
             const selected = Array.from(teamSelector.selectedOptions).map(opt => opt.value);
-            updateComparisonTable(matches, selected);
-            updateCalendarView(matches, selected);
+            updateComparisonTable(filteredMatches, selected);
+            updateCalendarView(filteredMatches, selected);
             });
         }
 
