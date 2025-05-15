@@ -1714,11 +1714,6 @@
                 </div>
         </div>
         
-        <div id="matchContainer" class="match-list">
-            <!-- Matches will be populated here -->
-            </div>
-        </div>
-
         <!-- FIXTURE COMPARISON TOOL -->
         <div id="compareWrapper" class="hidden">
         <section id="fixtureComparison" class="container" style="margin-top: 2rem;">
@@ -1763,6 +1758,11 @@
               </table>
             </div>
         </section>
+        </div>
+
+        <div id="matchContainer" class="match-list">
+            <!-- Matches will be populated here -->
+            </div>
         </div>
     </div>
     
@@ -4263,12 +4263,19 @@ END:VCALENDAR`;
 
         function toggleComparison() {
             const wrapper = document.getElementById('compareWrapper');
+            const section = document.getElementById('fixtureComparison');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+
             wrapper.classList.toggle('hidden');
 
-            if (!wrapper.classList.contains('hidden')) {
-                const section = document.getElementById('fixtureComparison');
+            if (!wrapper.classList.contains('hidden') && section) {
                 section.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+
+            // Always close sidebar (for mobile)
+            sidebar.classList.remove('open');
+            overlay.style.display = 'none';
         }
 
         function getWeekNumber(d) {
