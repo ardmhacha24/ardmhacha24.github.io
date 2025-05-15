@@ -4162,6 +4162,13 @@ END:VCALENDAR`;
             );
             updateComparisonTable(filteredMatches, selected);
             updateCalendarView(filteredMatches, selected);
+
+            const wrapper = document.getElementById('compareWrapper');
+            const section = document.getElementById('fixtureComparison');
+
+            if (!wrapper.classList.contains('hidden') && section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
             });
         }
 
